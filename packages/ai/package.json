@@ -28,7 +28,6 @@
     "@mastra/loggers": "^0.10.6",
     "@mastra/memory": "^0.12.2",
     "@mastra/upstash": "^0.14.0",
-    "@repo/redis": "workspace:*",
     "ai": "^4.0.38",
     "cortensor-openai-provider": "^0.0.1",
     "openai": "^4.73.1",

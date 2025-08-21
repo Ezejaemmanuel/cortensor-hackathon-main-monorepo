@@ -1,7 +1,7 @@
 import { ToolCallMessagePartComponent } from "@assistant-ui/react";
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "../ui/button";
 
 export const ToolFallback: ToolCallMessagePartComponent = ({
   toolName,
@@ -10,8 +10,8 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
 }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
   return (
-    <div className="flex flex-col gap-3 py-3 mb-4 w-full rounded-lg border">
-      <div className="flex gap-2 items-center px-4">
+    <div className="mb-4 flex w-full flex-col gap-3 rounded-lg border py-3">
+      <div className="flex items-center gap-2 px-4">
         <CheckIcon className="size-4" />
         <p className="flex-grow">
           Used tool: <b>{toolName}</b>
@@ -21,12 +21,12 @@ export const ToolFallback: ToolCallMessagePartComponent = ({
         </Button>
       </div>
       {!isCollapsed && (
-        <div className="flex flex-col gap-2 pt-2 border-t">
+        <div className="flex flex-col gap-2 border-t pt-2">
           <div className="px-4">
             <pre className="whitespace-pre-wrap">{argsText}</pre>
           </div>
           {result !== undefined && (
-            <div className="px-4 pt-2 border-t border-dashed">
+            <div className="border-t border-dashed px-4 pt-2">
               <p className="font-semibold">Result:</p>
               <pre className="whitespace-pre-wrap">
                 {typeof result === "string"

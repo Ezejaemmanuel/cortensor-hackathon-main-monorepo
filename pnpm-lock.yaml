@@ -229,9 +229,6 @@ importers:
       '@repo/ai':
         specifier: workspace:*
         version: link:../../packages/ai
-      '@repo/redis':
-        specifier: workspace:*
-        version: link:../../packages/redis
       '@tanstack/react-query':
         specifier: ^5.83.0
         version: 5.85.3(react@19.1.1)
@@ -398,9 +395,6 @@ importers:
       '@mastra/upstash':
         specifier: ^0.14.0
         version: 0.14.0(@mastra/core@0.13.2(openapi-types@12.1.3)(react@19.1.0)(zod@3.25.76))
-      '@repo/redis':
-        specifier: workspace:*
-        version: link:../redis
       ai:
         specifier: ^4.0.38
         version: 4.3.19(react@19.1.0)(zod@3.25.76)
@@ -431,19 +425,6 @@ importers:
         version: 0.10.21(@mastra/core@0.13.2(openapi-types@12.1.3)(react@19.1.0)(zod@3.25.76))(@opentelemetry/api@1.9.0)(@types/json-schema@7.0.15)(react@19.1.0)(typescript@5.9.2)
       typescript:
         specifier: ^5.7.3
-        version: 5.9.2
-
-  packages/redis:
-    dependencies:
-      '@upstash/redis':
-        specifier: ^1.34.3
-        version: 1.35.3
-    devDependencies:
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.17.2
-      typescript:
-        specifier: ^5.6.3
         version: 5.9.2
 
 packages:
