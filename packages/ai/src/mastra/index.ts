@@ -1,8 +1,8 @@
 import { Mastra } from "@mastra/core/mastra";
 import { PinoLogger } from "@mastra/loggers";
-import { weatherAgent } from "./agents/weather-agent";
 import { mkdirSync } from 'fs';
 import { dirname } from 'path';
+import { cortGPTAgent } from "./agents/cortigpt-agent";
 
 // Ensure logs directory exists
 const logPath = 'logs/mastra-debug.log';
@@ -34,7 +34,7 @@ const logger = new PinoLogger({
 });
 
 export const mastra = new Mastra({
-    agents: { weatherAgent },
+    agents: { cortGPTAgent },
     logger, // Add the configured logger
     
 

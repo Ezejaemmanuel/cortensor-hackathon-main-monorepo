@@ -1,5 +1,5 @@
 {
-  "name": "@repo/web",
+  "name": "web",
   "version": "0.1.0",
   "private": true,
   "main": "./src/index.ts",
@@ -29,7 +29,11 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
     "@ai-sdk/react": "^2.0.19",
+    "@assistant-ui/react": "^0.10.43",
+    "@assistant-ui/react-ai-sdk": "^1.0.3",
+    "@assistant-ui/react-markdown": "^0.10.9",
     "@hookform/resolvers": "^3.10.0",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -82,6 +86,8 @@
     "react-router-dom": "^6.30.1",
     "react-syntax-highlighter": "^15.6.1",
     "recharts": "^2.15.4",
+    "remark-gfm": "^4.0.1",
+    "@repo/ai": "workspace:*",
     "sonner": "^1.7.4",
     "streamdown": "^1.0.11",
     "tailwind-merge": "^2.6.0",
