@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
-import Web2 from './Web2';
-import Web3 from './Web3';
+import { CortensorChatWeb2 } from './mainWeb2';
+import { CortensorChatWeb3 } from './mainWeb3';
 
+
+// import { CortensorChatWeb3 } from './mainWeb3'
+// import { CortensorChatWeb2 } from './mainWeb2'
 type TabType = 'web2' | 'web3';
 
 const Dashboard = () => {
@@ -55,33 +58,17 @@ const Dashboard = () => {
         <div className="h-full transition-all duration-500 ease-in-out">
           {activeTab === 'web2' && (
             <div className="h-full animate-in fade-in-50 duration-300">
-              <Web2 />
+              <CortensorChatWeb2 />
             </div>
           )}
           {activeTab === 'web3' && (
             <div className="h-full animate-in fade-in-50 duration-300">
-              <Web3 />
+              <CortensorChatWeb3 />
             </div>
           )}
         </div>
       </div>
 
-      {/* Subtle Background Effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="particles">
-          {[...Array(6)].map((_, i) => (
-            <div
-              key={i}
-              className="particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 6}s`,
-                animationDuration: `${6 + Math.random() * 4}s`
-              }}
-            />
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

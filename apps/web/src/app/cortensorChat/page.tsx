@@ -24,7 +24,6 @@ const MainChatPage = () => {
       icon: Zap,
       description: 'Blockchain-powered AI'
     }
-   
   ]
 
   const tabVariants = {
@@ -60,8 +59,8 @@ const MainChatPage = () => {
                 layoutId="activeTab"
                 initial={false}
                 animate={{
-                  x: activeTab === 'web3' ? 4 : tabs[0].id === 'web3' ? 'calc(100% + 4px)' : 4,
-                  width: 'calc(50% - 8px)'
+                  x: activeTab === 'web3' ? 'calc(50% + 2px)' : '2px',
+                  width: 'calc(50% - 4px)'
                 }}
                 transition={{
                   type: 'spring',
@@ -78,20 +77,26 @@ const MainChatPage = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`relative z-10 flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-6 sm:py-3 rounded-xl transition-all duration-smooth font-futura ${isActive
-                      ? 'text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground'
-                      }`}
+                    className={`relative z-10 flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-6 sm:py-3 rounded-xl transition-all duration-smooth font-futura ${
+                      isActive
+                        ? 'text-primary-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
                   >
-                    <Icon className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-smooth ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'
-                      }`} />
+                    <Icon 
+                      className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-smooth ${
+                        isActive ? 'text-primary-foreground' : 'text-muted-foreground'
+                      }`} 
+                    />
                     <div className="text-left">
-                      <div className={`text-xs sm:text-sm font-medium transition-all duration-smooth ${isActive ? 'text-primary-foreground' : 'text-foreground'
-                        }`}>
+                      <div className={`text-xs sm:text-sm font-medium transition-all duration-smooth ${
+                        isActive ? 'text-primary-foreground' : 'text-foreground'
+                      }`}>
                         {tab.label}
                       </div>
-                      <div className={`text-xs transition-all duration-smooth hidden sm:block ${isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'
-                        }`}>
+                      <div className={`text-xs transition-all duration-smooth hidden sm:block ${
+                        isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                      }`}>
                         {tab.description}
                       </div>
                     </div>
