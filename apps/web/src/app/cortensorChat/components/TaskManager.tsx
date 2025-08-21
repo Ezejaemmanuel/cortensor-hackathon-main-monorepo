@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import {
   Collapsible,
   CollapsibleContent,
@@ -22,7 +23,9 @@ import {
   Zap,
   Hash,
   Calendar,
-  Server
+  Server,
+  Type,
+  Mail
 } from 'lucide-react'
 import { useCortensorTasks } from '../hooks/useCortensorTasks'
 import { useCurrentSession } from '../store/useSessionStore'
@@ -49,6 +52,53 @@ export function TaskManager({ className }: TaskManagerProps) {
     }))
   }
 
+  // Function to parse and render task content
+  const renderTaskContent = (content: string) => {
+    try {
+      const parsed = JSON.parse(content)
+      
+      if (parsed.type === 'chat' && parsed.message) {
+        return (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 p-2 bg-blue-50 dark:bg-blue-950/30 rounded border border-blue-200 dark:border-blue-800">
+              <Mail className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-medium text-blue-700 dark:text-blue-300">Chat Message</span>
+            </div>
+            <div className="p-3 bg-background rounded border">
+              <p className="text-sm text-card-foreground leading-relaxed">
+                {parsed.message}
+              </p>
+            </div>
+          </div>
+        )
+      }
+      
+      // For other JSON structures, render as formatted JSON
+      return (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 p-2 bg-amber-50 dark:bg-amber-950/30 rounded border border-amber-200 dark:border-amber-800">
+            <Type className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+            <span className="text-xs font-medium text-amber-700 dark:text-amber-300">Structured Data</span>
+          </div>
+          <div className="p-3 bg-background rounded border font-mono text-xs">
+            <pre className="whitespace-pre-wrap break-words text-muted-foreground">
+              {JSON.stringify(parsed, null, 2)}
+            </pre>
+          </div>
+        </div>
+      )
+    } catch (error) {
+      // If not valid JSON, render as plain text
+      return (
+        <div className="p-3 bg-background rounded border">
+          <p className="text-sm text-card-foreground leading-relaxed whitespace-pre-wrap break-words">
+            {content}
+          </p>
+        </div>
+      )
+    }
+  }
+
   const activeTasks = tasks.filter(task =>
     task.status === 'queued' || task.status === 'assigned'
   )
@@ -59,17 +109,17 @@ export function TaskManager({ className }: TaskManagerProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'submitting':
-        return <Clock className="h-4 w-4 text-secondary animate-pulse" />
+        return <Clock className="w-4 h-4 animate-pulse text-secondary" />
       case 'queued':
-        return <Activity className="h-4 w-4 text-primary" />
+        return <Activity className="w-4 h-4 text-primary" />
       case 'assigned':
-        return <Users className="h-4 w-4 text-accent" />
+        return <Users className="w-4 h-4 text-accent" />
       case 'completed':
-        return <CheckCircle className="h-4 w-4 text-primary" />
+        return <CheckCircle className="w-4 h-4 text-primary" />
       case 'failed':
-        return <XCircle className="h-4 w-4 text-destructive" />
+        return <XCircle className="w-4 h-4 text-destructive" />
       default:
-        return <Activity className="h-4 w-4 text-muted-foreground" />
+        return <Activity className="w-4 h-4 text-muted-foreground" />
     }
   }
 
@@ -91,80 +141,106 @@ export function TaskManager({ className }: TaskManagerProps) {
   }
 
   const TaskCard = ({ task }: { task: any }) => (
-    <Card className="mb-3 bg-card border-border">
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {getStatusIcon(task.status)}
-            <CardTitle className="text-sm font-medium text-card-foreground">
-              Task #{task.taskId}
-            </CardTitle>
-            <Badge className={cn('text-xs', getStatusColor(task.status))}>
-              {task.status}
-            </Badge>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Calendar className="h-3 w-3" />
-            {task.timestamp.toLocaleTimeString()}
+    <Card className="mb-3 transition-all duration-200 bg-card border-border hover:shadow-md hover:border-primary/30">
+      <CardHeader className="p-3 pb-3 sm:p-4">
+        <div className="flex gap-2 justify-between items-start">
+          <div className="flex flex-1 gap-2 items-center min-w-0">
+            <div className="flex-shrink-0">{getStatusIcon(task.status)}</div>
+            <div className="flex-1 min-w-0">
+              <div className="flex gap-2 items-center mb-1">
+                <CardTitle className="text-sm font-semibold sm:text-base text-card-foreground">
+                  Task #{task.taskId}
+                </CardTitle>
+                <Badge className={cn('text-xs px-2 py-1 font-medium', getStatusColor(task.status))}>
+                  {task.status.charAt(0).toUpperCase() + task.status.slice(1)}
+                </Badge>
+              </div>
+              <div className="flex gap-2 items-center text-xs text-muted-foreground">
+                <Calendar className="w-3 h-3" />
+                <span className="hidden sm:inline">{task.timestamp.toLocaleString()}</span>
+                <span className="sm:hidden">{task.timestamp.toLocaleDateString()} {task.timestamp.toLocaleTimeString().slice(0, 5)}</span>
+                {task.globalId && (
+                  <>
+                    <span className="text-muted-foreground/50">•</span>
+                    <Hash className="w-3 h-3" />
+                    <span>ID: {task.globalId}</span>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </CardHeader>
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          <div>
-            <p className="text-sm font-medium mb-1 text-card-foreground">Content:</p>
-            <p className="text-sm text-muted-foreground bg-muted p-2 rounded">
-              {task.content}
+      <CardContent className="p-3 pt-0 sm:p-4">
+        <div className="space-y-3 sm:space-y-4">
+          {/* Task Content */}
+          <div className="p-3 rounded-lg border bg-muted/50 border-muted">
+            <p className="flex gap-1 items-center mb-3 text-xs font-medium sm:text-sm text-card-foreground">
+              <MessageSquare className="w-3 h-3" />
+              Task Content
             </p>
+            <div className="overflow-y-auto max-h-40">
+              {renderTaskContent(task.content)}
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4 text-xs text-muted-foreground">
-            {task.globalId && (
-              <div className="flex items-center gap-1">
-                <Hash className="h-3 w-3" />
-                <span>Global ID: {task.globalId}</span>
-              </div>
-            )}
-
-            {task.assignedMiners && task.assignedMiners.length > 0 && (
-              <div className="flex items-center gap-1">
-                <Server className="h-3 w-3" />
-                <span>Miners: {task.assignedMiners.length}</span>
-              </div>
-            )}
-          </div>
-
+          {/* Miners Section */}
           {task.assignedMiners && task.assignedMiners.length > 0 && (
-            <div>
-              <p className="text-xs font-medium mb-1 text-card-foreground">Assigned Miners:</p>
-              <div className="space-y-1">
-                {task.assignedMiners.map((miner: string, index: number) => (
-                  <div key={index} className="text-xs font-mono bg-muted p-1 rounded text-muted-foreground">
-                    {miner.slice(0, 10)}...{miner.slice(-8)}
-                  </div>
-                ))}
+            <div className="p-3 rounded-lg border bg-accent/5 border-accent/20">
+              <div className="flex justify-between items-center mb-2">
+                <p className="flex gap-1 items-center text-xs font-medium sm:text-sm text-card-foreground">
+                  <Server className="w-3 h-3" />
+                  Assigned Miners
+                </p>
+                <Badge variant="outline" className="px-2 py-0 text-xs">
+                  {task.assignedMiners.length} miners
+                </Badge>
+              </div>
+              <div className="overflow-y-auto max-h-32">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {task.assignedMiners.map((miner: string, index: number) => (
+                    <div key={index} className="p-2 font-mono text-xs rounded border transition-colors bg-background text-muted-foreground hover:bg-muted/50">
+                      <div className="truncate" title={miner}>
+                        {miner.slice(0, 10)}...{miner.slice(-8)}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )}
 
+          {/* Results Section */}
           {task.results && task.results.length > 0 && (
-            <div>
-              <p className="text-xs font-medium mb-1 text-card-foreground">Results:</p>
-              <div className="space-y-1">
+            <div className="p-3 rounded-lg border bg-primary/5 border-primary/20">
+              <div className="flex justify-between items-center mb-2">
+                <p className="flex gap-1 items-center text-xs font-medium sm:text-sm text-card-foreground">
+                  <CheckCircle className="w-3 h-3 text-primary" />
+                  AI Results
+                </p>
+                <Badge variant="outline" className="px-2 py-0 text-xs">
+                  {task.results.length} results
+                </Badge>
+              </div>
+              <div className="overflow-y-auto space-y-2 max-h-40">
                 {task.results.map((result: string, index: number) => (
-                  <div key={index} className="text-sm bg-accent/20 p-2 rounded border border-accent/30 text-card-foreground">
-                    {result}
+                  <div key={index} className="p-3 text-xs leading-relaxed rounded border transition-colors sm:text-sm bg-background border-primary/30 text-card-foreground hover:bg-primary/5">
+                    <div className="overflow-y-auto max-h-24">
+                      <p className="whitespace-pre-wrap break-words">{result}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
           )}
 
+          {/* Transaction Hash */}
           {task.transactionHash && (
-            <div className="text-xs text-muted-foreground">
-              <span className="font-medium">Tx Hash: </span>
-              <span className="font-mono">
-                {task.transactionHash.slice(0, 10)}...{task.transactionHash.slice(-8)}
+            <div className="flex gap-2 items-center p-2 text-xs rounded border text-muted-foreground bg-muted/30">
+              <Hash className="w-3 h-3" />
+              <span className="font-medium">Transaction:</span>
+              <span className="flex-1 font-mono truncate">
+                {task.transactionHash.slice(0, 12)}...{task.transactionHash.slice(-10)}
               </span>
             </div>
           )}
@@ -175,14 +251,14 @@ export function TaskManager({ className }: TaskManagerProps) {
 
   if (!currentSession) {
     return (
-      <Card className={className}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5" />
-            Task Manager
+      <Card className={`flex flex-col h-full ${className}`}>
+        <CardHeader className="p-3 sm:p-4">
+          <CardTitle className="flex gap-2 items-center text-sm sm:text-lg">
+            <Activity className="w-4 h-4 sm:h-5 sm:w-5" />
+            Tasks
           </CardTitle>
-          <CardDescription>
-            No active session selected. Please select or create a session to view tasks.
+          <CardDescription className="text-xs sm:text-sm">
+            No active session. Please select a session.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -190,23 +266,25 @@ export function TaskManager({ className }: TaskManagerProps) {
   }
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={cn('flex flex-col space-y-2 h-full sm:space-y-3', className)}>
       {/* Overview Section */}
       <Collapsible
         open={openSections.overview}
         onOpenChange={() => toggleSection('overview')}
+        className="flex-shrink-0"
       >
         <CollapsibleTrigger asChild>
-          <Card className="cursor-pointer hover:bg-card/70 transition-colors bg-card border-border">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-card-foreground">
-                  <Activity className="h-5 w-5 text-primary" />
-                  Task Overview
+          <Card className="transition-colors cursor-pointer hover:bg-card/70 bg-card border-border">
+            <CardHeader className="p-3 sm:p-4">
+              <div className="flex justify-between items-center">
+                <CardTitle className="flex gap-2 items-center text-sm text-card-foreground sm:text-base">
+                  <Activity className="w-4 h-4 sm:h-5 sm:w-5 text-primary" />
+                  <span className="hidden sm:inline">Task Overview</span>
+                  <span className="sm:hidden">Tasks</span>
                 </CardTitle>
                 {openSections.overview ?
-                  <ChevronDown className="h-4 w-4" /> :
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronDown className="w-3 h-3 sm:h-4 sm:w-4" /> :
+                  <ChevronRight className="w-3 h-3 sm:h-4 sm:w-4" />
                 }
               </div>
             </CardHeader>
@@ -214,31 +292,31 @@ export function TaskManager({ className }: TaskManagerProps) {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <Card className="bg-card border-border">
-            <CardContent className="pt-6">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <CardContent className="p-3 pt-3 sm:pt-6 sm:p-6">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-4">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-primary">{activeTasks.length}</div>
-                  <div className="text-sm text-muted-foreground">Active</div>
+                  <div className="text-lg font-bold sm:text-2xl text-primary">{activeTasks.length}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Active</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-accent">{completedTasks.length}</div>
-                  <div className="text-sm text-muted-foreground">Completed</div>
+                  <div className="text-lg font-bold sm:text-2xl text-accent">{completedTasks.length}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Done</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-destructive">{failedTasks.length}</div>
-                  <div className="text-sm text-muted-foreground">Failed</div>
+                  <div className="text-lg font-bold sm:text-2xl text-destructive">{failedTasks.length}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Failed</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-secondary">{submittingTasks.length}</div>
-                  <div className="text-sm text-muted-foreground">Submitting</div>
+                  <div className="text-lg font-bold sm:text-2xl text-secondary">{submittingTasks.length}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground">Pending</div>
                 </div>
               </div>
 
               {isSubmittingTask && (
-                <div className="mt-4 p-3 bg-secondary/20 border border-secondary/30 rounded-lg">
-                  <div className="flex items-center gap-2 text-secondary">
-                    <Zap className="h-4 w-4 animate-pulse" />
-                    <span className="text-sm font-medium">Submitting new task...</span>
+                <div className="p-2 mt-3 rounded-lg border sm:mt-4 sm:p-3 bg-secondary/20 border-secondary/30">
+                  <div className="flex gap-2 items-center text-secondary">
+                    <Zap className="w-3 h-3 animate-pulse sm:h-4 sm:w-4" />
+                    <span className="text-xs font-medium sm:text-sm">Submitting new task...</span>
                   </div>
                 </div>
               )}
@@ -252,29 +330,39 @@ export function TaskManager({ className }: TaskManagerProps) {
         <Collapsible
           open={openSections.active}
           onOpenChange={() => toggleSection('active')}
+          className="flex-shrink-0"
         >
           <CollapsibleTrigger asChild>
-            <Card className="cursor-pointer hover:bg-card/70 transition-colors bg-card border-border">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-card-foreground">
-                    <Activity className="h-5 w-5 text-primary" />
-                    Active Tasks ({activeTasks.length})
+            <Card className="transition-colors cursor-pointer hover:bg-card/70 bg-card border-border hover:border-primary/30">
+              <CardHeader className="p-3 sm:p-4">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex gap-2 items-center text-sm text-card-foreground sm:text-base">
+                    <Activity className="w-4 h-4 animate-pulse sm:h-5 sm:w-5 text-primary" />
+                    <span className="hidden sm:inline">Active Tasks</span>
+                    <span className="sm:hidden">Active</span>
+                    <Badge variant="secondary" className="px-2 py-1 text-xs bg-primary/10 text-primary border-primary/20">
+                      {activeTasks.length}
+                    </Badge>
                   </CardTitle>
                   {openSections.active ?
-                    <ChevronDown className="h-4 w-4" /> :
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronDown className="w-3 h-3 sm:h-4 sm:w-4 text-primary" /> :
+                    <ChevronRight className="w-3 h-3 sm:h-4 sm:w-4 text-primary" />
                   }
                 </div>
+                <CardDescription className="text-xs sm:text-sm text-muted-foreground">
+                  Tasks currently being processed by miners
+                </CardDescription>
               </CardHeader>
             </Card>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="space-y-2">
-              {activeTasks.map(task => (
-                <TaskCard key={`${task.sessionId}-${task.taskId}`} task={task} />
-              ))}
-            </div>
+            <ScrollArea className="h-[400px] sm:h-[500px] lg:h-[600px]">
+              <div className="pr-3 space-y-3">
+                {activeTasks.map(task => (
+                  <TaskCard key={`${task.sessionId}-${task.taskId}`} task={task} />
+                ))}
+              </div>
+            </ScrollArea>
           </CollapsibleContent>
         </Collapsible>
       )}
@@ -284,29 +372,33 @@ export function TaskManager({ className }: TaskManagerProps) {
         <Collapsible
           open={openSections.completed}
           onOpenChange={() => toggleSection('completed')}
+          className="flex-shrink-0"
         >
           <CollapsibleTrigger asChild>
-            <Card className="cursor-pointer hover:bg-card/70 transition-colors bg-card border-border">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-card-foreground">
-                    <CheckCircle className="h-5 w-5 text-accent" />
-                    Completed Tasks ({completedTasks.length})
+            <Card className="transition-colors cursor-pointer hover:bg-card/70 bg-card border-border">
+              <CardHeader className="p-3 sm:p-4">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex gap-2 items-center text-sm text-card-foreground sm:text-base">
+                    <CheckCircle className="w-4 h-4 sm:h-5 sm:w-5 text-accent" />
+                    <span className="hidden sm:inline">Completed Tasks ({completedTasks.length})</span>
+                    <span className="sm:hidden">Done ({completedTasks.length})</span>
                   </CardTitle>
                   {openSections.completed ?
-                    <ChevronDown className="h-4 w-4" /> :
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronDown className="w-3 h-3 sm:h-4 sm:w-4" /> :
+                    <ChevronRight className="w-3 h-3 sm:h-4 sm:w-4" />
                   }
                 </div>
               </CardHeader>
             </Card>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="space-y-2">
-              {completedTasks.map(task => (
-                <TaskCard key={`${task.sessionId}-${task.taskId}`} task={task} />
-              ))}
-            </div>
+            <ScrollArea className="h-[300px] sm:h-[400px] lg:h-[500px]">
+              <div className="pr-2 space-y-2">
+                {completedTasks.map(task => (
+                  <TaskCard key={`${task.sessionId}-${task.taskId}`} task={task} />
+                ))}
+              </div>
+            </ScrollArea>
           </CollapsibleContent>
         </Collapsible>
       )}
@@ -316,29 +408,33 @@ export function TaskManager({ className }: TaskManagerProps) {
         <Collapsible
           open={openSections.failed}
           onOpenChange={() => toggleSection('failed')}
+          className="flex-shrink-0"
         >
           <CollapsibleTrigger asChild>
-            <Card className="cursor-pointer hover:bg-card/70 transition-colors bg-card border-border">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-2 text-card-foreground">
-                    <XCircle className="h-5 w-5 text-destructive" />
-                    Failed Tasks ({failedTasks.length})
+            <Card className="transition-colors cursor-pointer hover:bg-card/70 bg-card border-border">
+              <CardHeader className="p-3 sm:p-4">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="flex gap-2 items-center text-sm text-card-foreground sm:text-base">
+                    <XCircle className="w-4 h-4 sm:h-5 sm:w-5 text-destructive" />
+                    <span className="hidden sm:inline">Failed Tasks ({failedTasks.length})</span>
+                    <span className="sm:hidden">Failed ({failedTasks.length})</span>
                   </CardTitle>
                   {openSections.failed ?
-                    <ChevronDown className="h-4 w-4" /> :
-                    <ChevronRight className="h-4 w-4" />
+                    <ChevronDown className="w-3 h-3 sm:h-4 sm:w-4" /> :
+                    <ChevronRight className="w-3 h-3 sm:h-4 sm:w-4" />
                   }
                 </div>
               </CardHeader>
             </Card>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="space-y-2">
-              {failedTasks.map(task => (
-                <TaskCard key={`${task.sessionId}-${task.taskId}`} task={task} />
-              ))}
-            </div>
+            <ScrollArea className="h-[300px] sm:h-[400px] lg:h-[500px]">
+              <div className="pr-2 space-y-2">
+                {failedTasks.map(task => (
+                  <TaskCard key={`${task.sessionId}-${task.taskId}`} task={task} />
+                ))}
+              </div>
+            </ScrollArea>
           </CollapsibleContent>
         </Collapsible>
       )}

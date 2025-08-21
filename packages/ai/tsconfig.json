@@ -13,7 +13,7 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
 
     "composite": true,
     "incremental": true,

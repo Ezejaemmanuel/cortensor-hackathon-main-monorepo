@@ -6,7 +6,7 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   // Extract the messages and userAddress from the request body
   const { messages, userAddress } = await req.json();
-//TODO WOULD ADD PROPER AUTHENTICATION USING SIWE 
+  //TODO WOULD ADD PROPER AUTHENTICATION USING SIWE 
   // Get the cortGPT agent instance from Mastra
   const agent = mastra.getAgent("cortGPTAgent");
 

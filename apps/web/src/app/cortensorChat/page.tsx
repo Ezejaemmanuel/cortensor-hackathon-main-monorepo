@@ -1,233 +1,128 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useAccount } from 'wagmi'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { ConnectWalletButton } from '@/components/ui/connect-wallet-button'
-import {
-  Bot,
-  Activity,
-  Settings,
-  Zap,
-  Users,
-  MessageSquare,
-  Grid3X3,
-  BarChart3
-} from 'lucide-react'
-import { ChatInterface } from './components/ChatInterface'
-import { SessionManager } from './components/SessionManager'
-import { TaskManager } from './components/TaskManager'
-import { EventLogger } from './components/EventLogger'
-import { useCortensorSession } from './hooks/useCortensorSession'
-import { useCortensorTasks } from './hooks/useCortensorTasks'
-import { useSessionStore, useCurrentSession } from './store/useSessionStore'
-import { toast } from 'sonner'
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { CortensorChatWeb3 } from './mainWeb3'
+import { CortensorChatWeb2 } from './mainWeb2'
+import { Bot, Globe, Zap } from 'lucide-react'
 
-export default function CortensorChatPage() {
-  const { address, isConnected } = useAccount()
-  const { currentSession, userSessions, isLoadingSessions } = useCortensorSession()
-  const { tasks, messages } = useCortensorTasks()
-  const { setSessionDialogOpen } = useSessionStore()
-  const currentSessionFromStore = useCurrentSession()
+type TabType = 'web3' | 'web2'
 
-  // Auto-open session dialog if no sessions exist and user is connected
-  useEffect(() => {
-    if (isConnected && !isLoadingSessions && userSessions.length === 0 && !currentSessionFromStore) {
-      const timer = setTimeout(() => {
-        setSessionDialogOpen(true)
-        toast.info('Create your first session to start chatting with AI')
-      }, 1000)
+const MainChatPage = () => {
+  const [activeTab, setActiveTab] = useState<TabType>('web3')
 
-      return () => clearTimeout(timer)
+  const tabs = [
+    {
+      id: 'web3' as TabType,
+      label: 'Web3 Chat',
+      icon: Zap,
+      description: 'Blockchain-powered AI'
+    },
+    {
+      id: 'web2' as TabType,
+      label: 'Web2 Chat',
+      icon: Globe,
+      description: 'Traditional AI features'
     }
-  }, [isConnected, isLoadingSessions, userSessions.length, currentSessionFromStore, setSessionDialogOpen])
+  ]
 
+  const tabVariants = {
+    enter: {
+      opacity: 0,
+      x: 20
+    },
+    center: {
+      opacity: 1,
+      x: 0
+    },
+    exit: {
+      opacity: 0,
+      x: -20
+    }
+  }
 
-
-  const activeTasks = tasks.filter(task =>
-    task.status !== 'completed' && task.status !== 'failed'
-  )
-  const completedTasks = tasks.filter(task => task.status === 'completed')
-
-  if (!isConnected) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-              <Bot className="h-6 w-6 text-primary" />
-            </div>
-            <CardTitle className="text-2xl">Cortensor Chat</CardTitle>
-            <CardDescription>
-              Connect your wallet to start chatting with AI using the Cortensor network
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Zap className="h-4 w-4" />
-                <span>Decentralized AI inference</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Users className="h-4 w-4" />
-                <span>Powered by miner network</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <MessageSquare className="h-4 w-4" />
-                <span>Real-time blockchain events</span>
-              </div>
-            </div>
-
-            <Separator />
-
-            <ConnectWalletButton className="w-full" />
-
-            <p className="text-xs text-center text-muted-foreground">
-              Make sure you have a Web3 wallet installed (MetaMask, WalletConnect, etc.)
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
+  const tabTransition = {
+    duration: 0.3,
+    ease: [0.4, 0, 0.2, 1] as const
   }
 
   return (
-    <div className="min-h-screen bg-background ">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                <Bot className="h-4 w-4 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-xl font-semibold">Cortensor Chat</h1>
-                <p className="text-sm text-muted-foreground">
-                  Decentralized AI Chat Interface
-                </p>
-              </div>
-            </div>
+    <div className="min-h-screen bg-background">
+      {/* Custom Glassmorphism Tabs */}
+      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-center">
+            <div className="relative flex bg-card/30 backdrop-blur-xl rounded-2xl p-2 border border-border/50 shadow-glass">
+              {/* Active tab indicator */}
+              <motion.div
+                className="absolute inset-y-2 bg-gradient-primary rounded-xl shadow-glow-primary"
+                layoutId="activeTab"
+                initial={false}
+                animate={{
+                  x: activeTab === 'web3' ? 4 : tabs[0].id === 'web3' ? 'calc(100% + 4px)' : 4,
+                  width: 'calc(50% - 8px)'
+                }}
+                transition={{
+                  type: 'spring',
+                  stiffness: 500,
+                  damping: 30
+                }}
+              />
 
-            <div className="flex items-center gap-4">
-              {/* Status Indicators */}
-              <div className="flex items-center gap-3">
-                {currentSessionFromStore && (
-                  <Badge variant="outline" className="text-xs">
-                    <Zap className="h-3 w-3 mr-1" />
-                    Session #{currentSessionFromStore.sessionId}
-                  </Badge>
-                )}
+              {tabs.map((tab) => {
+                const Icon = tab.icon
+                const isActive = activeTab === tab.id
 
-                {activeTasks.length > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    <Activity className="h-3 w-3 mr-1" />
-                    {activeTasks.length} active
-                  </Badge>
-                )}
-
-                {completedTasks.length > 0 && (
-                  <Badge variant="default" className="text-xs">
-                    <MessageSquare className="h-3 w-3 mr-1" />
-                    {completedTasks.length} completed
-                  </Badge>
-                )}
-
-                <Badge variant="outline" className="text-xs">
-                  <Grid3X3 className="h-3 w-3 mr-1" />
-                  {tasks.length} total tasks
-                </Badge>
-              </div>
-
-              {/* Wallet Info */}
-              <div className="flex items-center gap-2 text-sm">
-                <div className="w-2 h-2 bg-green-500 rounded-full" />
-                <span className="font-mono text-xs">
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
-                </span>
-              </div>
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative z-10 flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-6 sm:py-3 rounded-xl transition-all duration-smooth font-futura ${isActive
+                      ? 'text-primary-foreground'
+                      : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                  >
+                    <Icon className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-smooth ${isActive ? 'text-primary-foreground' : 'text-muted-foreground'
+                      }`} />
+                    <div className="text-left">
+                      <div className={`text-xs sm:text-sm font-medium transition-all duration-smooth ${isActive ? 'text-primary-foreground' : 'text-foreground'
+                        }`}>
+                        {tab.label}
+                      </div>
+                      <div className={`text-xs transition-all duration-smooth hidden sm:block ${isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'
+                        }`}>
+                        {tab.description}
+                      </div>
+                    </div>
+                  </button>
+                )
+              })}
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* Main Content - Full Screen Desktop Layout */}
-      <main className="flex-1 overflow-hidden">
-        <div className="h-full grid grid-cols-4 gap-4 p-4">
-          {/* Left Panel - Session & Task Management */}
-          <div className="col-span-1 space-y-4 overflow-y-auto">
-            <SessionManager />
-            <TaskManager />
-          </div>
-
-          {/* Center Panel - Chat Interface */}
-          <div className="col-span-2 flex flex-col">
-            <ChatInterface className="flex-1" />
-          </div>
-
-          {/* Right Panel - Event Logger & Analytics */}
-          <div className="col-span-1 space-y-4 overflow-y-auto">
-            <EventLogger />
-
-            {/* Quick Stats Card */}
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <BarChart3 className="h-4 w-4" />
-                  Quick Stats
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="text-center p-2 bg-muted rounded">
-                    <div className="font-semibold text-blue-600">{userSessions.length}</div>
-                    <div className="text-muted-foreground">Sessions</div>
-                  </div>
-                  <div className="text-center p-2 bg-muted rounded">
-                    <div className="font-semibold text-green-600">{messages.length}</div>
-                    <div className="text-muted-foreground">Messages</div>
-                  </div>
-                  <div className="text-center p-2 bg-muted rounded">
-                    <div className="font-semibold text-orange-600">{activeTasks.length}</div>
-                    <div className="text-muted-foreground">Active</div>
-                  </div>
-                  <div className="text-center p-2 bg-muted rounded">
-                    <div className="font-semibold text-purple-600">{completedTasks.length}</div>
-                    <div className="text-muted-foreground">Complete</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t bg-card">
-        <div className="px-4 py-2">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <div className="flex items-center gap-3">
-              <span>Powered by Cortensor Network</span>
-              <Separator orientation="vertical" className="h-3" />
-              <span>Desktop Interface</span>
-              {currentSessionFromStore && (
-                <>
-                  <Separator orientation="vertical" className="h-3" />
-                  <span>Session #{currentSessionFromStore.sessionId}</span>
-                </>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-              <span>Live</span>
-            </div>
-          </div>
-        </div>
-      </footer>
+      {/* Tab Content with Framer Motion */}
+      <div className="relative">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            variants={tabVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={tabTransition}
+          >
+            {activeTab === 'web3' ? (
+              <CortensorChatWeb3 />
+            ) : (
+              <CortensorChatWeb2 />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   )
 }
+
+export default MainChatPage;
