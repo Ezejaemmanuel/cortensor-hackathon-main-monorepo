@@ -3,7 +3,7 @@
 import { useAccount } from 'wagmi'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ConnectWalletButton } from '@/components/ui/connect-wallet-button'
-import { Bot, Wallet, Zap, X } from 'lucide-react'
+import { Bot, Wallet, Zap, Menu } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import {
     Credenza,
@@ -17,11 +17,17 @@ import {
     CredenzaTrigger,
 } from '@/components/ui/credenza'
 import { Button } from '@/components/ui/button'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { ChatInterface } from './web2Components/ChatInterface'
+import { ChatHistory } from './web2Components/ChatHistory'
+import { cn } from '@/lib/utils'
 
 export function CortensorChatWeb2() {
     const { address, isConnected } = useAccount()
     const [showWalletPrompt, setShowWalletPrompt] = useState(false)
     const [userId, setUserId] = useState<string | null>(null)
+    const isMobile = useIsMobile()
 
     // Generate or retrieve user ID
     useEffect(() => {
@@ -36,8 +42,16 @@ export function CortensorChatWeb2() {
         } else {
             // Show wallet connection prompt if no user ID and not connected
             setShowWalletPrompt(true)
+            // Generate a fallback user ID after a short delay if no action is taken
+            const fallbackTimer = setTimeout(() => {
+                if (!userId) {
+                    generateRandomUserId()
+                }
+            }, 3000) // 3 second delay
+            
+            return () => clearTimeout(fallbackTimer)
         }
-    }, [isConnected, address])
+    }, [isConnected, address, userId])
 
     // Generate random user ID and store in localStorage
     const generateRandomUserId = () => {
@@ -55,7 +69,7 @@ export function CortensorChatWeb2() {
     }
 
     return (
-        <div className="p-4 min-h-screen bg-background">
+        <div className="flex flex-col h-screen bg-background">
             {/* Wallet Connection Prompt Credenza */}
             <Credenza open={showWalletPrompt} onOpenChange={setShowWalletPrompt}>
                 <CredenzaContent className="backdrop-blur-xl bg-card/95 border-border/50 shadow-glass">
@@ -104,87 +118,145 @@ export function CortensorChatWeb2() {
                 </CredenzaContent>
             </Credenza>
 
-            <div className="mx-auto max-w-7xl">
-                {/* Header */}
-                <div className="mb-8">
-                    <Card className="backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
-                        <CardHeader>
-                            <div className="flex items-center space-x-3">
-                                <div className="flex justify-center items-center w-10 h-10 rounded-lg bg-gradient-secondary shadow-glow-secondary">
-                                    <Bot className="w-6 h-6 text-secondary-foreground" />
-                                </div>
-                                <div>
-                                    <CardTitle className="text-xl font-futura text-foreground">
-                                        Cortensor Chat Web2
-                                    </CardTitle>
-                                    <CardDescription className="text-muted-foreground">
-                                        Advanced AI chat interface with Web2 features
-                                    </CardDescription>
-                                </div>
+            {/* Header - Responsive */}
+            <motion.header
+                className="flex-shrink-0 border-b bg-card"
+                initial={{ y: -100 }}
+                animate={{ y: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+                <div className="container px-2 py-2 mx-auto sm:px-4 sm:py-4">
+                    <div className="flex justify-between items-center">
+                        <div className="flex gap-2 items-center sm:gap-3">
+                            <motion.div
+                                className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+                            </motion.div>
+                            <div>
+                                <h1 className="text-sm font-semibold sm:text-xl">CortiGPT Web2</h1>
+                                <p className="hidden text-xs sm:text-sm text-muted-foreground sm:block">
+                                    Traditional AI Chat Interface
+                                </p>
                             </div>
-                        </CardHeader>
-                    </Card>
-                </div>
+                        </div>
 
-                {/* Main Content Placeholder */}
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                    {/* Chat Area Placeholder */}
-                    <div className="lg:col-span-2">
-                        <Card className="h-[600px] bg-card/50 backdrop-blur-xl border-border/50 shadow-glass">
-                            <CardHeader>
-                                <CardTitle className="text-lg font-futura text-foreground">
-                                    Chat Interface
-                                </CardTitle>
-                                <CardDescription className="text-muted-foreground">
-                                    Web2 chat features coming soon
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex justify-center items-center h-full">
-                                <div className="space-y-4 text-center">
-                                    <div className="flex justify-center items-center mx-auto w-16 h-16 rounded-full animate-pulse bg-gradient-neural shadow-glow-accent">
-                                        <Bot className="w-8 h-8 text-accent-foreground" />
-                                    </div>
-                                    <div>
-                                        <h3 className="mb-2 text-lg font-futura text-foreground">
-                                            Web2 Features
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground">
-                                            Enhanced chat capabilities, file uploads, and more coming soon...
-                                        </p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
-
-                    {/* Sidebar Placeholder */}
-                    <div className="space-y-6">
-                        <Card className="backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
-                            <CardHeader>
-                                <CardTitle className="text-lg font-futura text-foreground">
-                                    Web2 Tools
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-3">
-                                    <div className="p-3 rounded-lg border bg-muted/50 border-border/50">
-                                        <h4 className="mb-1 font-medium text-foreground">File Upload</h4>
-                                        <p className="text-sm text-muted-foreground">Upload and analyze documents</p>
-                                    </div>
-                                    <div className="p-3 rounded-lg border bg-muted/50 border-border/50">
-                                        <h4 className="mb-1 font-medium text-foreground">Templates</h4>
-                                        <p className="text-sm text-muted-foreground">Pre-built conversation starters</p>
-                                    </div>
-                                    <div className="p-3 rounded-lg border bg-muted/50 border-border/50">
-                                        <h4 className="mb-1 font-medium text-foreground">Export</h4>
-                                        <p className="text-sm text-muted-foreground">Save conversations</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
+                        {/* User Info - Responsive */}
+                        <div className="flex gap-1 items-center text-xs sm:gap-2 sm:text-sm">
+                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full" />
+                            <span className="font-mono text-xs">
+                                {isConnected && address 
+                                    ? `${address.slice(0, 4)}...${address.slice(-2)}`
+                                    : userId ? `${userId.slice(0, 8)}...` : 'Guest'
+                                }
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </motion.header>
+
+            {/* Main Content - Fixed Height Layout */}
+            <main className="flex flex-col flex-1 min-h-0">
+                <AnimatePresence mode="wait">
+                    {!isMobile && (
+                        <motion.div
+                            key="desktop-layout"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="flex flex-1 gap-2 p-2 min-h-0 sm:gap-4 sm:p-4"
+                        >
+                            {/* Chat History Sidebar - Desktop */}
+                            <motion.div
+                                className="w-80 min-h-0"
+                                initial={{ x: -50, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                transition={{ delay: 0.1 }}
+                            >
+                              {userId && <ChatHistory className="h-full" userAddress={userId} />}
+                            </motion.div>
+
+                                            {/* Chat Interface - Desktop */}
+                            <motion.div
+                                className="flex-1 min-h-0"
+                                initial={{ y: 50, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.2 }}
+                            >
+                                {userId ? (
+                                    <ChatInterface className="h-full" userAddress={userId} />
+                                ) : (
+                                    <Card className="h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
+                                        <CardContent className="flex items-center justify-center h-full">
+                                            <div className="text-center">
+                                                <Bot className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                                                <p className="text-muted-foreground">Initializing Cortensor Chat...</p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </motion.div>
+                        </motion.div>
+                    )}
+
+                    {/* Mobile Layout */}
+                    {isMobile && (
+                        <motion.div
+                            key="mobile-layout"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="flex relative flex-col flex-1 min-h-0"
+                        >
+                            {/* Mobile Chat Interface - Full Width */}
+                            <div className="flex-1 min-h-0">
+                                {userId ? (
+                                    <ChatInterface className="h-full" userAddress={userId} />
+                                ) : (
+                                    <Card className="h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
+                                        <CardContent className="flex items-center justify-center h-full">
+                                            <div className="text-center">
+                                                <Bot className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                                                <p className="text-muted-foreground">Initializing Cortensor Chat...</p>
+                                            </div>
+                                        </CardContent>
+                                    </Card>
+                                )}
+                            </div>
+
+                            {/* Floating Chat History Button */}
+                            <div className="fixed right-4 bottom-4 z-50">
+                                <Credenza>
+                                    <CredenzaTrigger asChild>
+                                        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
+                                            <Button
+                                                size="sm"
+                                                className="w-12 h-12 rounded-full shadow-lg"
+                                            >
+                                                <Menu className="w-5 h-5" />
+                                            </Button>
+                                        </motion.div>
+                                    </CredenzaTrigger>
+                                    <CredenzaContent className="max-w-sm backdrop-blur-xl bg-card/95 border-border/50 shadow-glass">
+                                        <CredenzaHeader>
+                                            <CredenzaTitle className="text-lg font-futura text-foreground">
+                                                Chat History
+                                            </CredenzaTitle>
+                                        </CredenzaHeader>
+                                        <CredenzaBody className="p-0">
+                                            <div className="h-[60vh]">
+                                             {userId && <ChatHistory className="h-full" userAddress={userId} />}
+                                            </div>
+                                        </CredenzaBody>
+                                    </CredenzaContent>
+                                </Credenza>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </main>
         </div>
     )
 }

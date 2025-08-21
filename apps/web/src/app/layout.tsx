@@ -5,6 +5,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 import {Web3Provider} from "../providers/web3-provider";
 import { Toaster } from "sonner";
 import Navbar from "../components/layout/Navbar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const orbitron = Orbitron({
   variable: "--font-orbitron",
@@ -34,16 +35,18 @@ export default function RootLayout({
         className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased`}
       >
         <Web3Provider>
-          <Navbar />
-          <div className="pt-20">
-            {children}
-          </div>
-          <Toaster
-            position="top-right"
-            richColors
-            closeButton
-            theme="dark"
-          />
+          <TooltipProvider>
+            <Navbar />
+            <div className="pt-20">
+              {children}
+            </div>
+            <Toaster
+              position="top-right"
+              richColors
+              closeButton
+              theme="dark"
+            />
+          </TooltipProvider>
         </Web3Provider>
       </body>
     </html>

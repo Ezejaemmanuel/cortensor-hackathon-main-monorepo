@@ -9,21 +9,22 @@ import { Bot, Globe, Zap } from 'lucide-react'
 type TabType = 'web3' | 'web2'
 
 const MainChatPage = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('web3')
+  const [activeTab, setActiveTab] = useState<TabType>('web2')
 
   const tabs = [
-    {
-      id: 'web3' as TabType,
-      label: 'Web3 Chat',
-      icon: Zap,
-      description: 'Blockchain-powered AI'
-    },
     {
       id: 'web2' as TabType,
       label: 'Web2 Chat',
       icon: Globe,
       description: 'Traditional AI features'
+    },
+    {
+      id: 'web3' as TabType,
+      label: 'Web3 Chat',
+      icon: Zap,
+      description: 'Blockchain-powered AI'
     }
+   
   ]
 
   const tabVariants = {
@@ -49,13 +50,13 @@ const MainChatPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Custom Glassmorphism Tabs */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-center">
-            <div className="relative flex bg-card/30 backdrop-blur-xl rounded-2xl p-2 border border-border/50 shadow-glass">
+      <div className="sticky top-0 z-50 border-b backdrop-blur-xl bg-background/80 border-border/50">
+        <div className="px-4 py-4 mx-auto max-w-7xl">
+          <div className="flex justify-center items-center">
+            <div className="flex relative p-2 rounded-2xl border backdrop-blur-xl bg-card/30 border-border/50 shadow-glass">
               {/* Active tab indicator */}
               <motion.div
-                className="absolute inset-y-2 bg-gradient-primary rounded-xl shadow-glow-primary"
+                className="absolute inset-y-2 rounded-xl bg-gradient-primary shadow-glow-primary"
                 layoutId="activeTab"
                 initial={false}
                 animate={{
