@@ -1,31 +1,23 @@
-"use client"
+import { NeuralBackground } from "@/components/ui/neural-background";
+import { Hero } from "@/components/sections/Hero";
+import { AgentShowcase } from "@/components/sections/AgentShowcase";
+import { HowItWorksNew } from "@/components/sections/HowItWorksNew";
+import { UseCases } from "@/components/sections/UseCases";
+import { Footer } from "@/components/sections/Footer";
+import Navbar from "@/components/layout/Navbar";
 
-const TITLE_TEXT = `
- ██████╗ ███████╗████████╗████████╗███████╗██████╗
- ██╔══██╗██╔════╝╚══██╔══╝╚══██╔══╝██╔════╝██╔══██╗
- ██████╔╝█████╗     ██║      ██║   █████╗  ██████╔╝
- ██╔══██╗██╔══╝     ██║      ██║   ██╔══╝  ██╔══██╗
- ██████╔╝███████╗   ██║      ██║   ███████╗██║  ██║
- ╚═════╝ ╚══════╝   ╚═╝      ╚═╝   ╚══════╝╚═╝  ╚═╝
-
- ████████╗    ███████╗████████╗ █████╗  ██████╗██╗  ██╗
- ╚══██╔══╝    ██╔════╝╚══██╔══╝██╔══██╗██╔════╝██║ ██╔╝
-    ██║       ███████╗   ██║   ███████║██║     █████╔╝
-    ██║       ╚════██║   ██║   ██╔══██║██║     ██╔═██╗
-    ██║       ███████║   ██║   ██║  ██║╚██████╗██║  ██╗
-    ╚═╝       ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝╚═╝  ╚═╝
- `;
-
-export default function Home() {
-
+const Index = () => {
   return (
-    <div className="container mx-auto max-w-3xl px-4 py-2">
-      <pre className="overflow-x-auto font-mono text-sm">{TITLE_TEXT}</pre>
-      <div className="grid gap-6">
-        <section className="rounded-lg border p-4">
-          <h2 className="mb-2 font-medium">API Status</h2>
-        </section>
-      </div>
+    <div className="min-h-screen bg-background relative">
+      <NeuralBackground />
+      <Navbar />
+      <Hero />
+      <AgentShowcase />
+      <HowItWorksNew />
+      <UseCases />
+      <Footer />
     </div>
   );
-}
+};
+
+export default Index;

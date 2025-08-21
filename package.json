@@ -12,10 +12,17 @@
     "check-types": "turbo check-types",
     "dev:native": "turbo -F native dev",
     "dev:web": "turbo -F web dev",
+    "mastra:dev": "mastra dev -F @repo/ai",
+    "mastra:build": "mastra build -F @repo/ai",
     "dev:server": "turbo -F server dev"
   },
-  "dependencies": {},
+  "dependencies": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
   "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
     "turbo": "^2.5.4",
     "oxlint": "^1.8.0"
   },

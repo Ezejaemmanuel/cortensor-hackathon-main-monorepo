@@ -1,22 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "../index.css";
-import Providers from "@/components/providers";
-import Header from "@/components/header";
+import { Orbitron, Space_Grotesk } from "next/font/google";
+import "./globals.css";
+import '@rainbow-me/rainbowkit/styles.css';
+import {Web3Provider} from "../providers/web3-provider";
+import { Toaster } from "sonner";
+import Navbar from "../components/layout/Navbar";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const orbitron = Orbitron({
+  variable: "--font-orbitron",
   subsets: ["latin"],
+  weight: ["400", "700", "900"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "cortensor-main-monorepo",
-  description: "cortensor-main-monorepo",
+  title: "CortiGPT - Verifiable Multi-Agent AI for Web3",
+  description: "CortiGPT unites multiple specialized AI agents on the Cortensor protocol, delivering trustless, verifiable intelligence with receipts you can prove.",
 };
 
 export default function RootLayout({
@@ -25,16 +29,22 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased`}
       >
-        <Providers>
-          <div className="grid grid-rows-[auto_1fr] h-svh">
-            <Header />
+        <Web3Provider>
+          <Navbar />
+          <div className="pt-20">
             {children}
           </div>
-        </Providers>
+          <Toaster
+            position="top-right"
+            richColors
+            closeButton
+            theme="dark"
+          />
+        </Web3Provider>
       </body>
     </html>
   );
