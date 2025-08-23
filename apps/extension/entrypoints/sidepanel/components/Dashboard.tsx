@@ -11,9 +11,9 @@ const Dashboard = () => {
   const [activeTab, setActiveTab] = useState<TabType>('web2');
 
   return (
-    <div className="flex flex-col h-screen bg-background neural-bg">
+    <div className="flex flex-col h-screen bg-background neural-bg pt-20">
       {/* Header with Custom Glassmorphism Tabs */}
-      <div className="flex-shrink-0 p-4">
+      <div className="flex-shrink-0 p-2 sm:p-4">
         <div className="glass rounded-xl p-1 flex space-x-1 max-w-md mx-auto">
           <button
             onClick={() => setActiveTab('web2')}

@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
-// import { ConnectWalletButton } from '@/components/ui/connect-wallet-button'
+import { ConnectWalletButton } from '@/components/ui/connect-wallet-button'
 import {
     Credenza,
     CredenzaContent,
@@ -15,7 +15,9 @@ import {
     CredenzaTitle,
     CredenzaTrigger,
     CredenzaClose,
-    CredenzaBody
+    CredenzaBody,
+    CredenzaDescription,
+    CredenzaFooter
 } from '@/components/ui/credenza'
 import { useIsMobile } from '@/hooks/use-mobile'
 import {
@@ -29,7 +31,11 @@ import {
     BarChart3,
     Menu,
     X,
-    Square
+    Square,
+    Wallet,
+    AlertTriangle,
+    Smartphone,
+    QrCode
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChatInterface } from './components/ChatInterface'
@@ -53,6 +59,7 @@ export function CortensorChatWeb3() {
     const [sessionCredenzaOpen, setSessionCredenzaOpen] = useState(false)
     const [taskCredenzaOpen, setTaskCredenzaOpen] = useState(false)
     const [eventCredenzaOpen, setEventCredenzaOpen] = useState(false)
+    const [walletCredenzaOpen, setWalletCredenzaOpen] = useState(!isConnected)
 
     // Auto-open session dialog if no sessions exist and user is connected
     useEffect(() => {
@@ -65,6 +72,11 @@ export function CortensorChatWeb3() {
         }
     }, [isConnected, isLoadingSessions, userSessions.length, currentSessionFromStore, setSessionDialogOpen])
 
+    // Auto-open wallet credenza when not connected
+    useEffect(() => {
+        setWalletCredenzaOpen(!isConnected)
+    }, [isConnected])
+
     const activeTasks = tasks.filter(task =>
         task.status !== 'completed' && task.status !== 'failed'
     )
@@ -73,39 +85,113 @@ export function CortensorChatWeb3() {
     if (!isConnected) {
         return (
             <div className="flex justify-center items-center p-4 min-h-screen bg-background">
-                <Card className="w-full max-w-md">
+                {/* Wallet Connection Credenza */}
+                <Credenza open={walletCredenzaOpen} onOpenChange={setWalletCredenzaOpen}>
+                    <CredenzaContent className="backdrop-blur-xl bg-card/95 border-border/50 shadow-glass">
+                        <CredenzaHeader>
+                            <div className="flex items-center space-x-3">
+                                <div className="flex justify-center items-center w-12 h-12 rounded-full bg-gradient-to-r from-red-500/20 to-orange-500/20 border-2 border-red-500/30">
+                                    <AlertTriangle className="w-6 h-6 text-red-500" />
+                                </div>
+                                <div>
+                                    <CredenzaTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+                                        <span className="text-red-500">⚠️ Wallet Connection Required</span>
+                                    </CredenzaTitle>
+                                    <CredenzaDescription className="text-muted-foreground">
+                                        Connect your wallet to access CortiGPT AI services
+                                    </CredenzaDescription>
+                                </div>
+                            </div>
+                        </CredenzaHeader>
+                        <CredenzaBody className="space-y-4">
+                            {/* Chrome Extension Limitation Warning */}
+                            <div className="p-4 rounded-lg border-2 border-red-500/30 bg-red-500/10">
+                                <div className="flex items-start gap-3">
+                                    <AlertTriangle className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+                                    <div>
+                                        <h4 className="font-semibold text-red-500 mb-2">🚨 IMPORTANT: Chrome Extension Limitations</h4>
+                                        <div className="text-sm text-red-600 space-y-2">
+                                            <p className="font-medium">❌ Your browser extension wallets (MetaMask, etc.) cannot be used directly in this Chrome extension due to security restrictions.</p>
+                                            <p className="font-medium text-orange-600">✅ SOLUTION: Use your mobile wallet instead!</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Mobile Wallet Instructions */}
+                            <div className="p-4 rounded-lg border bg-blue-500/10 border-blue-500/30">
+                                <div className="flex items-start gap-3">
+                                    <Smartphone className="w-5 h-5 text-blue-500 mt-0.5" />
+                                    <div>
+                                        <h4 className="font-semibold text-blue-500 mb-2">📱 Connect with Mobile Wallet</h4>
+                                        <ul className="text-sm text-blue-600 space-y-1">
+                                            <li className="flex items-center gap-2">
+                                                <QrCode className="w-4 h-4" />
+                                                <span>Scan QR code with your mobile wallet</span>
+                                            </li>
+                                            <li>• Use WalletConnect or similar protocols</li>
+                                            <li>• Works with MetaMask Mobile, Trust Wallet, etc.</li>
+                                            <li>• Secure and decentralized connection</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Features */}
+                            <div className="p-4 rounded-lg border bg-muted/50 border-border/50">
+                                <h4 className="mb-2 font-medium text-foreground">🚀 What you'll get:</h4>
+                                <ul className="space-y-1 text-sm text-muted-foreground">
+                                    <li className="flex gap-2 items-center">
+                                        <Zap className="w-4 h-4 text-yellow-500" />
+                                        <span>Decentralized AI inference</span>
+                                    </li>
+                                    <li className="flex gap-2 items-center">
+                                        <Users className="w-4 h-4 text-green-500" />
+                                        <span>Powered by miner network</span>
+                                    </li>
+                                    <li className="flex gap-2 items-center">
+                                        <MessageSquare className="w-4 h-4 text-blue-500" />
+                                        <span>Real-time blockchain events</span>
+                                    </li>
+                                    <li className="flex gap-2 items-center">
+                                        <Bot className="w-4 h-4 text-purple-500" />
+                                        <span>Advanced AI chat capabilities</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </CredenzaBody>
+                        <CredenzaFooter className="flex flex-col space-y-3">
+                            <div className="text-center">
+                                <p className="text-xs text-red-500 font-medium mb-2">🔴 Remember: Use your MOBILE wallet, not browser extensions!</p>
+                            </div>
+                            <ConnectWalletButton className="w-full" />
+                            <p className="text-xs text-center text-muted-foreground">
+                                Having trouble? Make sure WalletConnect is enabled in your mobile wallet
+                            </p>
+                        </CredenzaFooter>
+                    </CredenzaContent>
+                </Credenza>
+                
+                {/* Fallback content when credenza is closed */}
+                <Card className="w-full">
                     <CardHeader className="text-center">
                         <div className="flex justify-center items-center mx-auto mb-4 w-12 h-12 rounded-full bg-primary/10">
                             <Bot className="w-6 h-6 text-primary" />
                         </div>
                         <CardTitle className="text-2xl">CortiGPT</CardTitle>
                         <CardDescription>
-                            Connect your wallet to start chatting with AI using the Cortensor network
+                            Connect your wallet to start chatting with AI
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="grid gap-2">
-                            <div className="flex gap-2 items-center text-sm text-muted-foreground">
-                                <Zap className="w-4 h-4" />
-                                <span>Decentralized AI inference</span>
-                            </div>
-                            <div className="flex gap-2 items-center text-sm text-muted-foreground">
-                                <Users className="w-4 h-4" />
-                                <span>Powered by miner network</span>
-                            </div>
-                            <div className="flex gap-2 items-center text-sm text-muted-foreground">
-                                <MessageSquare className="w-4 h-4" />
-                                <span>Real-time blockchain events</span>
-                            </div>
-                        </div>
-
-                        <Separator />
-
-                        <ConnectWalletButton className="w-full" />
-
-                        <p className="text-xs text-center text-muted-foreground">
-                            Make sure you have a Web3 wallet installed (MetaMask, WalletConnect, etc.)
-                        </p>
+                        <Button 
+                            onClick={() => setWalletCredenzaOpen(true)}
+                            className="w-full"
+                            variant="outline"
+                        >
+                            <Wallet className="w-4 h-4 mr-2" />
+                            Connect Wallet
+                        </Button>
                     </CardContent>
                 </Card>
             </div>
@@ -191,11 +277,11 @@ export function CortensorChatWeb3() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-1 gap-2 p-2 min-h-0 sm:gap-4 sm:p-4"
+                            className="flex flex-1 gap-1 p-1 min-h-0 sm:gap-4 sm:p-4"
                         >
                             {/* Left Panel - Session & Task Management with Max Heights */}
                             <motion.div
-                                className="flex flex-col gap-2 w-1/5 min-h-0 sm:gap-4"
+                                className="flex flex-col gap-1 w-1/5 min-h-0 sm:gap-4"
                                 initial={{ x: -50, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.1 }}
@@ -228,7 +314,7 @@ export function CortensorChatWeb3() {
                                 transition={{ delay: 0.3 }}
                             >
                                 <div className="max-h-[60vh] min-h-[400px]">
-                                    <EventLogger />
+                                    {!isMobile && <EventLogger />}
                                 </div>
 
                                 {/* Quick Stats Card - Compact */}
@@ -355,7 +441,7 @@ export function CortensorChatWeb3() {
                             <CredenzaBody>
                                 <ScrollArea className="h-[70vh]">
                                     <div className="space-y-4">
-                                        <EventLogger />
+                                        {isMobile && <EventLogger />}
 
                                         {/* Quick Stats Card */}
                                         <Card>
@@ -394,7 +480,7 @@ export function CortensorChatWeb3() {
                 </>
             )}
 
-         
+
         </div>
     )
 }

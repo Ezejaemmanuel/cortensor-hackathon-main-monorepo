@@ -45,6 +45,15 @@ export function EventMonitor({ className }: EventMonitorProps) {
   const [events, setEvents] = useState<BlockchainEvent[]>([])
   const [isVisible, setIsVisible] = useState(true)
   const [maxEvents] = useState(50) // Limit to prevent memory issues
+  const [isWatchingEnabled, setIsWatchingEnabled] = useState(true)
+
+  // Cleanup function to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      setEvents([])
+      setIsWatchingEnabled(false)
+    }
+  }, [])
 
   const addEvent = (type: BlockchainEvent['type'], data: any, transactionHash?: string, blockNumber?: bigint) => {
     const newEvent: BlockchainEvent = {
@@ -64,6 +73,7 @@ export function EventMonitor({ className }: EventMonitorProps) {
 
   // Watch for SessionCreated events
   useWatchSessionV2SessionCreatedEvent({
+    enabled: isWatchingEnabled && !!address,
     onLogs(logs) {
       logs.forEach((log) => {
         if (log.args.owner === address) {
@@ -80,6 +90,7 @@ export function EventMonitor({ className }: EventMonitorProps) {
 
   // Watch for TaskSubmitted events
   useWatchSessionV2TaskSubmittedEvent({
+    enabled: isWatchingEnabled,
     onLogs(logs) {
       logs.forEach((log) => {
         // TaskSubmitted events don't have a user/owner field, so we'll monitor all events
@@ -96,6 +107,7 @@ export function EventMonitor({ className }: EventMonitorProps) {
 
   // Watch for TaskQueued events
   useWatchSessionQueueV2TaskQueuedEvent({
+    enabled: isWatchingEnabled,
     onLogs(logs) {
       logs.forEach((log) => {
         addEvent('TaskQueued', {
@@ -109,6 +121,7 @@ export function EventMonitor({ className }: EventMonitorProps) {
 
   // Watch for TaskAssigned events
   useWatchSessionQueueV2TaskAssignedEvent({
+    enabled: isWatchingEnabled,
     onLogs(logs) {
       logs.forEach((log) => {
         addEvent('TaskAssigned', {
@@ -122,6 +135,7 @@ export function EventMonitor({ className }: EventMonitorProps) {
 
   // Watch for TaskEnded events
   useWatchSessionQueueV2TaskEndedEvent({
+    enabled: isWatchingEnabled,
     onLogs(logs) {
       logs.forEach((log) => {
         addEvent('TaskEnded', {

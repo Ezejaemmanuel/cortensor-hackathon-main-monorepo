@@ -21,7 +21,8 @@ export default defineConfig({
     disabled:true
   },
   manifest: {
-    permissions: ['sidePanel', 'storage'],
+    permissions: ['sidePanel', 'storage', 'activeTab', 'tabs'],
+    host_permissions: ['<all_urls>'],
     side_panel: {
       default_path: 'sidepanel.html'
     },

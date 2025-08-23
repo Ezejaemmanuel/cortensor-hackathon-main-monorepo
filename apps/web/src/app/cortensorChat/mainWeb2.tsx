@@ -239,7 +239,7 @@ export function CortensorChatWeb2() {
                                             </Button>
                                         </motion.div>
                                     </CredenzaTrigger>
-                                    <CredenzaContent className="max-w-sm backdrop-blur-xl bg-card/95 border-border/50 shadow-glass">
+                                    <CredenzaContent className="backdrop-blur-xl bg-card/95 border-border/50 shadow-glass">
                                         <CredenzaHeader>
                                             <CredenzaTitle className="text-lg font-futura text-foreground">
                                                 Chat History

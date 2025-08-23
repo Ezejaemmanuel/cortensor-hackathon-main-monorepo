@@ -75,7 +75,7 @@ export function CortensorChatWeb3() {
     if (!isConnected) {
         return (
             <div className="flex justify-center items-center p-4 min-h-screen bg-background">
-                <Card className="w-full max-w-md">
+                <Card className="w-full">
                     <CardHeader className="text-center">
                         <div className="flex justify-center items-center mx-auto mb-4 w-12 h-12 rounded-full bg-primary/10">
                             <Bot className="w-6 h-6 text-primary" />
@@ -193,11 +193,11 @@ export function CortensorChatWeb3() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-1 gap-2 p-2 min-h-0 sm:gap-4 sm:p-4"
+                            className="flex flex-1 gap-1 p-1 min-h-0 sm:gap-4 sm:p-4"
                         >
                             {/* Left Panel - Session & Task Management with Max Heights */}
                             <motion.div
-                                className="flex flex-col gap-2 w-1/5 min-h-0 sm:gap-4"
+                                className="flex flex-col gap-1 w-1/5 min-h-0 sm:gap-4"
                                 initial={{ x: -50, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.1 }}

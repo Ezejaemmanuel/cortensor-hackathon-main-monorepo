@@ -129,7 +129,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
   return (
     <div className={`flex flex-col h-full ${className}`}>
       {/* Header - Compact for mobile */}
-      <div className="flex-shrink-0 p-2 border-b bg-card sm:p-4">
+      <div className="flex-shrink-0 p-0 border-b bg-card sm:p-4">
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
             <div className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10">
@@ -188,7 +188,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
         ) : (
           <>
             {/* Scrollable Messages */}
-            <ScrollArea className="flex-1 px-2 sm:px-4" ref={scrollAreaRef}>
+            <ScrollArea className="flex-1 px-1 sm:px-4" ref={scrollAreaRef}>
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full min-h-[200px]">
                   <div className="text-center">
@@ -265,7 +265,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
             </ScrollArea>
 
             {/* Fixed Input Area at Bottom */}
-            <div className="flex-shrink-0 p-2 border-t bg-background sm:p-4">
+            <div className="flex-shrink-0 p-1 border-t bg-background sm:p-4">
               <div className="flex gap-2">
                 <Input
                   ref={inputRef}

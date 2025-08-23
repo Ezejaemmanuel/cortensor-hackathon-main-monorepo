@@ -14,6 +14,9 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
+import { getApiEndpoint } from '@/lib/api-config'
+import { SelectedTextPreview, ClearSelectedTextMessage, TextSelectionUpdateMessage, GetSelectedTextMessage, MessageResponse } from '@/types/messaging'
+
 
 interface ChatMessage {
   id: string
@@ -60,10 +63,31 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([])
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
+  const [selectedTextPreview, setSelectedTextPreview] = useState<SelectedTextPreview | null>(null)
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Utility function to truncate text to approximately two lines
+  const truncateToTwoLines = (text: string): string => {
+    const words = text.split(' ');
+    // Approximate 15-20 words per line for typical UI
+    const maxWords = 30;
+    if (words.length <= maxWords) {
+      return text;
+    }
+    return words.slice(0, maxWords).join(' ') + '...';
+  };
+
+  // Function to clear selected text preview
+  const clearSelectedTextPreview = (): void => {
+    setSelectedTextPreview(null);
+    browser.runtime.sendMessage({ type: 'CLEAR_SELECTED_TEXT' } as ClearSelectedTextMessage)
+      .catch((error) => {
+        console.error('Failed to clear selected text:', error);
+      });
+  };
 
   // Load messages for a specific chat
   const loadChatMessages = useCallback((chatId: string) => {
@@ -167,6 +191,56 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }, [isLoading])
 
+  // Listen for text selection messages from background script
+  useEffect(() => {
+    const handleMessage = (message: TextSelectionUpdateMessage) => {
+      if (message.type === 'TEXT_SELECTION_UPDATE') {
+        const { text, url, timestamp } = message.data;
+        if (text && text.trim()) {
+          const preview: SelectedTextPreview = {
+            originalText: text,
+            truncatedText: truncateToTwoLines(text),
+            url,
+            timestamp,
+            isVisible: true
+          };
+          setSelectedTextPreview(preview);
+          // Focus the input field
+          if (inputRef.current) {
+            inputRef.current.focus();
+          }
+        }
+      }
+    };
+
+    // Listen for messages from background script
+    browser.runtime.onMessage.addListener(handleMessage);
+
+    // Request any existing selected text when component mounts
+    const getSelectedTextMessage: GetSelectedTextMessage = { type: 'GET_SELECTED_TEXT' };
+    browser.runtime.sendMessage(getSelectedTextMessage)
+      .then((response: MessageResponse) => {
+        if (response.success && response.data && response.data.text) {
+          const preview: SelectedTextPreview = {
+            originalText: response.data.text,
+            truncatedText: truncateToTwoLines(response.data.text),
+            url: response.data.url,
+            timestamp: response.data.timestamp,
+            isVisible: true
+          };
+          setSelectedTextPreview(preview);
+        }
+      })
+      .catch(() => {
+        // Background script might not be ready yet
+        console.log('Could not get selected text on mount');
+      });
+
+    return () => {
+      browser.runtime.onMessage.removeListener(handleMessage);
+    };
+  }, []);
+
   // Save messages to localStorage
   const saveMessages = (chatId: string, msgs: ChatMessage[]) => {
     localStorage.setItem(`cortensor_messages_${userAddress}_${chatId}`, JSON.stringify(msgs))
@@ -202,11 +276,11 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     const updatedHistory = chatHistory.map(chat =>
       chat.id === selectedChatId
         ? {
-            ...chat,
-            lastMessage: message,
-            timestamp: new Date(),
-            messageCount: messages.length + 1
-          }
+          ...chat,
+          lastMessage: message,
+          timestamp: new Date(),
+          messageCount: messages.length + 1
+        }
         : chat
     )
     saveChatHistory(updatedHistory)
@@ -222,9 +296,15 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       return
     }
 
+    // Format the message properly if there's selected text
+    let formattedMessage = currentMessage.trim();
+    if (selectedTextPreview && selectedTextPreview.isVisible) {
+      formattedMessage = `Context: "${selectedTextPreview.originalText}"\n\nUser request: ${currentMessage.trim()}`;
+    }
+
     const userMessage: ChatMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      content: currentMessage.trim(),
+      content: formattedMessage,
       sender: 'user',
       timestamp: new Date()
     }
@@ -234,13 +314,14 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     saveMessages(selectedChatId, newMessages)
     updateChatHistory(userMessage.content)
 
-    const messageToSend = currentMessage.trim()
+    const messageToSend = formattedMessage
     setCurrentMessage('')
+    clearSelectedTextPreview() // Clear selected text preview after sending
     setIsLoading(true)
 
     try {
       // Send the current message with chatId for memory context
-      const response = await fetch(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(selectedChatId)}`, {
+      const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(selectedChatId)}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -261,7 +342,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
       // Clean the AI response by removing </s> tags
       const cleanResponse = (data.content?.[0]?.text || data.message || "No response").replace(/<\/s>$/g, '').trim()
-      
+
       const aiMessage: ChatMessage = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         content: cleanResponse,
@@ -305,11 +386,11 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   }, [selectedChatId, chatHistory.length, createNewChat])
 
   return (
-      <Card className={cn(
-        "h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass",
-        className
-      )}>
-        <CardHeader className="pb-3">
+    <Card className={cn(
+      "h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass",
+      className
+    )}>
+      <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="flex justify-center items-center w-8 h-8 rounded-lg bg-gradient-secondary shadow-glow-secondary">
@@ -317,7 +398,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             </div>
             <div>
               <CardTitle className="text-lg font-futura text-foreground">
-                AI Chat
+                cortiGPT
               </CardTitle>
             </div>
           </div>
@@ -328,12 +409,12 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
           >
             <Plus className="w-4 h-4" />
           </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0 h-[calc(100%-80px)]">
-        <div className="flex flex-col h-full">
-          {/* Messages Area */}
-          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0 flex flex-col h-full">
+        {/* Messages Area */}
+        <div className="flex-1 min-h-0">
+          <ScrollArea className="h-full p-1 sm:p-4" ref={scrollAreaRef}>
             {messages.length === 0 && !isLoading ? (
               <div className="flex items-center justify-center h-full min-h-[200px]">
                 <div className="text-center">
@@ -345,95 +426,123 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               </div>
             ) : (
               <div className="space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    {message.sender === 'ai' && (
-                      <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                          <Bot className="w-4 h-4 text-primary" />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-first' : ''}`}>
-                      <div className={`rounded-lg px-4 py-2 ${message.sender === 'user'
-                        ? 'bg-primary text-primary-foreground ml-auto'
-                        : 'bg-muted'
-                        }`}>
-                        <p className="whitespace-pre-wrap">{message.content}</p>
-                      </div>
-
-                      <div className={`flex items-center gap-2 mt-1 text-xs text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
-                      </div>
-                    </div>
-
-                    {message.sender === 'user' && (
-                      <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                          <User className="w-4 h-4 text-primary" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-                {/* Loading placeholder */}
-                {isLoading && (
-                  <div className="flex gap-3 justify-start">
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {message.sender === 'ai' && (
                     <div className="flex-shrink-0">
                       <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
                         <Bot className="w-4 h-4 text-primary" />
                       </div>
                     </div>
+                  )}
 
-                    <div className="max-w-[80%]">
-                      <div className="rounded-lg px-4 py-2 bg-muted">
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground italic">
-                            {currentPlaceholder}
-                          </p>
-                        </div>
+                  <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-first' : ''}`}>
+                    <div className={`rounded-lg px-4 py-2 ${message.sender === 'user'
+                      ? 'bg-primary text-primary-foreground ml-auto'
+                      : 'bg-muted'
+                      }`}>
+                      <p className="whitespace-pre-wrap">{message.content}</p>
+                    </div>
+
+                    <div className={`flex items-center gap-2 mt-1 text-xs text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
+                    </div>
+                  </div>
+
+                  {message.sender === 'user' && (
+                    <div className="flex-shrink-0">
+                      <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
+                        <User className="w-4 h-4 text-primary" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Loading placeholder */}
+              {isLoading && (
+                <div className="flex gap-3 justify-start">
+                  <div className="flex-shrink-0">
+                    <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
+                      <Bot className="w-4 h-4 text-primary" />
+                    </div>
+                  </div>
+
+                  <div className="max-w-[80%]">
+                    <div className="rounded-lg px-4 py-2 bg-muted">
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                        <p className="text-sm text-muted-foreground italic">
+                          {currentPlaceholder}
+                        </p>
                       </div>
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-          </ScrollArea>
-
-          {/* Input Area */}
-          <div className="flex-shrink-0 p-4 border-t bg-background">
-            <div className="flex gap-2">
-              <Input
-                ref={inputRef}
-                placeholder="Type your message..."
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={isLoading}
-                className="flex-1"
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!currentMessage.trim() || isLoading}
-                size="sm"
-                className="px-3"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </Button>
+                </div>
+              )}
+              {/* Spacer to ensure content is not hidden behind input */}
+              <div className="h-60 sm:h-60"></div>
             </div>
+          )}
+          </ScrollArea>
+        </div>
+
+        {/* Fixed Input Area at Bottom */}
+        <div className="flex-shrink-0 p-2 sm:p-4 border-t bg-background/95 backdrop-blur-sm sticky bottom-0 z-10">
+          {/* Selected Text Preview */}
+          {selectedTextPreview && selectedTextPreview.isVisible && (
+            <div className="mb-3 p-3 bg-muted/30 border border-primary/20 rounded-lg">
+              <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="text-primary">📄</span>
+                  <span>Selected text from {new URL(selectedTextPreview.url).hostname}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearSelectedTextPreview}
+                  className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+                >
+                  ×
+                </Button>
+              </div>
+              <div className="text-sm text-foreground/80 leading-relaxed">
+                {selectedTextPreview.truncatedText}
+              </div>
+              <div className="text-xs text-muted-foreground mt-2">
+                💡 Add your request below to ask about this text
+              </div>
+            </div>
+          )}
+          
+          <div className="flex gap-2">
+            <Input
+              ref={inputRef}
+              placeholder={selectedTextPreview ? "What would you like to know about the selected text?" : "Type your message..."}
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isLoading}
+              className="flex-1 text-sm sm:text-base"
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!currentMessage.trim() || isLoading}
+              size="sm"
+              className="px-3 shrink-0"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </Button>
           </div>
-          </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

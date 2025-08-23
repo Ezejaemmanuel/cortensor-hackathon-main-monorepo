@@ -47,12 +47,12 @@ const MainChatPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-6">
       {/* Custom Glassmorphism Tabs */}
       <div className="sticky top-0 z-50 border-b backdrop-blur-xl bg-background/80 border-border/50">
-        <div className="px-4 py-4 mx-auto max-w-7xl">
+        <div className="px-2 py-2 mx-auto max-w-7xl sm:px-4 sm:py-4">
           <div className="flex justify-center items-center">
-            <div className="flex relative p-2 rounded-2xl border backdrop-blur-xl bg-card/30 border-border/50 shadow-glass">
+            <div className="flex relative p-1 rounded-2xl border backdrop-blur-xl bg-card/30 border-border/50 shadow-glass sm:p-2">
               {/* Active tab indicator */}
               <motion.div
                 className="absolute inset-y-2 rounded-xl bg-gradient-primary shadow-glow-primary"

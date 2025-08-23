@@ -52,6 +52,15 @@ export function EventLogger({ className }: EventLoggerProps) {
   const [events, setEvents] = useState<BlockchainEvent[]>([])
   const [isOpen, setIsOpen] = useState(true)
   const [maxEvents] = useState(50) // Keep only last 50 events
+  const [isWatchingEnabled, setIsWatchingEnabled] = useState(true)
+
+  // Cleanup function to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      setEvents([])
+      setIsWatchingEnabled(false)
+    }
+  }, [])
 
   const addEvent = (event: Omit<BlockchainEvent, 'id' | 'timestamp'>) => {
     const newEvent: BlockchainEvent = {
@@ -72,6 +81,7 @@ export function EventLogger({ className }: EventLoggerProps) {
 
   // Watch for task submitted events
   useWatchSessionV2TaskSubmittedEvent({
+    enabled: isWatchingEnabled,
     onLogs(logs) {
       logs.forEach((log) => {
         if (log.args.sessionId && log.args.taskId) {
@@ -95,6 +105,7 @@ export function EventLogger({ className }: EventLoggerProps) {
 
   // Watch for task assigned events
   useWatchSessionQueueV2TaskAssignedEvent({
+    enabled: isWatchingEnabled,
     onLogs(logs) {
       logs.forEach((log) => {
         if (log.args.sessionId && log.args.taskId) {
@@ -121,6 +132,7 @@ export function EventLogger({ className }: EventLoggerProps) {
   // The useCortensorTasks hook already handles refetching data when tasks end,
   // and queries have automatic refetch intervals, so this is not redundant.
   useWatchSessionQueueV2TaskEndedEvent({
+    enabled: isWatchingEnabled,
     onLogs(logs) {
       logs.forEach((log) => {
         if (log.args.sessionId && log.args.taskId) {

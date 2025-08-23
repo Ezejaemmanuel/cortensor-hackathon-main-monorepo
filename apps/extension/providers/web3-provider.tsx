@@ -24,7 +24,7 @@ export  function Web3Provider({ children }: Readonly<{ children: React.ReactNode
           })}
         >
           {children}
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </RainbowKitProvider>
       </ReactQueryProvider>
     </WagmiProvider>

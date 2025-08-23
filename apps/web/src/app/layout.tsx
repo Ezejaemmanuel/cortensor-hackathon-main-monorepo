@@ -3,7 +3,8 @@ import { Orbitron, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import '@rainbow-me/rainbowkit/styles.css';
 import {Web3Provider} from "../providers/web3-provider";
-import { Toaster } from "sonner";
+// import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import Navbar from "../components/layout/Navbar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -35,18 +36,11 @@ export default function RootLayout({
         className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased`}
       >
         <Web3Provider>
-          <TooltipProvider>
             <Navbar />
             <div className="pt-20">
               {children}
             </div>
-            <Toaster
-              position="top-right"
-              richColors
-              closeButton
-              theme="dark"
-            />
-          </TooltipProvider>
+          
         </Web3Provider>
       </body>
     </html>

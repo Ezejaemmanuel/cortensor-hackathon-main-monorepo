@@ -71,7 +71,7 @@ export const ConnectWalletButton = ({ onModalOpen, className = "", isMobile = fa
                 }
 
                 return (
-                  <div className={`${isMobile ? 'space-y-2' : 'flex items-center space-x-2'}`}>
+                  <div className="flex items-center space-x-2">
                     <Button
                       onClick={() => {
                         openChainModal();
@@ -83,17 +83,17 @@ export const ConnectWalletButton = ({ onModalOpen, className = "", isMobile = fa
                     >
                       <div className={`flex items-center ${isMobile ? 'justify-center' : ''}`}>
                         {chain.hasIcon && (
-                          <div className="w-4 h-4 mr-2">
+                          <div className={`${isMobile ? 'w-3 h-3 mr-1' : 'w-4 h-4 mr-2'}`}>
                             {chain.iconUrl && (
                               <img
                                 alt={chain.name ?? 'Chain icon'}
                                 src={chain.iconUrl}
-                                className="w-4 h-4 rounded-full"
+                                className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} rounded-full`}
                               />
                             )}
                           </div>
                         )}
-                        {chain.name}
+                        {!isMobile && chain.name}
                       </div>
                     </Button>
 
@@ -102,12 +102,21 @@ export const ConnectWalletButton = ({ onModalOpen, className = "", isMobile = fa
                         openAccountModal();
                         onModalOpen?.();
                       }}
-                      className={`${isMobile ? 'w-full ' : ''}bg-gradient-primary hover:opacity-90 glow-primary transition-all duration-200`}
+                      className={`${isMobile ? 'flex-1 px-2 py-1 text-xs ' : ''}bg-gradient-primary hover:opacity-90 glow-primary transition-all duration-200`}
                     >
-                      {account.displayName}
-                      {account.displayBalance
-                        ? ` (${account.displayBalance})`
-                        : ''}
+                      <div className={`${isMobile ? 'flex flex-col items-start' : 'flex items-center'}`}>
+                        <span className={`${isMobile ? 'text-xs' : ''}`}>
+                          {isMobile 
+                            ? `${account.displayName?.slice(0, 4)}...${account.displayName?.slice(-2)}` 
+                            : account.displayName
+                          }
+                        </span>
+                        {account.displayBalance && (
+                          <span className={`${isMobile ? 'text-xs opacity-80' : ''}`}>
+                            {isMobile ? account.displayBalance.split(' ')[0] : ` (${account.displayBalance})`}
+                          </span>
+                        )}
+                      </div>
                     </Button>
                   </div>
                 );

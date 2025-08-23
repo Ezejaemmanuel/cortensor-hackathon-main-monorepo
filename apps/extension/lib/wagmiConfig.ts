@@ -15,4 +15,5 @@ export const config = getDefaultConfig({
     [arbitrumSepolia.id]: http(import.meta.env.VITE_ARBITRUM_SEPOLIA_RPC_URL),
   },
   ssr: false, // Disable SSR for Chrome extension
+  multiInjectedProviderDiscovery: true, // Enable EIP-6963 for multi-wallet detection
 })

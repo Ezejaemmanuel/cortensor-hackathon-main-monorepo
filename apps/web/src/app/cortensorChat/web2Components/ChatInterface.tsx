@@ -35,22 +35,38 @@ interface ChatInterfaceProps {
   userAddress: string
 }
 
-// Cortensor-themed placeholder texts for AI thinking state
+// Futuristic Cortensor-themed placeholder texts for AI thinking state
 const CORTENSOR_PLACEHOLDER_TEXTS = [
-  "Analyzing neural pathways for optimal response...",
-  "Connecting to decentralized AI nodes...",
-  "Processing through distributed neural networks...",
-  "Syncing with blockchain-verified intelligence...",
-  "Validating response integrity on-chain...",
-  "Routing through fastest available AI nodes...",
-  "Ensuring response accuracy via consensus mechanism...",
-  "Generating response using federated learning models...",
-  "Coordinating with global AI network for best answer...",
-  "Processing through edge computing nodes...",
-  "Validating computational proofs...",
-  "Optimizing neural pathways for efficiency...",
-  "Connecting to specialized AI workers...",
-  "Ensuring response decentralization..."
+  "🧠 Initializing quantum neural matrices...",
+  "⚡ Establishing secure channels to 47 AI nodes...",
+  "🔗 Synchronizing with distributed consciousness network...",
+  "🌐 Routing through hyperspace data corridors...",
+  "🔮 Consulting the collective AI wisdom...",
+  "⚙️ Calibrating synaptic response algorithms...",
+  "🚀 Launching deep learning protocols...",
+  "💫 Weaving thoughts through cosmic data streams...",
+  "🔬 Analyzing molecular patterns in your query...",
+  "🌟 Harmonizing with stellar computation clusters...",
+  "🎯 Targeting optimal response vectors...",
+  "🔄 Cycling through infinite possibility matrices...",
+  "🛸 Downloading insights from the AI mothership...",
+  "⚛️ Splitting atoms of information for precision...",
+  "🌊 Surfing waves of pure digital consciousness...",
+  "🔥 Igniting fusion reactors of creativity...",
+  "💎 Crystallizing thoughts into perfect responses...",
+  "🌈 Painting responses with spectrum of knowledge...",
+  "⚡ Channeling lightning-fast neural computations...",
+  "🎭 Orchestrating symphony of AI collaboration...",
+  "🔭 Scanning distant galaxies of information...",
+  "🧬 Decoding DNA sequences of your question...",
+  "🌀 Spiraling through dimensions of understanding...",
+  "💫 Materializing wisdom from quantum foam...",
+  "🎪 Performing computational acrobatics...",
+  "🔮 Gazing into crystal balls of possibility...",
+  "⚗️ Brewing perfect elixir of knowledge...",
+  "🎨 Sculpting responses from raw data marble...",
+  "🌺 Blooming insights in digital gardens...",
+  "🎵 Composing melodies of meaningful answers..."
 ]
 
 export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
@@ -317,7 +333,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             </div>
             <div>
               <CardTitle className="text-lg font-futura text-foreground">
-                AI Chat
+                cortiGPT
               </CardTitle>
             </div>
           </div>
@@ -330,21 +346,21 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
           </Button>
           </div>
         </CardHeader>
-        <CardContent className="p-0 h-[calc(100%-80px)]">
-        <div className="flex flex-col h-full">
+        <CardContent className="p-0 flex flex-col h-full">
           {/* Messages Area */}
-          <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-            {messages.length === 0 && !isLoading ? (
-              <div className="flex items-center justify-center h-full min-h-[200px]">
-                <div className="text-center">
-                  <Bot className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
-                  <p className="text-muted-foreground">
-                    Start a conversation by typing a message below.
-                  </p>
+          <div className="flex-1 min-h-0">
+            <ScrollArea className="h-full p-1 sm:p-4" ref={scrollAreaRef}>
+              {messages.length === 0 && !isLoading ? (
+                <div className="flex items-center justify-center h-full min-h-[200px]">
+                  <div className="text-center">
+                    <Bot className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
+                    <p className="text-muted-foreground">
+                      Start a conversation by typing a message below.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
+              ) : (
+                <div className="space-y-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -402,12 +418,15 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                     </div>
                   </div>
                 )}
+                {/* Spacer to ensure content is not hidden behind input */}
+                <div className="h-32 sm:h-36"></div>
               </div>
             )}
-          </ScrollArea>
+            </ScrollArea>
+          </div>
 
-          {/* Input Area */}
-          <div className="flex-shrink-0 p-4 border-t bg-background">
+          {/* Fixed Input Area at Bottom */}
+          <div className="flex-shrink-0 p-2 sm:p-4 border-t bg-background/95 backdrop-blur-sm sticky bottom-0 z-10">
             <div className="flex gap-2">
               <Input
                 ref={inputRef}
@@ -416,13 +435,13 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
-                className="flex-1"
+                className="flex-1 text-sm sm:text-base"
               />
               <Button
                 onClick={handleSendMessage}
                 disabled={!currentMessage.trim() || isLoading}
                 size="sm"
-                className="px-3"
+                className="px-3 shrink-0"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -431,7 +450,6 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 )}
               </Button>
             </div>
-          </div>
           </div>
         </CardContent>
       </Card>

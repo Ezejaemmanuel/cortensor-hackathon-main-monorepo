@@ -125,9 +125,9 @@ export function CortensorChatWeb2() {
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-                <div className="container px-2 py-2 mx-auto sm:px-4 sm:py-4">
+                <div className="container px-1 py-1 mx-auto sm:px-4 sm:py-4">
                     <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center sm:gap-3">
+                        <div className="flex gap-1 items-center sm:gap-3">
                             <motion.div
                                 className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10"
                                 whileHover={{ scale: 1.05 }}
@@ -239,7 +239,7 @@ export function CortensorChatWeb2() {
                                             </Button>
                                         </motion.div>
                                     </CredenzaTrigger>
-                                    <CredenzaContent className="max-w-sm backdrop-blur-xl bg-card/95 border-border/50 shadow-glass">
+                                    <CredenzaContent className="backdrop-blur-xl bg-card/95 border-border/50 shadow-glass">
                                         <CredenzaHeader>
                                             <CredenzaTitle className="text-lg font-futura text-foreground">
                                                 Chat History
