@@ -26,15 +26,17 @@ export interface ClearSelectedTextMessage {
   type: 'CLEAR_SELECTED_TEXT';
 }
 
+
+
 export interface MessageResponse {
   success: boolean;
   data?: TextSelectionData | null;
 }
 
-export type ExtensionMessage = 
-  | TextSelectedMessage 
-  | TextSelectionUpdateMessage 
-  | GetSelectedTextMessage 
+export type ExtensionMessage =
+  | TextSelectedMessage
+  | TextSelectionUpdateMessage
+  | GetSelectedTextMessage
   | ClearSelectedTextMessage;
 
 export interface SelectedTextPreview {

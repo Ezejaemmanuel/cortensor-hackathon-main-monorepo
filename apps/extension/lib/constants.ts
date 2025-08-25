@@ -1,6 +1,10 @@
 // Contract addresses and constants
 export const COR_TOKEN_ADDRESS = '0xF9C355394e7b3F147e8aFEBF95B3Ebbf688457f3' as const
 
+// Content extraction limits
+export const MAX_CONTENT_LENGTH = 3000
+export const MAX_TEXT_LENGTH = 700
+
 // Session configuration defaults
 export const DEFAULT_SESSION_CONFIG = {
   minNumOfNodes: BigInt(1),

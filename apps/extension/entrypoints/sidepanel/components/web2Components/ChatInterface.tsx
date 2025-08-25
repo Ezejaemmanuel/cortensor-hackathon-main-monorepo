@@ -15,23 +15,16 @@ import {
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { getApiEndpoint } from '@/lib/api-config'
-import { SelectedTextPreview, ClearSelectedTextMessage, TextSelectionUpdateMessage, GetSelectedTextMessage, MessageResponse } from '@/types/messaging'
+import {
+  SelectedTextPreview,
+  ClearSelectedTextMessage,
+  TextSelectionUpdateMessage,
+  GetSelectedTextMessage,
+  MessageResponse
+} from '@/types/messaging'
+import { useChatStore, ChatMessage } from '@/stores/chat-store'
+import type { TextSelectionData } from '@/types/messaging'
 
-
-interface ChatMessage {
-  id: string
-  content: string
-  sender: 'user' | 'ai'
-  timestamp: Date
-}
-
-interface ChatHistoryItem {
-  id: string
-  title: string
-  lastMessage: string
-  timestamp: Date
-  messageCount: number
-}
 
 interface ChatInterfaceProps {
   className?: string
@@ -57,17 +50,36 @@ const CORTENSOR_PLACEHOLDER_TEXTS = [
 ]
 
 export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [currentMessage, setCurrentMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
-  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([])
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
   const [selectedTextPreview, setSelectedTextPreview] = useState<SelectedTextPreview | null>(null)
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Zustand store
+  const store = useChatStore()
+  const currentTabData = store.getCurrentTabData()
+  const messages = currentTabData?.messages || []
+  const chatHistory = currentTabData?.chatHistory || []
+  const selectedChatId = currentTabData?.selectedChatId || null
+
+  // Get current tab URL on mount
+  useEffect(() => {
+    const getCurrentTab = async () => {
+      try {
+        const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+        if (tabs[0]?.id && tabs[0]?.url) {
+          store.setCurrentTab(tabs[0].id.toString(), tabs[0].url)
+        }
+      } catch (error) {
+        console.error('Failed to get current tab:', error)
+      }
+    }
+    getCurrentTab()
+  }, [])
 
   // Utility function to truncate text to approximately two lines
   const truncateToTwoLines = (text: string): string => {
@@ -89,74 +101,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       });
   };
 
-  // Load messages for a specific chat
-  const loadChatMessages = useCallback((chatId: string) => {
-    const savedMessages = localStorage.getItem(`cortensor_messages_${userAddress}_${chatId}`)
-    if (savedMessages) {
-      try {
-        const parsed = JSON.parse(savedMessages) as Array<{
-          id: string
-          content: string
-          sender: 'user' | 'ai'
-          timestamp: string
-        }>
-        setMessages(parsed.map((msg) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        })))
-        setSelectedChatId(chatId)
-      } catch (error) {
-        console.error('Failed to parse messages:', error)
-        setMessages([])
-        setSelectedChatId(chatId)
-      }
-    } else {
-      setMessages([])
-      setSelectedChatId(chatId)
-    }
-  }, [userAddress])
 
-  // Load chat history from localStorage
-  useEffect(() => {
-    const savedHistory = localStorage.getItem(`cortensor_chat_history_${userAddress}`)
-    if (savedHistory) {
-      try {
-        const parsed = JSON.parse(savedHistory) as Array<{
-          id: string
-          title: string
-          lastMessage: string
-          timestamp: string
-          messageCount: number
-        }>
-        setChatHistory(parsed.map((item) => ({
-          ...item,
-          timestamp: new Date(item.timestamp)
-        })))
-      } catch (error) {
-        console.error('Failed to parse chat history:', error)
-      }
-    }
-
-    // Load current chat messages if any
-    const currentChatId = localStorage.getItem(`cortensor_current_chat_${userAddress}`)
-    if (currentChatId) {
-      loadChatMessages(currentChatId)
-    }
-  }, [userAddress, loadChatMessages])
-
-  // Listen for chat switch events
-  useEffect(() => {
-    const handleChatSwitch = (event: CustomEvent) => {
-      const { chatId } = event.detail
-      loadChatMessages(chatId)
-    }
-
-    window.addEventListener('chatSwitched', handleChatSwitch as EventListener)
-
-    return () => {
-      window.removeEventListener('chatSwitched', handleChatSwitch as EventListener)
-    }
-  }, [loadChatMessages])
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -191,9 +136,9 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }, [isLoading])
 
-  // Listen for text selection messages from background script
+  // Listen for text selection and website content messages from background script
   useEffect(() => {
-    const handleMessage = (message: TextSelectionUpdateMessage) => {
+    const handleMessage = (message: TextSelectionUpdateMessage ) => {
       if (message.type === 'TEXT_SELECTION_UPDATE') {
         const { text, url, timestamp } = message.data;
         if (text && text.trim()) {
@@ -220,12 +165,13 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     const getSelectedTextMessage: GetSelectedTextMessage = { type: 'GET_SELECTED_TEXT' };
     browser.runtime.sendMessage(getSelectedTextMessage)
       .then((response: MessageResponse) => {
-        if (response.success && response.data && response.data.text) {
+        if (response.success && response.data && 'text' in response.data) {
+          const textData = response.data as TextSelectionData;
           const preview: SelectedTextPreview = {
-            originalText: response.data.text,
-            truncatedText: truncateToTwoLines(response.data.text),
-            url: response.data.url,
-            timestamp: response.data.timestamp,
+            originalText: textData.text,
+            truncatedText: truncateToTwoLines(textData.text),
+            url: textData.url,
+            timestamp: textData.timestamp,
             isVisible: true
           };
           setSelectedTextPreview(preview);
@@ -241,78 +187,54 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     };
   }, []);
 
-  // Save messages to localStorage
-  const saveMessages = (chatId: string, msgs: ChatMessage[]) => {
-    localStorage.setItem(`cortensor_messages_${userAddress}_${chatId}`, JSON.stringify(msgs))
-  }
-
-  // Save chat history to localStorage
-  const saveChatHistory = useCallback((history: ChatHistoryItem[]) => {
-    localStorage.setItem(`cortensor_chat_history_${userAddress}`, JSON.stringify(history))
-    setChatHistory(history)
-  }, [userAddress])
-
-  // Create new chat
-  const createNewChat = useCallback(() => {
-    const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    const newChat: ChatHistoryItem = {
-      id: newChatId,
-      title: `Chat ${chatHistory.length + 1}`,
-      lastMessage: 'New conversation started',
-      timestamp: new Date(),
-      messageCount: 0
+  // Listen for chat switch events
+  useEffect(() => {
+    const handleChatSwitch = (event: CustomEvent) => {
+      const { chatId } = event.detail
+      // The store will handle loading the chat automatically
     }
-    const updatedHistory = [newChat, ...chatHistory]
-    saveChatHistory(updatedHistory)
-    setSelectedChatId(newChatId)
-    setMessages([])
-    localStorage.setItem(`cortensor_current_chat_${userAddress}`, newChatId)
-  }, [chatHistory, saveChatHistory, userAddress])
 
-  // Update chat history with latest message
-  const updateChatHistory = (message: string) => {
-    if (!selectedChatId) return
+    window.addEventListener('chatSwitched', handleChatSwitch as EventListener)
 
-    const updatedHistory = chatHistory.map(chat =>
-      chat.id === selectedChatId
-        ? {
-          ...chat,
-          lastMessage: message,
-          timestamp: new Date(),
-          messageCount: messages.length + 1
-        }
-        : chat
-    )
-    saveChatHistory(updatedHistory)
-  }
+    return () => {
+      window.removeEventListener('chatSwitched', handleChatSwitch as EventListener)
+    }
+  }, [])
 
   const handleSendMessage = async () => {
-    if (!currentMessage.trim() || isLoading) return
+    // Allow sending if there's either a message or selected text
+    const hasMessage = currentMessage.trim()
+    const hasSelectedText = selectedTextPreview && selectedTextPreview.isVisible
+
+    if ((!hasMessage && !hasSelectedText) || isLoading) return
 
     if (!selectedChatId) {
-      createNewChat()
-      // Wait for state to update
-      setTimeout(() => handleSendMessage(), 100)
-      return
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+      if (tabs[0]?.id) {
+        const newChatId = store.createNewChat(tabs[0].id.toString())
+        // Wait for state to update
+        setTimeout(() => handleSendMessage(), 100)
+        return
+      }
     }
 
-    // Format the message properly if there's selected text
-    let formattedMessage = currentMessage.trim();
-    if (selectedTextPreview && selectedTextPreview.isVisible) {
-      formattedMessage = `Context: "${selectedTextPreview.originalText}"\n\nUser request: ${currentMessage.trim()}`;
+    // Format the message properly
+    let formattedMessage = hasMessage ? currentMessage.trim() : 'tell me about this'
+
+    if (hasSelectedText) {
+      formattedMessage = `Context: "${selectedTextPreview.originalText}"\n\nUser request: ${formattedMessage}`;
     }
 
-    const userMessage: ChatMessage = {
-      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      content: formattedMessage,
-      sender: 'user',
-      timestamp: new Date()
+    // Add user message to store
+    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+    if (tabs[0]?.id && selectedChatId) {
+      store.addMessage(tabs[0].id.toString(), selectedChatId, {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        content: formattedMessage,
+        sender: 'user',
+        timestamp: new Date()
+      })
     }
-
-    const newMessages = [...messages, userMessage]
-    setMessages(newMessages)
-    saveMessages(selectedChatId, newMessages)
-    updateChatHistory(userMessage.content)
 
     const messageToSend = formattedMessage
     setCurrentMessage('')
@@ -321,7 +243,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
     try {
       // Send the current message with chatId for memory context
-      const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(selectedChatId)}`), {
+      const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(selectedChatId || '')}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -343,29 +265,29 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       // Clean the AI response by removing </s> tags
       const cleanResponse = (data.content?.[0]?.text || data.message || "No response").replace(/<\/s>$/g, '').trim()
 
-      const aiMessage: ChatMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        content: cleanResponse,
-        sender: 'ai',
-        timestamp: new Date()
+      // Add AI message to store
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+      if (tabs[0]?.id && selectedChatId) {
+        store.addMessage(tabs[0].id.toString(), selectedChatId, {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          content: cleanResponse,
+          sender: 'ai',
+          timestamp: new Date()
+        })
       }
-
-      const updatedMessages = [...newMessages, aiMessage]
-      setMessages(updatedMessages)
-      saveMessages(selectedChatId, updatedMessages)
-      updateChatHistory(aiMessage.content)
 
     } catch (error) {
       console.error('Failed to send message:', error)
-      const errorMessage: ChatMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        content: "Sorry, I encountered an error processing your message. Please try again.",
-        sender: 'ai',
-        timestamp: new Date()
+      // Add error message to store
+      const tabs = await browser.tabs.query({ active: true, currentWindow: true })
+      if (tabs[0]?.id && selectedChatId) {
+        store.addMessage(tabs[0].id.toString(), selectedChatId, {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          content: "Sorry, I encountered an error processing your message. Please try again.",
+          sender: 'ai',
+          timestamp: new Date()
+        })
       }
-      const updatedMessages = [...newMessages, errorMessage]
-      setMessages(updatedMessages)
-      saveMessages(selectedChatId, updatedMessages)
     } finally {
       setIsLoading(false)
     }
@@ -381,9 +303,16 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   // Create initial chat if none exists
   useEffect(() => {
     if (!selectedChatId && chatHistory.length === 0) {
-      createNewChat()
+      browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
+        if (tabs[0]?.id) {
+          store.createNewChat(tabs[0].id.toString())
+        }
+      })
     }
-  }, [selectedChatId, chatHistory.length, createNewChat])
+  }, [selectedChatId, chatHistory.length, store])
+
+  // Check if send button should be enabled
+  const canSend = (currentMessage.trim() || (selectedTextPreview && selectedTextPreview.isVisible)) && !isLoading
 
   return (
     <Card className={cn(
@@ -403,7 +332,13 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             </div>
           </div>
           <Button
-            onClick={createNewChat}
+            onClick={() => {
+              const tabs = browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
+                if (tabs[0]?.id) {
+                  store.createNewChat(tabs[0].id.toString())
+                }
+              })
+            }}
             size="sm"
             className="p-0 w-8 h-8"
           >
@@ -419,74 +354,76 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               <div className="flex items-center justify-center h-full min-h-[200px]">
                 <div className="text-center">
                   <Bot className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground mb-4">
                     Start a conversation by typing a message below.
                   </p>
+                  {/* Ask AI about site button when no text is highlighted */}
+
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  {message.sender === 'ai' && (
+                {messages.map((message: ChatMessage) => (
+                  <div
+                    key={message.id}
+                    className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                  >
+                    {message.sender === 'ai' && (
+                      <div className="flex-shrink-0">
+                        <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
+                          <Bot className="w-4 h-4 text-primary" />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-first' : ''}`}>
+                      <div className={`rounded-lg px-4 py-2 ${message.sender === 'user'
+                        ? 'bg-primary text-primary-foreground ml-auto'
+                        : 'bg-muted'
+                        }`}>
+                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      </div>
+
+                      <div className={`flex items-center gap-2 mt-1 text-xs text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
+                      </div>
+                    </div>
+
+                    {message.sender === 'user' && (
+                      <div className="flex-shrink-0">
+                        <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
+                          <User className="w-4 h-4 text-primary" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+                {/* Loading placeholder */}
+                {isLoading && (
+                  <div className="flex gap-3 justify-start">
                     <div className="flex-shrink-0">
                       <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
                         <Bot className="w-4 h-4 text-primary" />
                       </div>
                     </div>
-                  )}
 
-                  <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-first' : ''}`}>
-                    <div className={`rounded-lg px-4 py-2 ${message.sender === 'user'
-                      ? 'bg-primary text-primary-foreground ml-auto'
-                      : 'bg-muted'
-                      }`}>
-                      <p className="whitespace-pre-wrap">{message.content}</p>
-                    </div>
-
-                    <div className={`flex items-center gap-2 mt-1 text-xs text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
-                    </div>
-                  </div>
-
-                  {message.sender === 'user' && (
-                    <div className="flex-shrink-0">
-                      <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                        <User className="w-4 h-4 text-primary" />
-                      </div>
-                    </div>
-                  )}
-                </div>
-              ))}
-
-              {/* Loading placeholder */}
-              {isLoading && (
-                <div className="flex gap-3 justify-start">
-                  <div className="flex-shrink-0">
-                    <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                      <Bot className="w-4 h-4 text-primary" />
-                    </div>
-                  </div>
-
-                  <div className="max-w-[80%]">
-                    <div className="rounded-lg px-4 py-2 bg-muted">
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground italic">
-                          {currentPlaceholder}
-                        </p>
+                    <div className="max-w-[80%]">
+                      <div className="rounded-lg px-4 py-2 bg-muted">
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
+                          <p className="text-sm text-muted-foreground italic">
+                            {currentPlaceholder}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-              {/* Spacer to ensure content is not hidden behind input */}
-              <div className="h-60 sm:h-60"></div>
-            </div>
-          )}
+                )}
+                {/* Spacer to ensure content is not hidden behind input */}
+                <div className="h-60 sm:h-60"></div>
+              </div>
+            )}
           </ScrollArea>
         </div>
 
@@ -513,11 +450,13 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 {selectedTextPreview.truncatedText}
               </div>
               <div className="text-xs text-muted-foreground mt-2">
-                💡 Add your request below to ask about this text
+                💡 Add your request below to ask about this text (or leave empty for "tell me about this")
               </div>
             </div>
           )}
-          
+
+
+
           <div className="flex gap-2">
             <Input
               ref={inputRef}
@@ -530,7 +469,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             />
             <Button
               onClick={handleSendMessage}
-              disabled={!currentMessage.trim() || isLoading}
+              disabled={!canSend}
               size="sm"
               className="px-3 shrink-0"
             >

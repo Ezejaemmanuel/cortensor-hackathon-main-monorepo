@@ -7,7 +7,7 @@
 import { Agent } from '@mastra/core';
 import { Memory } from '@mastra/memory';
 import { UpstashStore } from '@mastra/upstash';
-import { cortensorModel } from 'cortensor-openai-provider';
+import { cortensorModel, createTavilySearch } from 'cortensor-openai-provider';
 
 /**
  * Environment variable validation
@@ -32,6 +32,7 @@ function validateEnvironment() {
 
     return requiredEnvVars;
 }
+
 
 /**
  * Initialize memory with Upstash storage
@@ -65,15 +66,29 @@ function createMemoryWithUpstash() {
 
 /**
  * CortGPT Agent Configuration
- * Uses Cortensor as the underlying language model with Upstash memory
+ * Uses Cortensor as the underlying language model with Upstash memory and Tavily web search
+ * 
+ * Web Search Usage:
+ * - Use [search] in your message to trigger web search: "[search] What's the latest news about AI?"
+ * - Use [no-search] to prevent search: "[no-search] Tell me a joke"
+ * - Search is automatically triggered by [search] markers (prompt mode)
+ * 
+ * Note: Requires TAVILY_API_KEY environment variable for web search functionality
  */
 export const cortGPTAgent = new Agent({
     name: 'CortGPT',
     instructions: `You are CortGPT, a helpful AI assistant powered by Cortensor. Your goal is to help users by answering their questions and providing assistance with various tasks. Be friendly, informative, and concise in your responses.`,
 
-    // Use Cortensor as the language model with custom configuration
+    // Use Cortensor as the language model with custom configuration and web search
     model: cortensorModel({
         sessionId: 62,
+        maxTokens: 2000,
+        temperature: 0.4,
+        webSearch: {
+            mode: 'prompt', // Search triggered by [search] markers in user messages
+            provider: createTavilySearch(),
+            maxResults: 3
+        }
     }),
 
     // No tools needed for this general assistant

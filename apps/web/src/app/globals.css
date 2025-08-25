@@ -122,6 +122,22 @@ All colors MUST be HSL for Web3 premium aesthetic.
     box-shadow: var(--glow-accent);
   }
 
+  /* Text Glow Effects */
+  .text-primary-glow {
+    color: hsl(var(--primary));
+    text-shadow: 0 0 20px hsl(var(--primary) / 0.5);
+  }
+
+  .text-secondary-glow {
+    color: hsl(var(--secondary));
+    text-shadow: 0 0 20px hsl(var(--secondary) / 0.5);
+  }
+
+  .text-accent-glow {
+    color: hsl(var(--accent));
+    text-shadow: 0 0 20px hsl(var(--accent) / 0.5);
+  }
+
   /* Clean Modern Background */
   .neural-bg {
     background: linear-gradient(135deg, hsl(0 0% 0%) 0%, hsl(0 0% 2%) 100%);

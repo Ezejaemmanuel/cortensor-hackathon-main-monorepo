@@ -1,68 +1,75 @@
-import type { TextSelectedMessage } from '../types/messaging';
+import { extractAndTrackSelection } from '../lib/text-extractor';
+import { sendTextSelectionMessage } from '../lib/message-handler';
 
 export default defineContentScript({
   matches: ['<all_urls>'],
   main() {
-    console.log('Cortensor content script loaded');
+    console.log('[ContentScript] Cortensor content script loaded', {
+      url: window.location.href,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent.substring(0, 100)
+    });
     
-    let lastSelectedText = '';
-    
-    // Function to get selected text
-    function getSelectedText(): string {
-      const selection = window.getSelection();
-      return selection ? selection.toString().trim() : '';
-    }
-    
-    // Function to send selected text to extension
-    function sendSelectedText(text: string): void {
-      if (text && text !== lastSelectedText) {
-        lastSelectedText = text;
-        const message: TextSelectedMessage = {
-          type: 'TEXT_SELECTED',
-          text: text,
-          url: window.location.href,
-          timestamp: Date.now()
-        };
+ 
+
+    /**
+     * Handle text selection with simplified logging
+     */
+    async function handleTextSelection(): Promise<void> {
+      try {
+        const result = extractAndTrackSelection();
         
-        browser.runtime.sendMessage(message).catch(error => {
-          console.log('Failed to send message:', error);
-        });
+        if (result && result.text) {
+          console.log('[Content] Text selected:', result.text.substring(0, 50) + '...');
+          
+          try {
+            await sendTextSelectionMessage(result.text);
+            console.log('[Content] Text sent successfully');
+          } catch (error) {
+            console.error('[Content] Failed to send text:', error);
+          }
+        }
+      } catch (error) {
+        console.error('[Content] Selection error:', error);
       }
     }
-    
-    // Listen for text selection events
-    document.addEventListener('mouseup', () => {
-      setTimeout(() => {
-        const selectedText = getSelectedText();
-        if (selectedText) {
-          sendSelectedText(selectedText);
-        }
-      }, 100); // Small delay to ensure selection is complete
-    });
-    
-    // Listen for keyboard selection (Shift + Arrow keys, Ctrl+A, etc.)
-    document.addEventListener('keyup', (event) => {
-      // Check if it's a selection-related key combination
-      if (event.shiftKey || event.ctrlKey || event.metaKey) {
-        setTimeout(() => {
-          const selectedText = getSelectedText();
-          if (selectedText) {
-            sendSelectedText(selectedText);
-          }
-        }, 100);
+
+
+
+    /**
+      * Debounced text selection handler with unhighlight detection
+      */
+     let selectionTimeout: number | null = null;
+     
+     function debouncedHandleSelection(): void {
+       if (selectionTimeout) {
+         clearTimeout(selectionTimeout);
+       }
+       
+       selectionTimeout = window.setTimeout(() => {
+         handleTextSelection();
+         selectionTimeout = null;
+       }, 700); // Reduced delay for better responsiveness
+     }
+
+    // Setup event listeners for text selection
+    console.log('[Content] Setting up text selection listeners');
+
+    // Mouse and keyboard events for text selection
+    document.addEventListener('mouseup', debouncedHandleSelection);
+    document.addEventListener('keyup', debouncedHandleSelection);
+    document.addEventListener('dblclick', debouncedHandleSelection);
+    document.addEventListener('contextmenu', debouncedHandleSelection);
+
+    // Page visibility change
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        debouncedHandleSelection();
       }
     });
-    
-    // Listen for double-click selection
-    document.addEventListener('dblclick', () => {
-      setTimeout(() => {
-        const selectedText = getSelectedText();
-        if (selectedText) {
-          sendSelectedText(selectedText);
-        }
-      }, 100);
-    });
-    
-    console.log('Text selection tracking initialized');
+
+  
+
+    console.log('[Content] Content script initialized');
   },
 });
