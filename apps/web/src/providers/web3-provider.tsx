@@ -10,7 +10,7 @@ import ReactQueryProvider from './react-query-provider'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
 
-export  function Web3Provider({ children }: Readonly<{ children: React.ReactNode }>) {
+export function Web3Provider({ children }: Readonly<{ children: React.ReactNode }>) {
 
 
   return (
@@ -34,7 +34,7 @@ export  function Web3Provider({ children }: Readonly<{ children: React.ReactNode
               closeButton
               theme="dark"
             />
-                      </TooltipProvider>
+          </TooltipProvider>
 
           {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </RainbowKitProvider>

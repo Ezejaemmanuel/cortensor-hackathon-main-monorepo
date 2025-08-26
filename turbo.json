@@ -6,7 +6,9 @@
         "CORTENSOR_BASE_URL",
         "UPSTASH_REDIS_REST_URL",
         "UPSTASH_REDIS_REST_TOKEN",
-        "TAVILY_API_KEY"
+        "TAVILY_API_KEY",
+        "NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID",
+        "NEXT_PUBLIC_ARBITRUM_SEPOLIA_RPC_URL"
     ],
     "tasks": {
         "build": {
