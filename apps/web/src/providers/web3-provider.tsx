@@ -16,6 +16,8 @@ export function Web3Provider({ children }: Readonly<{ children: React.ReactNode 
   return (
     <WagmiProvider config={config}>
       <ReactQueryProvider>
+      <TooltipProvider>
+
         <RainbowKitProvider
           theme={darkTheme({
             accentColor: 'hsl(var(--accent))',
@@ -25,7 +27,6 @@ export function Web3Provider({ children }: Readonly<{ children: React.ReactNode 
             overlayBlur: 'small',
           })}
         >
-          <TooltipProvider>
 
             {children}
             <Toaster
@@ -34,10 +35,11 @@ export function Web3Provider({ children }: Readonly<{ children: React.ReactNode 
               closeButton
               theme="dark"
             />
-          </TooltipProvider>
 
           {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         </RainbowKitProvider>
+        </TooltipProvider>
+
       </ReactQueryProvider>
     </WagmiProvider>
   )
