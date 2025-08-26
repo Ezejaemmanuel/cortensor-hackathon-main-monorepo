@@ -18,6 +18,7 @@ import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { getApiEndpoint } from '@/lib/api-config'
+import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 
 interface ChatMessage {
   id: string
@@ -342,33 +343,35 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   return (
     <Card className={cn(
       "h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass",
+      "lg:max-w-4xl lg:mx-auto",
       className
     )}>
-      <CardHeader className="pb-3">
+      <CardHeader className="px-4 pb-3 lg:px-6">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="flex justify-center items-center w-8 h-8 rounded-lg bg-gradient-secondary shadow-glow-secondary">
-              <Bot className="w-5 h-5 text-secondary-foreground" />
+            <div className="flex justify-center items-center w-8 h-8 rounded-lg lg:w-10 lg:h-10 bg-gradient-secondary shadow-glow-secondary">
+              <Bot className="w-5 h-5 lg:w-6 lg:h-6 text-secondary-foreground" />
             </div>
             <div>
-              <CardTitle className="text-lg font-futura text-foreground">
+              <CardTitle className="text-lg lg:text-xl font-futura text-foreground">
                 cortiGPT
               </CardTitle>
+           
             </div>
           </div>
           <Button
             onClick={createNewChat}
             size="sm"
-            className="p-0 w-8 h-8"
+            className="p-0 w-8 h-8 transition-transform lg:w-9 lg:h-9 hover:scale-105"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 lg:w-5 lg:h-5" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-0 flex flex-col h-full">
+      <CardContent className="flex flex-col flex-1 p-0 min-h-0">
         {/* Messages Area */}
         <div className="flex-1 min-h-0">
-          <ScrollArea className="h-full p-1 sm:p-4" ref={scrollAreaRef}>
+          <ScrollArea className="p-2 h-full sm:p-4 lg:p-6" ref={scrollAreaRef}>
             {messages.length === 0 && !isLoading ? (
               <div className="flex items-center justify-center h-full min-h-[200px]">
                 <div className="text-center">
@@ -379,37 +382,44 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-4 lg:space-y-6">
                 {messages.map((message) => (
                   <div
                     key={message.id}
-                    className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex gap-3 lg:gap-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     {message.sender === 'ai' && (
                       <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                          <Bot className="w-4 h-4 text-primary" />
+                        <div className="flex justify-center items-center w-8 h-8 rounded-full ring-2 lg:w-10 lg:h-10 bg-primary/10 ring-primary/5">
+                          <Bot className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
                         </div>
                       </div>
                     )}
 
-                    <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-first' : ''}`}>
-                      <div className={`rounded-lg px-4 py-2 ${message.sender === 'user'
-                        ? 'bg-primary text-primary-foreground ml-auto'
-                        : 'bg-muted'
+                    <div className={`max-w-[85%] lg:max-w-[70%] xl:max-w-[65%] ${message.sender === 'user' ? 'order-first' : ''}`}>
+                      <div className={`rounded-xl lg:rounded-2xl px-4 py-3 lg:px-6 lg:py-4 ${message.sender === 'user'
+                        ? 'bg-primary text-primary-foreground ml-auto shadow-lg shadow-primary/20'
+                        : 'bg-muted/80 backdrop-blur-sm border border-border/50 shadow-sm'
                         }`}>
-                        <p className="whitespace-pre-wrap">{message.content}</p>
+                        {message.sender === 'ai' ? (
+                          <MarkdownRenderer 
+                            content={message.content} 
+                            className="prose-sm sm:prose-base max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+                          />
+                        ) : (
+                          <p className="text-sm whitespace-pre-wrap sm:text-base">{message.content}</p>
+                        )}
                       </div>
 
-                      <div className={`flex items-center gap-2 mt-1 text-xs text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`flex items-center gap-2 mt-2 text-xs lg:text-sm text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
                       </div>
                     </div>
 
                     {message.sender === 'user' && (
                       <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                          <User className="w-4 h-4 text-primary" />
+                        <div className="flex justify-center items-center w-8 h-8 rounded-full ring-2 lg:w-10 lg:h-10 bg-primary/10 ring-primary/5">
+                          <User className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
                         </div>
                       </div>
                     )}
@@ -418,18 +428,18 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
                 {/* Loading placeholder */}
                 {isLoading && (
-                  <div className="flex gap-3 justify-start">
+                  <div className="flex gap-3 justify-start lg:gap-4">
                     <div className="flex-shrink-0">
-                      <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                        <Bot className="w-4 h-4 text-primary" />
+                      <div className="flex justify-center items-center w-8 h-8 rounded-full ring-2 lg:w-10 lg:h-10 bg-primary/10 ring-primary/5">
+                        <Bot className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
                       </div>
                     </div>
 
-                    <div className="max-w-[80%]">
-                      <div className="rounded-lg px-4 py-2 bg-muted">
-                        <div className="flex items-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                          <p className="text-sm text-muted-foreground italic">
+                    <div className="max-w-[80%] lg:max-w-[70%]">
+                      <div className="px-4 py-3 rounded-xl border backdrop-blur-sm lg:rounded-2xl lg:px-6 lg:py-4 bg-muted/80 border-border/50">
+                        <div className="flex gap-2 items-center">
+                          <Loader2 className="w-4 h-4 animate-spin lg:w-5 lg:h-5 text-muted-foreground" />
+                          <p className="text-sm italic lg:text-base text-muted-foreground">
                             {currentPlaceholder}
                           </p>
                         </div>
@@ -438,36 +448,43 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   </div>
                 )}
                 {/* Spacer to ensure content is not hidden behind input */}
-                <div className="h-32 sm:h-36"></div>
+                <div className="h-4 sm:h-6"></div>
               </div>
             )}
           </ScrollArea>
         </div>
 
         {/* Fixed Input Area at Bottom */}
-        <div className="flex-shrink-0 p-2 sm:p-4 border-t bg-background/95 backdrop-blur-sm sticky bottom-0 z-10">
+        <div className="sticky bottom-0 z-10 flex-shrink-0 p-2 border-t backdrop-blur-sm sm:p-3 lg:p-4 bg-background/95">
           {/* Web Search Status Indicator */}
           {isWebSearchEnabled && (
-            <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
-              <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              <span className="text-sm text-blue-700 dark:text-blue-300">
-                Web search enabled - Your query will include web results
+            <div className="flex gap-2 items-center px-4 py-3 mb-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border shadow-sm backdrop-blur-sm dark:from-blue-950/40 dark:to-cyan-950/40 border-blue-200/60 dark:border-blue-800/60">
+              <div className="flex justify-center items-center w-6 h-6 bg-blue-100 rounded-full dark:bg-blue-900/50">
+                <Search className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              </div>
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                Web search enabled - Your queries will include web results
               </span>
             </div>
           )}
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 lg:gap-3">
             <Button
               onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
-              variant={isWebSearchEnabled ? "default" : "outline"}
+              variant="outline"
               size="sm"
-              className="px-3 shrink-0"
-              title={isWebSearchEnabled ? "Disable web search" : "Enable web search"}
+              className={cn(
+                "px-3 border-2 transition-all duration-300 ease-in-out lg:px-4 shrink-0 lg:h-12",
+                isWebSearchEnabled 
+                  ? "text-white bg-blue-500 border-blue-500 shadow-lg scale-105 hover:bg-blue-600 shadow-blue-500/25" 
+                  : "hover:bg-muted border-border hover:border-blue-300 dark:hover:border-blue-600"
+              )}
+              title={isWebSearchEnabled ? "Web search enabled - Click to disable" : "Web search disabled - Click to enable"}
             >
               {isWebSearchEnabled ? (
-                <Search className="w-4 h-4" />
+                <Search className="w-4 h-4 lg:w-5 lg:h-5" />
               ) : (
-                <SearchX className="w-4 h-4" />
+                <SearchX className="w-4 h-4 lg:w-5 lg:h-5" />
               )}
             </Button>
             <Input
@@ -477,18 +494,18 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               onChange={(e) => setCurrentMessage(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={isLoading}
-              className="flex-1 text-sm sm:text-base"
+              className="flex-1 text-sm rounded-xl border-2 transition-colors sm:text-base lg:text-lg lg:h-12 lg:px-4 focus:border-primary/50"
             />
             <Button
               onClick={handleSendMessage}
               disabled={!currentMessage.trim() || isLoading}
               size="sm"
-              className="px-3 shrink-0"
+              className="px-3 shadow-lg transition-transform lg:px-4 shrink-0 lg:h-12 hover:scale-105 shadow-primary/20"
             >
               {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin lg:w-5 lg:h-5" />
               ) : (
-                <Send className="w-4 h-4" />
+                <Send className="w-4 h-4 lg:w-5 lg:h-5" />
               )}
             </Button>
           </div>

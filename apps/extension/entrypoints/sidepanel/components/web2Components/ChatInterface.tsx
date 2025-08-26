@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { getApiEndpoint } from '@/lib/api-config'
 import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS } from '@/lib/constants'
+import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 import {
   SelectedTextPreview,
   ClearSelectedTextMessage,
@@ -366,7 +367,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       <CardContent className="flex flex-col p-0 h-full">
         {/* Messages Area */}
         <div className="flex-1 min-h-0">
-          <ScrollArea className="p-1 h-full sm:p-4" ref={scrollAreaRef}>
+          <ScrollArea className="p-2 h-full sm:p-4" ref={scrollAreaRef}>
             {messages.length === 0 && !isLoading ? (
               <div className="flex items-center justify-center h-full min-h-[200px]">
                 <div className="text-center">
@@ -379,37 +380,41 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-2 sm:space-y-4">
                 {messages.map((message: ChatMessage) => (
                   <div
                     key={message.id}
-                    className={`flex gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                    className={`flex gap-2 sm:gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
                     {message.sender === 'ai' && (
                       <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                          <Bot className="w-4 h-4 text-primary" />
+                        <div className="flex justify-center items-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10">
+                          <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                         </div>
                       </div>
                     )}
 
-                    <div className={`max-w-[80%] ${message.sender === 'user' ? 'order-first' : ''}`}>
-                      <div className={`rounded-lg px-4 py-2 ${message.sender === 'user'
+                    <div className={`max-w-[85%] sm:max-w-[80%] ${message.sender === 'user' ? 'order-first' : ''}`}>
+                      <div className={`rounded-lg px-2 py-1.5 sm:px-4 sm:py-2 ${message.sender === 'user'
                         ? 'bg-primary text-primary-foreground ml-auto'
                         : 'bg-muted'
                         }`}>
-                        <p className="whitespace-pre-wrap">{message.content}</p>
+                        {message.sender === 'ai' ? (
+                          <MarkdownRenderer content={message.content} className="prose-sm max-w-none text-xs sm:text-sm" />
+                        ) : (
+                          <p className="whitespace-pre-wrap text-xs sm:text-sm break-words">{message.content}</p>
+                        )}
                       </div>
 
-                      <div className={`flex items-center gap-2 mt-1 text-xs text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`flex items-center gap-2 mt-0.5 sm:mt-1 text-xs text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
                       </div>
                     </div>
 
                     {message.sender === 'user' && (
                       <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                          <User className="w-4 h-4 text-primary" />
+                        <div className="flex justify-center items-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10">
+                          <User className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                         </div>
                       </div>
                     )}
@@ -418,18 +423,18 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
                 {/* Loading placeholder */}
                 {isLoading && (
-                  <div className="flex gap-3 justify-start">
+                  <div className="flex gap-2 sm:gap-3 justify-start">
                     <div className="flex-shrink-0">
-                      <div className="flex justify-center items-center w-8 h-8 rounded-full bg-primary/10">
-                        <Bot className="w-4 h-4 text-primary" />
+                      <div className="flex justify-center items-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10">
+                        <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                       </div>
                     </div>
 
-                    <div className="max-w-[80%]">
-                      <div className="px-4 py-2 rounded-lg bg-muted">
+                    <div className="max-w-[85%] sm:max-w-[80%]">
+                      <div className="px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-muted">
                         <div className="flex gap-2 items-center">
-                          <Loader2 className="w-4 h-4 animate-spin text-muted-foreground" />
-                          <p className="text-sm italic text-muted-foreground">
+                          <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin text-muted-foreground" />
+                          <p className="text-xs sm:text-sm italic text-muted-foreground break-words">
                             {currentPlaceholder}
                           </p>
                         </div>
@@ -438,7 +443,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   </div>
                 )}
                 {/* Spacer to ensure content is not hidden behind input */}
-                <div className="h-60 sm:h-60"></div>
+                <div className="h-4 sm:h-6"></div>
               </div>
             )}
           </ScrollArea>

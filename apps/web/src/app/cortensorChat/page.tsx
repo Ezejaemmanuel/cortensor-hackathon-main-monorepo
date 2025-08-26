@@ -47,9 +47,9 @@ const MainChatPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-6">
+    <div className="h-[calc(100vh-5rem)] bg-background pt-6 flex flex-col">
       {/* Custom Glassmorphism Tabs */}
-      <div className="sticky top-0 z-50 border-b backdrop-blur-xl bg-background/80 border-border/50">
+      <div className="sticky top-0 z-50 border-b backdrop-blur-xl bg-background/80 border-border/50 flex-shrink-0">
         <div className="px-2 py-2 mx-auto max-w-7xl sm:px-4 sm:py-4">
           <div className="flex justify-center items-center">
             <div className="flex relative p-1 rounded-2xl border backdrop-blur-xl bg-card/30 border-border/50 shadow-glass sm:p-2">
@@ -109,7 +109,7 @@ const MainChatPage = () => {
       </div>
 
       {/* Tab Content with Framer Motion */}
-      <div className="relative">
+      <div className="relative flex-1 min-h-0">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -118,6 +118,7 @@ const MainChatPage = () => {
             animate="center"
             exit="exit"
             transition={tabTransition}
+            className="h-full"
           >
             {activeTab === 'web3' ? (
               <CortensorChatWeb3 />
