@@ -17,6 +17,7 @@ import {
 import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
+import { getApiEndpoint } from '@/lib/api-config'
 
 interface ChatMessage {
   id: string
@@ -270,7 +271,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
     try {
       // Send the current message with chatId for memory context
-      const response = await fetch(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(selectedChatId)}`, {
+      const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(selectedChatId)}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
