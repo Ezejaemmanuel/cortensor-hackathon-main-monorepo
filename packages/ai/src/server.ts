@@ -1,1 +1,1 @@
-export {mastra} from "./mastra"
+export { mastra } from "./mastra/index"
