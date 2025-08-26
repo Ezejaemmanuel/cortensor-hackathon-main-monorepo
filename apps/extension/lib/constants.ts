@@ -1,6 +1,15 @@
 // Contract addresses and constants
 export const COR_TOKEN_ADDRESS = '0xF9C355394e7b3F147e8aFEBF95B3Ebbf688457f3' as const
 
+// Search marker constant for web search functionality
+export const SEARCH_MARKER = '[**search**]' as const
+
+// AI response cleanup patterns
+export const AI_RESPONSE_CLEANUP_PATTERNS = {
+  END_OF_SEQUENCE: /<\/s>$/g,
+  // Add more cleanup patterns as needed
+} as const
+
 // Content extraction limits
 export const MAX_CONTENT_LENGTH = 3000
 export const MAX_TEXT_LENGTH = 700

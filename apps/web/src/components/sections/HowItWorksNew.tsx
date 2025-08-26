@@ -22,7 +22,7 @@ interface ProcessStep {
   title: string;
   subtitle: string;
   description: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   color: string;
   gradient: string;
   features: string[];

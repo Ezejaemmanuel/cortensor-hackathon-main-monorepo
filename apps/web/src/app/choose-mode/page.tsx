@@ -42,7 +42,7 @@ const ChooseModePage = () => {
             variants={itemVariants}
             className="text-lg sm:text-xl text-muted-foreground max-w-3xl mx-auto font-tech"
           >
-            Select how you want to interact with the world's first decentralized AI assistant
+            Select how you want to interact with the world&apos;s first decentralized AI assistant
           </motion.p>
         </motion.div>
 
@@ -82,7 +82,7 @@ const ChooseModePage = () => {
                     <div>
                       <h4 className="font-semibold text-primary mb-1">Context-Aware Intelligence</h4>
                       <p className="text-sm text-muted-foreground font-tech">
-                        Understands the webpage you're on and provides relevant explanations
+                        Understands the webpage you&apos;re on and provides relevant explanations
                       </p>
                     </div>
                   </div>

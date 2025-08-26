@@ -10,8 +10,11 @@ import {
   Bot,
   User,
   Loader2,
-  Plus
+  Plus,
+  Search,
+  SearchX
 } from 'lucide-react'
+import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 
@@ -73,6 +76,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [currentMessage, setCurrentMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(false)
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
   const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([])
   const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
@@ -218,11 +222,11 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     const updatedHistory = chatHistory.map(chat =>
       chat.id === selectedChatId
         ? {
-            ...chat,
-            lastMessage: message,
-            timestamp: new Date(),
-            messageCount: messages.length + 1
-          }
+          ...chat,
+          lastMessage: message,
+          timestamp: new Date(),
+          messageCount: messages.length + 1
+        }
         : chat
     )
     saveChatHistory(updatedHistory)
@@ -238,9 +242,19 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       return
     }
 
+    // Prepare the message with search marker if enabled
+    const formattedMessage = isWebSearchEnabled 
+      ? `${SEARCH_MARKER} ${currentMessage.trim()}`
+      : currentMessage.trim()
+
+    // Create user message without search marker for display
+    const displayMessage = formattedMessage.startsWith(SEARCH_MARKER)
+      ? formattedMessage.replace(SEARCH_MARKER, '').trim()
+      : formattedMessage
+
     const userMessage: ChatMessage = {
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      content: currentMessage.trim(),
+      content: displayMessage,
       sender: 'user',
       timestamp: new Date()
     }
@@ -250,7 +264,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     saveMessages(selectedChatId, newMessages)
     updateChatHistory(userMessage.content)
 
-    const messageToSend = currentMessage.trim()
+    const messageToSend = formattedMessage
     setCurrentMessage('')
     setIsLoading(true)
 
@@ -275,9 +289,13 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
       const data = await response.json();
 
-      // Clean the AI response by removing </s> tags
-      const cleanResponse = (data.content?.[0]?.text || data.message || "No response").replace(/<\/s>$/g, '').trim()
-      
+      // Clean the AI response using cleanup patterns
+      let cleanResponse = data.content?.[0]?.text || data.message || "No response"
+      AI_RESPONSE_CLEANUP_PATTERNS.forEach(pattern => {
+        cleanResponse = cleanResponse.replace(pattern, '')
+      })
+      cleanResponse = cleanResponse.trim()
+
       const aiMessage: ChatMessage = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         content: cleanResponse,
@@ -321,11 +339,11 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   }, [selectedChatId, chatHistory.length, createNewChat])
 
   return (
-      <Card className={cn(
-        "h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass",
-        className
-      )}>
-        <CardHeader className="pb-3">
+    <Card className={cn(
+      "h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass",
+      className
+    )}>
+      <CardHeader className="pb-3">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="flex justify-center items-center w-8 h-8 rounded-lg bg-gradient-secondary shadow-glow-secondary">
@@ -344,23 +362,23 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
           >
             <Plus className="w-4 h-4" />
           </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="p-0 flex flex-col h-full">
-          {/* Messages Area */}
-          <div className="flex-1 min-h-0">
-            <ScrollArea className="h-full p-1 sm:p-4" ref={scrollAreaRef}>
-              {messages.length === 0 && !isLoading ? (
-                <div className="flex items-center justify-center h-full min-h-[200px]">
-                  <div className="text-center">
-                    <Bot className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
-                    <p className="text-muted-foreground">
-                      Start a conversation by typing a message below.
-                    </p>
-                  </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0 flex flex-col h-full">
+        {/* Messages Area */}
+        <div className="flex-1 min-h-0">
+          <ScrollArea className="h-full p-1 sm:p-4" ref={scrollAreaRef}>
+            {messages.length === 0 && !isLoading ? (
+              <div className="flex items-center justify-center h-full min-h-[200px]">
+                <div className="text-center">
+                  <Bot className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
+                  <p className="text-muted-foreground">
+                    Start a conversation by typing a message below.
+                  </p>
                 </div>
-              ) : (
-                <div className="space-y-4">
+              </div>
+            ) : (
+              <div className="space-y-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -422,36 +440,59 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 <div className="h-32 sm:h-36"></div>
               </div>
             )}
-            </ScrollArea>
-          </div>
+          </ScrollArea>
+        </div>
 
-          {/* Fixed Input Area at Bottom */}
-          <div className="flex-shrink-0 p-2 sm:p-4 border-t bg-background/95 backdrop-blur-sm sticky bottom-0 z-10">
-            <div className="flex gap-2">
-              <Input
-                ref={inputRef}
-                placeholder="Type your message..."
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                disabled={isLoading}
-                className="flex-1 text-sm sm:text-base"
-              />
-              <Button
-                onClick={handleSendMessage}
-                disabled={!currentMessage.trim() || isLoading}
-                size="sm"
-                className="px-3 shrink-0"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4" />
-                )}
-              </Button>
+        {/* Fixed Input Area at Bottom */}
+        <div className="flex-shrink-0 p-2 sm:p-4 border-t bg-background/95 backdrop-blur-sm sticky bottom-0 z-10">
+          {/* Web Search Status Indicator */}
+          {isWebSearchEnabled && (
+            <div className="flex items-center gap-2 mb-2 px-3 py-2 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800">
+              <Search className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-sm text-blue-700 dark:text-blue-300">
+                Web search enabled - Your query will include web results
+              </span>
             </div>
+          )}
+          
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
+              variant={isWebSearchEnabled ? "default" : "outline"}
+              size="sm"
+              className="px-3 shrink-0"
+              title={isWebSearchEnabled ? "Disable web search" : "Enable web search"}
+            >
+              {isWebSearchEnabled ? (
+                <Search className="w-4 h-4" />
+              ) : (
+                <SearchX className="w-4 h-4" />
+              )}
+            </Button>
+            <Input
+              ref={inputRef}
+              placeholder={isWebSearchEnabled ? "🔍 Web search enabled - Type your message..." : "Type your message..."}
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              disabled={isLoading}
+              className="flex-1 text-sm sm:text-base"
+            />
+            <Button
+              onClick={handleSendMessage}
+              disabled={!currentMessage.trim() || isLoading}
+              size="sm"
+              className="px-3 shrink-0"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </CardContent>
+    </Card>
   )
 }

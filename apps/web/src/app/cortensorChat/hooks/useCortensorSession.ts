@@ -62,7 +62,7 @@ export function useCortensorSession(): UseSessionReturn {
   } = useSessionStore()
 
   // Get user sessions from blockchain
-  //@ts-ignore this instantion and so on 
+  // @ts-expect-error - Generated hook may have type issues
   const { data: sessionsData, isLoading: isLoadingSessions, refetch: refetchSessions } = useReadSessionV2GetSessionsByAddress({
     args: address ? [address] : undefined,
     query: {

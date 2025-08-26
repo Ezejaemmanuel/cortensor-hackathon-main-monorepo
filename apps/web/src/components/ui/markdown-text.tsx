@@ -35,7 +35,7 @@ const CodeHeader: FC<CodeHeaderProps> = ({ language, code }) => {
   };
 
   return (
-    <div className="mt-4 flex items-center justify-between gap-4 rounded-t-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white">
+    <div className="flex gap-4 justify-between items-center px-4 py-2 mt-4 text-sm font-semibold text-white rounded-t-lg bg-zinc-900">
       <span className="lowercase [&>span]:text-xs">{language}</span>
       <TooltipIconButton tooltip="Copy" onClick={onCopy}>
         {!isCopied && <CopyIcon />}
@@ -66,16 +66,16 @@ const useCopyToClipboard = ({
 
 const defaultComponents = memoizeMarkdownComponents({
   h1: ({ className, ...props }) => (
-    <h1 className={cn("mb-8 scroll-m-20 text-4xl font-extrabold tracking-tight last:mb-0", className)} {...props} />
+    <h1 className={cn("mb-8 text-4xl font-extrabold tracking-tight scroll-m-20 last:mb-0", className)} {...props} />
   ),
   h2: ({ className, ...props }) => (
-    <h2 className={cn("mb-4 mt-8 scroll-m-20 text-3xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...props} />
+    <h2 className={cn("mt-8 mb-4 text-3xl font-semibold tracking-tight scroll-m-20 first:mt-0 last:mb-0", className)} {...props} />
   ),
   h3: ({ className, ...props }) => (
-    <h3 className={cn("mb-4 mt-6 scroll-m-20 text-2xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...props} />
+    <h3 className={cn("mt-6 mb-4 text-2xl font-semibold tracking-tight scroll-m-20 first:mt-0 last:mb-0", className)} {...props} />
   ),
   h4: ({ className, ...props }) => (
-    <h4 className={cn("mb-4 mt-6 scroll-m-20 text-xl font-semibold tracking-tight first:mt-0 last:mb-0", className)} {...props} />
+    <h4 className={cn("mt-6 mb-4 text-xl font-semibold tracking-tight scroll-m-20 first:mt-0 last:mb-0", className)} {...props} />
   ),
   h5: ({ className, ...props }) => (
     <h5 className={cn("my-4 text-lg font-semibold first:mt-0 last:mb-0", className)} {...props} />
@@ -84,13 +84,13 @@ const defaultComponents = memoizeMarkdownComponents({
     <h6 className={cn("my-4 font-semibold first:mt-0 last:mb-0", className)} {...props} />
   ),
   p: ({ className, ...props }) => (
-    <p className={cn("mb-5 mt-5 leading-7 first:mt-0 last:mb-0", className)} {...props} />
+    <p className={cn("mt-5 mb-5 leading-7 first:mt-0 last:mb-0", className)} {...props} />
   ),
   a: ({ className, ...props }) => (
-    <a className={cn("text-primary font-medium underline underline-offset-4", className)} {...props} />
+    <a className={cn("font-medium underline text-primary underline-offset-4", className)} {...props} />
   ),
   blockquote: ({ className, ...props }) => (
-    <blockquote className={cn("border-l-2 pl-6 italic", className)} {...props} />
+    <blockquote className={cn("pl-6 italic border-l-2", className)} {...props} />
   ),
   ul: ({ className, ...props }) => (
     <ul className={cn("my-5 ml-6 list-disc [&>li]:mt-2", className)} {...props} />
@@ -102,7 +102,7 @@ const defaultComponents = memoizeMarkdownComponents({
     <hr className={cn("my-5 border-b", className)} {...props} />
   ),
   table: ({ className, ...props }) => (
-    <table className={cn("my-5 w-full border-separate border-spacing-0 overflow-y-auto", className)} {...props} />
+    <table className={cn("overflow-y-auto my-5 w-full border-separate border-spacing-0", className)} {...props} />
   ),
   th: ({ className, ...props }) => (
     <th className={cn("bg-muted px-4 py-2 text-left font-bold first:rounded-tl-lg last:rounded-tr-lg [&[align=center]]:text-center [&[align=right]]:text-right", className)} {...props} />

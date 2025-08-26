@@ -1,6 +1,14 @@
 // Contract addresses and constants
 export const COR_TOKEN_ADDRESS = '0xF9C355394e7b3F147e8aFEBF95B3Ebbf688457f3' as const
 
+// Web search functionality
+export const SEARCH_MARKER = '[**search**]' as const
+
+// AI response cleanup patterns
+export const AI_RESPONSE_CLEANUP_PATTERNS = [
+  /<\/s>$/g // Remove </s> tags at the end of responses
+] as const
+
 // Session configuration defaults
 export const DEFAULT_SESSION_CONFIG = {
   minNumOfNodes: BigInt(1),

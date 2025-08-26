@@ -56,7 +56,7 @@ export function useCortensorTasks(): UseTasksReturn {
   const { writeContractAsync: submitTaskContract, isPending: isSubmittingTask } = useWriteSessionV2Submit()
 
   // Bulk task results hook - gets all results for the current session
-  //@ts-ignore  
+  // @ts-expect-error - Generated hook may have type issues
   const { data: allTaskResults, refetch: refetchAllTaskResults } = useReadSessionQueueV2GetAllTaskResults({
     args: currentSessionId ? [BigInt(currentSessionId)] : undefined,
     query: {
@@ -66,7 +66,6 @@ export function useCortensorTasks(): UseTasksReturn {
   })
 
   // Query tasks for the current session
-  //@ts-ignore this is it 
   const { data: tasksData, refetch: refetchTasks } = useReadSessionQueueV2GetTasksBySessionId({
     args: currentSessionId ? [BigInt(currentSessionId)] : undefined,
     query: {
@@ -89,7 +88,8 @@ export function useCortensorTasks(): UseTasksReturn {
   }
 
   // Process tasks data and include results from bulk query
-  const tasks: TaskData[] = tasksData ? tasksData.map((task, taskIndex) => {
+  const tasks: TaskData[] = useMemo(() => {
+    return tasksData ? tasksData.map((task, taskIndex) => {
     // Extract original user message from contextual data if it exists
     let displayContent = task.data
     if (task.data.includes('Current user message: ')) {
@@ -133,6 +133,7 @@ export function useCortensorTasks(): UseTasksReturn {
 
     return taskData
   }) : []
+  }, [tasksData, allTaskResults])
 
 
 
