@@ -1,5 +1,5 @@
 /**
- * CortGPT Agent using Cortensor Provider
+ * CortiGPT Agent using Cortensor Provider
  * A helpful AI assistant to answer user questions and provide assistance
  * Enhanced with memory capabilities using Upstash for persistent storage
  */
@@ -65,7 +65,7 @@ function createMemoryWithUpstash() {
 }
 
 /**
- * CortGPT Agent Configuration
+ * CortiGPT Agent Configuration
  * Uses Cortensor as the underlying language model with Upstash memory and Tavily web search
  * 
  * Web Search Usage:
@@ -75,14 +75,14 @@ function createMemoryWithUpstash() {
  * 
  * Note: Requires TAVILY_API_KEY environment variable for web search functionality
  */
-export const cortGPTAgent = new Agent({
-    name: 'CortGPT',
-    instructions: `You are CortGPT, a helpful AI assistant powered by Cortensor. Your goal is to help users by answering their questions and providing assistance with various tasks. Be friendly, informative, and concise in your responses.`,
+export const cortiGPTAgent = new Agent({
+    name: 'CortiGPT',
+    instructions: `You are CortiGPT, a helpful AI assistant powered by Cortensor. Your goal is to help users by answering their questions and providing assistance with various tasks. Be friendly, informative, and concise in your responses.`,
 
     // Use Cortensor as the language model with custom configuration and web search
     model: cortensorModel({
-        sessionId: 62,
-        maxTokens: 2000,
+        sessionId: 72,
+        maxTokens: 3000,
         temperature: 0.4,
         webSearch: {
             mode: 'prompt', // Search triggered by [search] markers in user messages

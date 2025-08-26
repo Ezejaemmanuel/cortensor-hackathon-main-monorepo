@@ -26,8 +26,8 @@ export async function POST(req: Request) {
   }
 
   //TODO WOULD ADD PROPER AUTHENTICATION USING SIWE
-  // Get the cortGPT agent instance from Mastra
-  const agent = mastra.getAgent("cortGPTAgent");
+  // Get the cortiGPT agent instance from Mastra
+  const agent = mastra.getAgent("cortiGPTAgent");
 
   // Extract the last user message from the messages array
   const lastMessage = messages[messages.length - 1];
