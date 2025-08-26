@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 // Utility function to safely extract hostname from URL
 const safeGetHostname = (url: string): string => {
@@ -270,6 +270,7 @@ export const useChatStore = create<ChatStore>()(
     }),
     {
       name: 'cortensor-chat-storage',
+      storage: createJSONStorage(() => localStorage),
       partialize: (state: ChatStore) => ({ tabChats: state.tabChats })
     }
   )
