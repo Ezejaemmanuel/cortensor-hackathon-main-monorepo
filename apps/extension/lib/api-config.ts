@@ -4,11 +4,11 @@
 const isDevelopment = import.meta.env.MODE === 'development' || import.meta.env.DEV
 
 // Development base URL
-const DEVELOPMENT_BASE_URL = 'http://localhost:3001'
+const DEVELOPMENT_BASE_URL = 'https://cortigpt.jatique.dev'
 
 // Production base URL - can be configured via environment variable
 // You can also define this in constants.ts if needed
-const PRODUCTION_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://api.cortensor.com' // Update this with actual production URL
+const PRODUCTION_BASE_URL = "https://cortigpt.jatique.dev"
 
 // Export the base URL based on environment
 export const API_BASE_URL = isDevelopment ? DEVELOPMENT_BASE_URL : PRODUCTION_BASE_URL
