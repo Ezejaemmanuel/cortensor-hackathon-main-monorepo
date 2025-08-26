@@ -20,7 +20,8 @@
                 ".env*"
             ],
             "outputs": [
-                "dist/**"
+                "dist/**",
+                ".next/**"
             ]
         },
         "lint": {
