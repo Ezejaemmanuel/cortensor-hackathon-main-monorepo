@@ -75,6 +75,9 @@ function createMemoryWithUpstash() {
  * 
  * Note: Requires TAVILY_API_KEY environment variable for web search functionality
  */
+if (!process.env.TAVILY_API_KEY) {
+    throw new Error('TAVILY_API_KEY environment variable is required for web search functionality');
+}
 export const cortiGPTAgent = new Agent({
     name: 'CortiGPT',
     instructions: `You are CortiGPT, a helpful AI assistant powered by Cortensor. Your goal is to help users by answering their questions and providing assistance with various tasks. Be friendly, informative, and concise in your responses.`,
@@ -86,7 +89,9 @@ export const cortiGPTAgent = new Agent({
         temperature: 0.4,
         webSearch: {
             mode: 'prompt', // Search triggered by [search] markers in user messages
-            provider: createTavilySearch(),
+            provider: createTavilySearch({
+                apiKey: process.env.TAVILY_API_KEY,
+            }),
             maxResults: 3
         }
     }),
