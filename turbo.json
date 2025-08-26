@@ -1,7 +1,9 @@
 {
     "$schema": "https://turbo.build/schema.json",
     "ui": "tui",
-    "globalEnv": [
+    "envMode": "loose",
+  
+    "globalPassThroughEnv": [
         "CORTENSOR_API_KEY",
         "CORTENSOR_BASE_URL",
         "UPSTASH_REDIS_REST_URL",
