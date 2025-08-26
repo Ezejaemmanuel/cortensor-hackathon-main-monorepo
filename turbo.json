@@ -1,6 +1,13 @@
 {
     "$schema": "https://turbo.build/schema.json",
     "ui": "tui",
+    "globalEnv": [
+        "CORTENSOR_API_KEY",
+        "CORTENSOR_BASE_URL",
+        "UPSTASH_REDIS_REST_URL",
+        "UPSTASH_REDIS_REST_TOKEN",
+        "TAVILY_API_KEY"
+    ],
     "tasks": {
         "build": {
             "dependsOn": [
