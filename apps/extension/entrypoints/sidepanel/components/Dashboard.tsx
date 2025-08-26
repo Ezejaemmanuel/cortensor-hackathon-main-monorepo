@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import  { useState } from 'react';
 import { CortensorChatWeb2 } from './mainWeb2';
 import { CortensorChatWeb3 } from './mainWeb3';
 

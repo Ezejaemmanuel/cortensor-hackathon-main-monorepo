@@ -16,13 +16,8 @@
     "mastra:build": "mastra build -F @repo/ai",
     "dev:server": "turbo -F server dev"
   },
-  "dependencies": {
-    "react": "19.1.0",
-    "react-dom": "19.1.0"
-  },
+  "dependencies": {},
   "devDependencies": {
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
     "turbo": "^2.5.4",
     "oxlint": "^1.8.0"
   },

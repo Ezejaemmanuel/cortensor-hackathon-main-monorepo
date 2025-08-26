@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'

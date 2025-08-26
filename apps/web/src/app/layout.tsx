@@ -1,12 +1,9 @@
 import type { Metadata } from "next";
 import { Orbitron, Space_Grotesk } from "next/font/google";
 import "./globals.css";
-import '@rainbow-me/rainbowkit/styles.css';
-import {Web3Provider} from "../providers/web3-provider";
-// import { Toaster } from "sonner";
-import { Toaster } from "@/components/ui/sonner";
-import Navbar from "../components/layout/Navbar";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import "@rainbow-me/rainbowkit/styles.css";
+import { Web3Provider } from "@/providers/web3-provider";
+import Navbar  from "@/components/layout/Navbar";
 
 const orbitron = Orbitron({
   variable: "--font-orbitron",
@@ -32,15 +29,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased`}
-      >
+      <body className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased`}>
         <Web3Provider>
-            <Navbar />
-            <div className="pt-20">
-              {children}
-            </div>
-          
+          <Navbar />
+          <div className="pt-20">
+            {children}
+          </div>
         </Web3Provider>
       </body>
     </html>
