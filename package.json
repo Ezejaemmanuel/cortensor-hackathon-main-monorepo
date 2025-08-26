@@ -14,7 +14,10 @@
     "dev:web": "turbo -F web dev",
     "mastra:dev": "mastra dev -F @repo/ai",
     "mastra:build": "mastra build -F @repo/ai",
-    "dev:server": "turbo -F server dev"
+    "dev:server": "turbo -F server dev",
+    "build:server": "turbo build --filter=server",
+    "start:server": "turbo start --filter=server",
+    "deploy:server": "pnpm build:server && pnpm start:server"
   },
   "dependencies": {},
   "devDependencies": {
