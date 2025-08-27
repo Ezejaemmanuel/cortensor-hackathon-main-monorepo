@@ -65,8 +65,28 @@ function createMemoryWithUpstash() {
 }
 
 /**
- * CortiGPT Agent Configuration
+ * Generate dynamic instructions with current date
+ * Updates the instructions to include the current date for better context awareness
+ */
+function generateInstructions(): string {
+    const currentDate = new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+    });
+    
+    return `You are CortiGPT, a helpful AI assistant powered by Cortensor. Your goal is to help users by answering their questions and providing assistance with various tasks. Be friendly, informative, and concise in your responses.
+
+Current date: ${currentDate}
+
+Use this date information when relevant to provide accurate, time-sensitive responses.`;
+}
+
+/**
+ * Create CortiGPT Agent with dynamic instructions
  * Uses Cortensor as the underlying language model with Upstash memory and Tavily web search
+ * Instructions are generated at runtime to include the current date
  * 
  * Web Search Usage:
  * - Use [search] in your message to trigger web search: "[search] What's the latest news about AI?"
@@ -75,28 +95,35 @@ function createMemoryWithUpstash() {
  * 
  * Note: Requires TAVILY_API_KEY environment variable for web search functionality
  */
+function createCortiGPTAgent(): Agent {
+    return new Agent({
+        name: 'CortiGPT',
+        instructions: generateInstructions(),
 
-export const cortiGPTAgent = new Agent({
-    name: 'CortiGPT',
-    instructions: `You are CortiGPT, a helpful AI assistant powered by Cortensor. Your goal is to help users by answering their questions and providing assistance with various tasks. Be friendly, informative, and concise in your responses.`,
+        // Use Cortensor as the language model with custom configuration and web search
+        model: cortensorModel({
+            sessionId: 72,
+            maxTokens: 3000,
+            temperature: 0.4,
+            webSearch: {
+                mode: 'prompt', // Search triggered by [search] markers in user messages
+                provider: createTavilySearch({
+                    apiKey: process.env.TAVILY_API_KEY,
+                }),
+                maxResults: 3
+            }
+        }),
 
-    // Use Cortensor as the language model with custom configuration and web search
-    model: cortensorModel({
-        sessionId: 72,
-        maxTokens: 3000,
-        temperature: 0.4,
-        webSearch: {
-            mode: 'prompt', // Search triggered by [search] markers in user messages
-            provider: createTavilySearch({
-                apiKey: process.env.TAVILY_API_KEY,
-            }),
-            maxResults: 3
-        }
-    }),
+        // No tools needed for this general assistant
+        tools: {},
 
-    // No tools needed for this general assistant
-    tools: {},
+        // Add memory with Upstash storage
+        memory: createMemoryWithUpstash(),
+    });
+}
 
-    // Add memory with Upstash storage
-    memory: createMemoryWithUpstash(),
-});
+/**
+ * Export the CortiGPT agent instance with current date in instructions
+ * This creates a new agent instance each time it's accessed, ensuring the date is always current
+ */
+export const cortiGPTAgent = createCortiGPTAgent();

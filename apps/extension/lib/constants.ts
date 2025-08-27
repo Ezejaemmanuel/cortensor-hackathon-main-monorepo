@@ -5,10 +5,9 @@ export const COR_TOKEN_ADDRESS = '0xF9C355394e7b3F147e8aFEBF95B3Ebbf688457f3' as
 export const SEARCH_MARKER = '[**search**]' as const
 
 // AI response cleanup patterns
-export const AI_RESPONSE_CLEANUP_PATTERNS = {
-  END_OF_SEQUENCE: /<\/s>$/g,
-  // Add more cleanup patterns as needed
-} as const
+export const AI_RESPONSE_CLEANUP_PATTERNS = [
+  /<\/s>/g // Remove </s> tags anywhere in responses
+] as const
 
 // Content extraction limits
 export const MAX_CONTENT_LENGTH = 3000

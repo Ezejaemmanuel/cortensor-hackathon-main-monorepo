@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import {
   Send,
   Bot,
@@ -12,7 +13,10 @@ import {
   Loader2,
   Plus,
   Search,
-  SearchX
+  SearchX,
+  Sparkles,
+  Zap,
+  X
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
@@ -29,28 +33,43 @@ import {
 import { useChatStore, ChatMessage } from '@/stores/chat-store'
 import type { TextSelectionData } from '@/types/messaging'
 
-
 interface ChatInterfaceProps {
   className?: string
   userAddress: string
 }
 
-// Cortensor-themed placeholder texts for AI thinking state
+// Enhanced Cortensor-themed placeholder texts for AI thinking state
 const CORTENSOR_PLACEHOLDER_TEXTS = [
-  "Analyzing neural pathways for optimal response...",
-  "Connecting to decentralized AI nodes...",
-  "Processing through distributed neural networks...",
-  "Syncing with blockchain-verified intelligence...",
-  "Validating response integrity on-chain...",
-  "Routing through fastest available AI nodes...",
-  "Ensuring response accuracy via consensus mechanism...",
-  "Generating response using federated learning models...",
-  "Coordinating with global AI network for best answer...",
-  "Processing through edge computing nodes...",
-  "Validating computational proofs...",
-  "Optimizing neural pathways for efficiency...",
-  "Connecting to specialized AI workers...",
-  "Ensuring response decentralization..."
+  "🧠 Initializing quantum neural matrices...",
+  "⚡ Establishing secure channels to 47 AI nodes...",
+  "🔗 Synchronizing with distributed consciousness network...",
+  "🌐 Routing through hyperspace data corridors...",
+  "🔮 Consulting the collective AI wisdom...",
+  "⚙️ Calibrating synaptic response algorithms...",
+  "🚀 Launching deep learning protocols...",
+  "💫 Weaving thoughts through cosmic data streams...",
+  "🔬 Analyzing molecular patterns in your query...",
+  "🌟 Harmonizing with stellar computation clusters...",
+  "🎯 Targeting optimal response vectors...",
+  "🔄 Cycling through infinite possibility matrices...",
+  "🛸 Downloading insights from the AI mothership...",
+  "⚛️ Splitting atoms of information for precision...",
+  "🌊 Surfing waves of pure digital consciousness...",
+  "🔥 Igniting fusion reactors of creativity...",
+  "💎 Crystallizing thoughts into perfect responses...",
+  "🌈 Painting responses with spectrum of knowledge...",
+  "⚡ Channeling lightning-fast neural computations...",
+  "🎭 Orchestrating symphony of AI collaboration...",
+  "🔭 Scanning distant galaxies of information...",
+  "🧬 Decoding DNA sequences of your question...",
+  "🌀 Spiraling through dimensions of understanding...",
+  "💫 Materializing wisdom from quantum foam...",
+  "🎪 Performing computational acrobatics...",
+  "🔮 Gazing into crystal balls of possibility...",
+  "⚗️ Brewing perfect elixir of knowledge...",
+  "🎨 Sculpting responses from raw data marble...",
+  "🌺 Blooming insights in digital gardens...",
+  "🎵 Composing melodies of meaningful answers..."
 ]
 
 export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
@@ -63,6 +82,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Zustand store
   const store = useChatStore()
@@ -86,37 +106,33 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     getCurrentTab()
   }, [])
 
-  // Utility function to truncate text to approximately two lines
-  const truncateToTwoLines = (text: string): string => {
-    const words = text.split(' ');
-    // Approximate 15-20 words per line for typical UI
-    const maxWords = 30;
-    if (words.length <= maxWords) {
-      return text;
+  // Utility function to truncate text to two lines
+  const truncateToTwoLines = (text: string, maxLength: number = 100): string => {
+    if (text.length <= maxLength) return text
+    return text.substring(0, maxLength) + '...'
+  }
+
+
+
+  // Scroll to bottom of messages when new messages arrive
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end'
+      })
     }
-    return words.slice(0, maxWords).join(' ') + '...';
-  };
+  }, [])
 
-  // Function to clear selected text preview
-  const clearSelectedTextPreview = (): void => {
-    setSelectedTextPreview(null);
-    browser.runtime.sendMessage({ type: 'CLEAR_SELECTED_TEXT' } as ClearSelectedTextMessage)
-      .catch((error) => {
-        console.error('Failed to clear selected text:', error);
-      });
-  };
-
-
-
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll when new messages arrive
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight
-      }
-    }
-  }, [messages, currentPlaceholder])
+    const timer = setTimeout(() => {
+      scrollToBottom()
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [messages, currentPlaceholder, scrollToBottom])
+
+
 
   // Rotate placeholder texts while loading
   useEffect(() => {
@@ -143,25 +159,24 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
   // Listen for text selection and website content messages from background script
   useEffect(() => {
-    const handleMessage = (message: TextSelectionUpdateMessage) => {
+    const handleMessage = (message: any, sender: any, sendResponse: any) => {
       if (message.type === 'TEXT_SELECTION_UPDATE') {
-        const { text, url, timestamp } = message.data;
-        if (text && text.trim()) {
+        const textSelectionMessage = message as TextSelectionUpdateMessage
+        if (textSelectionMessage.data) {
           const preview: SelectedTextPreview = {
-            originalText: text,
-            truncatedText: truncateToTwoLines(text),
-            url,
-            timestamp,
+            originalText: textSelectionMessage.data.text,
+            truncatedText: truncateToTwoLines(textSelectionMessage.data.text),
+            url: textSelectionMessage.data.url,
+            timestamp: textSelectionMessage.data.timestamp,
             isVisible: true
-          };
-          setSelectedTextPreview(preview);
-          // Focus the input field
-          if (inputRef.current) {
-            inputRef.current.focus();
           }
+          setSelectedTextPreview(preview)
+        } else {
+          setSelectedTextPreview(null)
         }
       }
-    };
+      return true
+    }
 
     // Listen for messages from background script
     browser.runtime.onMessage.addListener(handleMessage);
@@ -206,55 +221,76 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }, [])
 
+  const createNewChat = () => {
+    if (!store.currentTabId) return
+    const newChatId = store.createNewChat(store.currentTabId)
+    store.setSelectedChat(store.currentTabId, newChatId)
+  }
+
+  const clearSelectedText = () => {
+    setSelectedTextPreview(null)
+    const clearMessage: ClearSelectedTextMessage = { type: 'CLEAR_SELECTED_TEXT' }
+    browser.runtime.sendMessage(clearMessage)
+  }
+
   const handleSendMessage = async () => {
-    // Allow sending if there's either a message or selected text
-    const hasMessage = currentMessage.trim()
-    const hasSelectedText = selectedTextPreview && selectedTextPreview.isVisible
+    if (!currentMessage.trim() && !selectedTextPreview) return
+    if (isLoading) return
+    if (!store.currentTabId) return
 
-    if ((!hasMessage && !hasSelectedText) || isLoading) return
+    let messageContent = currentMessage.trim()
 
+    // If there's selected text, include it in the message
+    if (selectedTextPreview) {
+      const contextMessage = `Context from ${new URL(selectedTextPreview.url).hostname}:\n\n"${selectedTextPreview.originalText}"\n\nUser question: ${messageContent || 'Please analyze this text.'}`
+      messageContent = contextMessage
+    }
+
+    // If no chat is selected, create a new one
     if (!selectedChatId) {
-      const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-      if (tabs[0]?.id) {
-        const newChatId = store.createNewChat(tabs[0].id.toString())
-        // Wait for state to update
-        setTimeout(() => handleSendMessage(), 100)
-        return
-      }
+      createNewChat()
+      // Wait a bit for the store to update
+      await new Promise(resolve => setTimeout(resolve, 100))
     }
 
-    // Format the message properly
-    let formattedMessage = hasMessage ? currentMessage.trim() : 'tell me about this'
+    const currentChatId = selectedChatId || store.getCurrentTabData()?.selectedChatId
+    if (!currentChatId) return
 
-    // Add search marker if web search is enabled
-    if (isWebSearchEnabled) {
-      formattedMessage = `${SEARCH_MARKER} ${formattedMessage}`
+    // Prepare the message with search marker if enabled
+    const formattedMessage = isWebSearchEnabled 
+      ? `${SEARCH_MARKER} ${messageContent}`
+      : messageContent
+
+    // Create user message without search marker for display
+    const displayMessage = selectedTextPreview 
+      ? (currentMessage.trim() || 'Please analyze this text.')
+      : (formattedMessage.startsWith(SEARCH_MARKER)
+        ? formattedMessage.replace(SEARCH_MARKER, '').trim()
+        : formattedMessage)
+
+    const userMessage: ChatMessage = {
+      id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      content: displayMessage,
+      sender: 'user',
+      timestamp: new Date()
     }
 
-    if (hasSelectedText) {
-      formattedMessage = `Context: "${selectedTextPreview.originalText}"\n\nUser request: ${formattedMessage}`;
-    }
-
-    // Add user message to store (without search marker for display)
-    const displayMessage = formattedMessage.replace(new RegExp(`^${SEARCH_MARKER.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\s*`), '')
-    const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-    if (tabs[0]?.id && selectedChatId) {
-      store.addMessage(tabs[0].id.toString(), selectedChatId, {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        content: displayMessage,
-        sender: 'user',
-        timestamp: new Date()
-      })
-    }
+    // Add message to store
+    store.addMessage(store.currentTabId, currentChatId, userMessage)
+    store.updateChatHistory(store.currentTabId, currentChatId, userMessage.content, messages.length + 1)
 
     const messageToSend = formattedMessage
     setCurrentMessage('')
-    clearSelectedTextPreview() // Clear selected text preview after sending
+    setSelectedTextPreview(null)
     setIsLoading(true)
+
+    // Clear selected text from background
+    const clearMessage: ClearSelectedTextMessage = { type: 'CLEAR_SELECTED_TEXT' }
+    browser.runtime.sendMessage(clearMessage)
 
     try {
       // Send the current message with chatId for memory context
-      const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(selectedChatId || '')}`), {
+      const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(currentChatId)}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -273,39 +309,33 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
       const data = await response.json();
 
-      // Clean the AI response by removing unwanted patterns
+      // Clean the AI response using cleanup patterns
       let cleanResponse = data.content?.[0]?.text || data.message || "No response"
-      
-      // Apply cleanup patterns
-      Object.values(AI_RESPONSE_CLEANUP_PATTERNS).forEach(pattern => {
+      AI_RESPONSE_CLEANUP_PATTERNS.forEach(pattern => {
         cleanResponse = cleanResponse.replace(pattern, '')
       })
-      
       cleanResponse = cleanResponse.trim()
 
-      // Add AI message to store
-      const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-      if (tabs[0]?.id && selectedChatId) {
-        store.addMessage(tabs[0].id.toString(), selectedChatId, {
-          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          content: cleanResponse,
-          sender: 'ai',
-          timestamp: new Date()
-        })
+      const aiMessage: ChatMessage = {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        content: cleanResponse,
+        sender: 'ai',
+        timestamp: new Date()
       }
+
+      // Add AI response to store
+      store.addMessage(store.currentTabId, currentChatId, aiMessage)
+      store.updateChatHistory(store.currentTabId, currentChatId, aiMessage.content, messages.length + 2)
 
     } catch (error) {
       console.error('Failed to send message:', error)
-      // Add error message to store
-      const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-      if (tabs[0]?.id && selectedChatId) {
-        store.addMessage(tabs[0].id.toString(), selectedChatId, {
-          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          content: "Sorry, I encountered an error processing your message. Please try again.",
-          sender: 'ai',
-          timestamp: new Date()
-        })
+      const errorMessage: ChatMessage = {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        content: "Sorry, I encountered an error processing your message. Please try again.",
+        sender: 'ai',
+        timestamp: new Date()
       }
+      store.addMessage(store.currentTabId, currentChatId, errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -318,227 +348,331 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }
 
-  // Create initial chat if none exists
-  useEffect(() => {
-    if (!selectedChatId && chatHistory.length === 0) {
-      browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
-        if (tabs[0]?.id) {
-          store.createNewChat(tabs[0].id.toString())
-        }
-      })
-    }
-  }, [selectedChatId, chatHistory.length, store])
-
-  // Check if send button should be enabled
-  const canSend = (currentMessage.trim() || (selectedTextPreview && selectedTextPreview.isVisible)) && !isLoading
+  const canSend = (currentMessage.trim() || selectedTextPreview) && !isLoading
 
   return (
-    <Card className={cn(
-      "h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass",
-      className
-    )}>
-      <CardHeader className="pb-3">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="flex justify-center items-center w-8 h-8 rounded-lg bg-gradient-secondary shadow-glow-secondary">
-              <Bot className="w-5 h-5 text-secondary-foreground" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-futura text-foreground">
-                cortiGPT
-              </CardTitle>
-            </div>
-          </div>
-          <Button
-            onClick={() => {
-              const tabs = browser.tabs.query({ active: true, currentWindow: true }).then(tabs => {
-                if (tabs[0]?.id) {
-                  store.createNewChat(tabs[0].id.toString())
-                }
-              })
-            }}
-            size="sm"
-            className="p-0 w-8 h-8"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-col p-0 h-full">
-        {/* Messages Area */}
-        <div className="flex-1 min-h-0">
-          <ScrollArea className="p-2 h-full sm:p-4" ref={scrollAreaRef}>
-            {messages.length === 0 && !isLoading ? (
-              <div className="flex items-center justify-center h-full min-h-[200px]">
-                <div className="text-center">
-                  <Bot className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
-                  <p className="mb-4 text-muted-foreground">
-                    Start a conversation by typing a message below.
-                  </p>
-                  {/* Ask AI about site button when no text is highlighted */}
-
+    <TooltipProvider>
+      <div className={cn(
+        "flex flex-col h-full max-h-full overflow-hidden",
+        "bg-gradient-to-br from-background via-background to-card/20",
+        "backdrop-blur-xl border border-border/30 rounded-2xl",
+        "shadow-glass",
+        "w-full max-w-full",
+        className
+      )}>
+        {/* Header */}
+        <div className="flex-shrink-0 px-4 py-3 border-b border-border/30 bg-card/20 backdrop-blur-sm">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <div className="flex justify-center items-center w-10 h-10 rounded-2xl bg-gradient-primary shadow-glow-primary">
+                  <Bot className="w-5 h-5 text-background" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-pulse shadow-glow-accent">
+                    <Sparkles className="w-2 h-2 text-background m-0.5" />
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-2 sm:space-y-4">
-                {messages.map((message: ChatMessage) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-2 sm:gap-3 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    {message.sender === 'ai' && (
-                      <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10">
-                          <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className={`max-w-[85%] sm:max-w-[80%] ${message.sender === 'user' ? 'order-first' : ''}`}>
-                      <div className={`rounded-lg px-2 py-1.5 sm:px-4 sm:py-2 ${message.sender === 'user'
-                        ? 'bg-primary text-primary-foreground ml-auto'
-                        : 'bg-muted'
-                        }`}>
-                        {message.sender === 'ai' ? (
-                          <MarkdownRenderer content={message.content} className="prose-sm max-w-none text-xs sm:text-sm" />
-                        ) : (
-                          <p className="whitespace-pre-wrap text-xs sm:text-sm break-words">{message.content}</p>
-                        )}
-                      </div>
-
-                      <div className={`flex items-center gap-2 mt-0.5 sm:mt-1 text-xs text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
-                      </div>
-                    </div>
-
-                    {message.sender === 'user' && (
-                      <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10">
-                          <User className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-                {/* Loading placeholder */}
-                {isLoading && (
-                  <div className="flex gap-2 sm:gap-3 justify-start">
-                    <div className="flex-shrink-0">
-                      <div className="flex justify-center items-center w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-primary/10">
-                        <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
-                      </div>
-                    </div>
-
-                    <div className="max-w-[85%] sm:max-w-[80%]">
-                      <div className="px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg bg-muted">
-                        <div className="flex gap-2 items-center">
-                          <Loader2 className="w-3 h-3 sm:w-4 sm:h-4 animate-spin text-muted-foreground" />
-                          <p className="text-xs sm:text-sm italic text-muted-foreground break-words">
-                            {currentPlaceholder}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {/* Spacer to ensure content is not hidden behind input */}
-                <div className="h-4 sm:h-6"></div>
+              <div>
+                <CardTitle className="text-lg font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  cortiGPT
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Neural Network Intelligence
+                </p>
               </div>
-            )}
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={createNewChat}
+                  size="sm"
+                  className={cn(
+                    "relative overflow-hidden group",
+                    "bg-gradient-secondary hover:shadow-glow-secondary",
+                    "transition-all duration-300 hover:scale-105",
+                    "border border-secondary/20 p-2 w-8 h-8"
+                  )}
+                >
+                  <Plus className="w-4 h-4" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                Start new chat
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+
+        {/* Messages Area */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <ScrollArea className="w-full h-full max-h-full" ref={scrollAreaRef}>
+            <div className="px-4 py-4">
+              {messages.length === 0 && !isLoading ? (
+                <div className="flex items-center justify-center h-full min-h-[300px]">
+                  <div className="text-center space-y-4 max-w-xs">
+                    <div className="relative">
+                      <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-neural shadow-glow-primary animate-pulse">
+                        <Bot className="w-10 h-10 text-background m-3" />
+                      </div>
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-accent rounded-full shadow-glow-accent animate-bounce">
+                        <Zap className="w-3 h-3 text-background m-1.5" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-semibold text-foreground">
+                        Welcome to cortiGPT
+                      </h3>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        Your AI assistant is ready. Start a conversation or select text on the page to analyze.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1 justify-center">
+                      <div className="px-2 py-1 bg-primary/10 rounded-full text-xs text-primary border border-primary/20">
+                        Neural
+                      </div>
+                      <div className="px-2 py-1 bg-secondary/10 rounded-full text-xs text-secondary border border-secondary/20">
+                        Web Search
+                      </div>
+                      <div className="px-2 py-1 bg-accent/10 rounded-full text-xs text-accent border border-accent/20">
+                        Real-time
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {messages.map((message: ChatMessage, index) => (
+                    <div
+                      key={message.id}
+                      className={cn(
+                        "flex gap-3 group animate-in slide-in-from-bottom-4 duration-500",
+                        message.sender === 'user' ? 'justify-end' : 'justify-start'
+                      )}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      {message.sender === 'ai' && (
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center">
+                            <Bot className="w-4 h-4 text-background" />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className={cn(
+                        "max-w-[85%]",
+                        message.sender === 'user' ? 'order-first' : ''
+                      )}>
+                        <div className={cn(
+                          "rounded-2xl px-4 py-3 relative overflow-hidden",
+                          "backdrop-blur-sm border transition-all duration-300",
+                          "group-hover:shadow-lg group-hover:scale-[1.02]",
+                          message.sender === 'user'
+                            ? cn(
+                                "bg-gradient-primary text-background ml-auto",
+                                "shadow-glow-primary/30 border-primary/20",
+                                "before:absolute before:inset-0 before:bg-gradient-to-r",
+                                "before:from-transparent before:via-white/10 before:to-transparent",
+                                "before:-translate-x-full hover:before:translate-x-full",
+                                "before:transition-transform before:duration-700"
+                              )
+                            : cn(
+                                "bg-card/40 border-border/30",
+                                "shadow-sm hover:shadow-glow-secondary/20"
+                              )
+                        )}>
+                          {message.sender === 'ai' ? (
+                            <MarkdownRenderer 
+                              content={message.content} 
+                              className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 text-foreground text-xs"
+                            />
+                          ) : (
+                            <p className="text-xs whitespace-pre-wrap leading-relaxed break-words">
+                              {message.content}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className={cn(
+                          "flex items-center gap-2 mt-1 text-xs text-muted-foreground",
+                          message.sender === 'user' ? 'justify-end' : 'justify-start'
+                        )}>
+                          <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
+                        </div>
+                      </div>
+
+                      {message.sender === 'user' && (
+                        <div className="flex-shrink-0">
+                          <div className="w-8 h-8 rounded-2xl bg-gradient-secondary shadow-glow-secondary flex items-center justify-center">
+                            <User className="w-4 h-4 text-background" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Loading placeholder */}
+                  {isLoading && (
+                    <div className="flex gap-3 justify-start animate-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex-shrink-0">
+                        <div className="w-8 h-8 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center animate-pulse">
+                          <Bot className="w-4 h-4 text-background" />
+                        </div>
+                      </div>
+
+                      <div className="max-w-[85%]">
+                        <div className="rounded-2xl px-4 py-3 bg-card/40 backdrop-blur-sm border border-border/30">
+                          <div className="flex gap-2 items-center">
+                            <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                            <p className="text-xs italic text-muted-foreground animate-pulse break-words">
+                              {currentPlaceholder}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Scroll anchor */}
+                  <div ref={messagesEndRef} className="h-6" />
+                </div>
+              )}
+            </div>
           </ScrollArea>
         </div>
 
-        {/* Fixed Input Area at Bottom */}
-        <div className="sticky bottom-0 z-10 flex-shrink-0 p-2 border-t backdrop-blur-sm sm:p-4 bg-background/95">
+        {/* Input Area */}
+        <div className="flex-shrink-0 flex-grow-0 p-4 border-t border-border/30 bg-background/95 backdrop-blur-md rounded-b-2xl w-full">
           {/* Web Search Status Indicator */}
           {isWebSearchEnabled && (
-            <div className="p-2 mb-2 rounded-lg border bg-primary/10 border-primary/20">
-              <div className="flex gap-2 items-center text-xs text-primary">
-                <Search className="w-3 h-3" />
-                <span>Web search is enabled - Your queries will include web search results</span>
+            <div className={cn(
+              "flex gap-2 items-center px-3 py-2 mb-3 rounded-xl",
+              "bg-gradient-to-r from-secondary/10 to-accent/10",
+              "border border-secondary/20 backdrop-blur-sm",
+              "animate-in slide-in-from-bottom-2 duration-300"
+            )}>
+              <div className="w-6 h-6 bg-secondary/20 rounded-full flex items-center justify-center">
+                <Search className="w-3 h-3 text-secondary" />
               </div>
+              <span className="text-xs font-medium text-secondary">
+                Web search enabled
+              </span>
             </div>
           )}
 
           {/* Selected Text Preview */}
           {selectedTextPreview && selectedTextPreview.isVisible && (
-            <div className="p-3 mb-3 rounded-lg border bg-muted/30 border-primary/20">
+            <div className={cn(
+              "p-3 mb-3 rounded-xl border backdrop-blur-sm",
+              "bg-gradient-to-r from-accent/10 to-primary/10",
+              "border-accent/20 animate-in slide-in-from-bottom-2 duration-300"
+            )}>
               <div className="flex gap-2 justify-between items-start mb-2">
                 <div className="flex gap-2 items-center text-xs text-muted-foreground">
-                  <span className="text-primary">📄</span>
-                  <span>Selected text from {new URL(selectedTextPreview.url).hostname}</span>
+                  <span className="text-accent">📄</span>
+                  <span>Selected from {new URL(selectedTextPreview.url).hostname}</span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearSelectedTextPreview}
-                  className="p-0 w-6 h-6 text-muted-foreground hover:text-foreground"
-                >
-                  ×
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={clearSelectedText}
+                      variant="ghost"
+                      size="sm"
+                      className="p-1 h-6 w-6 hover:bg-destructive/20 hover:text-destructive"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    Clear selected text
+                  </TooltipContent>
+                </Tooltip>
               </div>
-              <div className="text-sm leading-relaxed text-foreground/80">
-                {selectedTextPreview.truncatedText}
-              </div>
-              <div className="mt-2 text-xs text-muted-foreground">
-                💡 Add your request below to ask about this text (or leave empty for "tell me about this")
-              </div>
+              <p className="text-xs text-foreground/80 leading-relaxed break-words">
+                "{selectedTextPreview.truncatedText}"
+              </p>
             </div>
           )}
-
-
-
-          <div className="flex gap-2">
-            <div className="flex flex-1 gap-2 items-center">
+          
+          <div className="flex gap-2 items-stretch min-h-[48px] w-full max-w-full">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "relative overflow-hidden group transition-all duration-300 flex-shrink-0",
+                    "border-2 hover:scale-105 px-3 h-12",
+                    isWebSearchEnabled 
+                      ? "bg-gradient-secondary text-background border-secondary shadow-glow-secondary" 
+                      : "border-border/50 hover:border-secondary/50 hover:shadow-glow-secondary/20"
+                  )}
+                >
+                  {isWebSearchEnabled ? (
+                    <Search className="w-4 h-4" />
+                  ) : (
+                    <SearchX className="w-4 h-4" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {isWebSearchEnabled ? "Disable web search" : "Enable web search"}
+              </TooltipContent>
+            </Tooltip>
+            
+            <div className="flex-1 min-w-0">
               <Input
                 ref={inputRef}
                 placeholder={selectedTextPreview 
-                   ? "What would you like to know about the selected text?" 
-                   : isWebSearchEnabled 
-                     ? "🔍 Web search enabled - Type your message..." 
-                     : "Type your message..."
-                 }
+                  ? "Ask about the selected text..." 
+                  : (isWebSearchEnabled ? "🔍 Web search enabled - Type your message..." : "Type your message...")}
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
-                className="flex-1 text-sm sm:text-base"
-              />
-              <Button
-                onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
-                variant={isWebSearchEnabled ? "default" : "outline"}
-                size="sm"
                 className={cn(
-                  "px-3 transition-colors shrink-0",
-                  isWebSearchEnabled 
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90" 
-                    : "hover:bg-muted"
+                  "text-sm h-12 px-4 rounded-2xl border-2 transition-all duration-300 w-full",
+                  "bg-background/50 backdrop-blur-sm resize-none",
+                  "focus:border-primary/50 focus:shadow-glow-primary/20",
+                  "placeholder:text-muted-foreground/70"
                 )}
-                title={isWebSearchEnabled ? "Web search enabled - Click to disable" : "Web search disabled - Click to enable"}
-              >
-                {isWebSearchEnabled ? (
-                  <Search className="w-4 h-4" />
-                ) : (
-                  <SearchX className="w-4 h-4" />
-                )}
-              </Button>
+              />
             </div>
-            <Button
-              onClick={handleSendMessage}
-              disabled={!canSend}
-              size="sm"
-              className="px-3 shrink-0"
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Send className="w-4 h-4" />
-              )}
-            </Button>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!canSend}
+                  size="sm"
+                  className={cn(
+                    "relative overflow-hidden group h-12 px-4 flex-shrink-0",
+                    "bg-gradient-primary hover:shadow-glow-primary",
+                    "transition-all duration-300 hover:scale-105",
+                    "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  )}
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {isLoading ? "Sending message..." : "Send message (Enter)"}
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
-      </CardContent>
-    </Card>
+        <div className='h-36'>
+
+        </div>
+
+      </div>
+    </TooltipProvider>
   )
 }

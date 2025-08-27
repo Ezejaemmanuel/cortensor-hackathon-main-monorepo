@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import {
   Send,
   Bot,
@@ -12,7 +13,9 @@ import {
   Loader2,
   Plus,
   Search,
-  SearchX
+  SearchX,
+  Sparkles,
+  Zap
 } from 'lucide-react'
 import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -40,7 +43,7 @@ interface ChatInterfaceProps {
   userAddress: string
 }
 
-// Futuristic Cortensor-themed placeholder texts for AI thinking state
+// Enhanced Cortensor-themed placeholder texts for AI thinking state
 const CORTENSOR_PLACEHOLDER_TEXTS = [
   "🧠 Initializing quantum neural matrices...",
   "⚡ Establishing secure channels to 47 AI nodes...",
@@ -86,6 +89,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Load messages for a specific chat
   const loadChatMessages = useCallback((chatId: string) => {
@@ -156,15 +160,23 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }, [loadChatMessages])
 
-  // Auto-scroll to bottom when new messages arrive
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
-      if (scrollContainer) {
-        scrollContainer.scrollTop = scrollContainer.scrollHeight
-      }
+  // Enhanced auto-scroll to bottom with smooth behavior
+  const scrollToBottom = useCallback(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'end'
+      })
     }
-  }, [messages, currentPlaceholder])
+  }, [])
+
+  // Auto-scroll when new messages arrive
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      scrollToBottom()
+    }, 100)
+    return () => clearTimeout(timer)
+  }, [messages, currentPlaceholder, scrollToBottom])
 
   // Rotate placeholder texts while loading
   useEffect(() => {
@@ -341,176 +353,289 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   }, [selectedChatId, chatHistory.length, createNewChat])
 
   return (
-    <Card className={cn(
-      "h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass",
-      "lg:max-w-4xl lg:mx-auto",
-      className
-    )}>
-      <CardHeader className="px-4 pb-3 lg:px-6">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <div className="flex justify-center items-center w-8 h-8 rounded-lg lg:w-10 lg:h-10 bg-gradient-secondary shadow-glow-secondary">
-              <Bot className="w-5 h-5 lg:w-6 lg:h-6 text-secondary-foreground" />
-            </div>
-            <div>
-              <CardTitle className="text-lg lg:text-xl font-futura text-foreground">
-                cortiGPT
-              </CardTitle>
-           
-            </div>
-          </div>
-          <Button
-            onClick={createNewChat}
-            size="sm"
-            className="p-0 w-8 h-8 transition-transform lg:w-9 lg:h-9 hover:scale-105"
-          >
-            <Plus className="w-4 h-4 lg:w-5 lg:h-5" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="flex flex-col flex-1 p-0 min-h-0">
-        {/* Messages Area */}
-        <div className="flex-1 min-h-0">
-          <ScrollArea className="p-2 h-full sm:p-4 lg:p-6" ref={scrollAreaRef}>
-            {messages.length === 0 && !isLoading ? (
-              <div className="flex items-center justify-center h-full min-h-[200px]">
-                <div className="text-center">
-                  <Bot className="mx-auto mb-4 w-12 h-12 text-muted-foreground" />
-                  <p className="text-muted-foreground">
-                    Start a conversation by typing a message below.
-                  </p>
+    <TooltipProvider>
+      <div className={cn(
+        "flex flex-col max-w-4xl mx-auto",
+        "bg-gradient-to-br from-background via-background to-card/20",
+        "backdrop-blur-xl border border-border/30 rounded-2xl",
+        "shadow-glass overflow-hidden",
+        "h-[calc(100vh-8rem)] min-h-[600px]",
+        className
+      )}>
+        {/* Header */}
+        <div className="flex-shrink-0 px-6 py-4 border-b border-border/30 bg-card/20 backdrop-blur-sm">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <div className="relative">
+                <div className="flex justify-center items-center w-12 h-12 rounded-2xl bg-gradient-primary shadow-glow-primary">
+                  <Bot className="w-7 h-7 text-background" />
+                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full animate-pulse shadow-glow-accent">
+                    <Sparkles className="w-2.5 h-2.5 text-background m-0.5" />
+                  </div>
                 </div>
               </div>
-            ) : (
-              <div className="space-y-4 lg:space-y-6">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex gap-3 lg:gap-4 ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                  >
-                    {message.sender === 'ai' && (
-                      <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-8 h-8 rounded-full ring-2 lg:w-10 lg:h-10 bg-primary/10 ring-primary/5">
-                          <Bot className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
-                        </div>
-                      </div>
-                    )}
-
-                    <div className={`max-w-[85%] lg:max-w-[70%] xl:max-w-[65%] ${message.sender === 'user' ? 'order-first' : ''}`}>
-                      <div className={`rounded-xl lg:rounded-2xl px-4 py-3 lg:px-6 lg:py-4 ${message.sender === 'user'
-                        ? 'bg-primary text-primary-foreground ml-auto shadow-lg shadow-primary/20'
-                        : 'bg-muted/80 backdrop-blur-sm border border-border/50 shadow-sm'
-                        }`}>
-                        {message.sender === 'ai' ? (
-                          <MarkdownRenderer 
-                            content={message.content} 
-                            className="prose-sm sm:prose-base max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
-                          />
-                        ) : (
-                          <p className="text-sm whitespace-pre-wrap sm:text-base">{message.content}</p>
-                        )}
-                      </div>
-
-                      <div className={`flex items-center gap-2 mt-2 text-xs lg:text-sm text-muted-foreground ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
-                      </div>
-                    </div>
-
-                    {message.sender === 'user' && (
-                      <div className="flex-shrink-0">
-                        <div className="flex justify-center items-center w-8 h-8 rounded-full ring-2 lg:w-10 lg:h-10 bg-primary/10 ring-primary/5">
-                          <User className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-                {/* Loading placeholder */}
-                {isLoading && (
-                  <div className="flex gap-3 justify-start lg:gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="flex justify-center items-center w-8 h-8 rounded-full ring-2 lg:w-10 lg:h-10 bg-primary/10 ring-primary/5">
-                        <Bot className="w-4 h-4 lg:w-5 lg:h-5 text-primary" />
-                      </div>
-                    </div>
-
-                    <div className="max-w-[80%] lg:max-w-[70%]">
-                      <div className="px-4 py-3 rounded-xl border backdrop-blur-sm lg:rounded-2xl lg:px-6 lg:py-4 bg-muted/80 border-border/50">
-                        <div className="flex gap-2 items-center">
-                          <Loader2 className="w-4 h-4 animate-spin lg:w-5 lg:h-5 text-muted-foreground" />
-                          <p className="text-sm italic lg:text-base text-muted-foreground">
-                            {currentPlaceholder}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {/* Spacer to ensure content is not hidden behind input */}
-                <div className="h-4 sm:h-6"></div>
+              <div>
+                <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  cortiGPT
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Powered by Neural Network Intelligence
+                </p>
               </div>
-            )}
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={createNewChat}
+                  size="lg"
+                  className={cn(
+                    "relative overflow-hidden group",
+                    "bg-gradient-secondary hover:shadow-glow-secondary",
+                    "transition-all duration-300 hover:scale-105",
+                    "border border-secondary/20"
+                  )}
+                >
+                  <Plus className="w-5 h-5 mr-2" />
+                  New Chat
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                Start a new conversation
+              </TooltipContent>
+            </Tooltip>
+          </div>
+        </div>
+
+        {/* Messages Area */}
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <ScrollArea className="h-full" ref={scrollAreaRef}>
+            <div className="px-6 py-6">
+              {messages.length === 0 && !isLoading ? (
+                <div className="flex items-center justify-center h-full min-h-[400px]">
+                  <div className="text-center space-y-6 max-w-md">
+                    <div className="relative">
+                      <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-neural shadow-glow-primary animate-pulse">
+                        <Bot className="w-12 h-12 text-background m-4" />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-accent rounded-full shadow-glow-accent animate-bounce">
+                        <Zap className="w-4 h-4 text-background m-2" />
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <h3 className="text-xl font-semibold text-foreground">
+                        Welcome to cortiGPT
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed">
+                        Your AI-powered assistant is ready to help. Start a conversation by typing a message below.
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      <div className="px-3 py-1 bg-primary/10 rounded-full text-xs text-primary border border-primary/20">
+                        Neural Network
+                      </div>
+                      <div className="px-3 py-1 bg-secondary/10 rounded-full text-xs text-secondary border border-secondary/20">
+                        Web Search
+                      </div>
+                      <div className="px-3 py-1 bg-accent/10 rounded-full text-xs text-accent border border-accent/20">
+                        Real-time
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {messages.map((message, index) => (
+                    <div
+                      key={message.id}
+                      className={cn(
+                        "flex gap-4 group animate-in slide-in-from-bottom-4 duration-500",
+                        message.sender === 'user' ? 'justify-end' : 'justify-start'
+                      )}
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      {message.sender === 'ai' && (
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center">
+                            <Bot className="w-5 h-5 text-background" />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className={cn(
+                        "max-w-[80%] lg:max-w-[70%]",
+                        message.sender === 'user' ? 'order-first' : ''
+                      )}>
+                        <div className={cn(
+                          "rounded-2xl px-6 py-4 relative overflow-hidden",
+                          "backdrop-blur-sm border transition-all duration-300",
+                          "group-hover:shadow-lg group-hover:scale-[1.02]",
+                          message.sender === 'user'
+                            ? cn(
+                                "bg-gradient-primary text-background ml-auto",
+                                "shadow-glow-primary/30 border-primary/20",
+                                "before:absolute before:inset-0 before:bg-gradient-to-r",
+                                "before:from-transparent before:via-white/10 before:to-transparent",
+                                "before:-translate-x-full hover:before:translate-x-full",
+                                "before:transition-transform before:duration-700"
+                              )
+                            : cn(
+                                "bg-card/40 border-border/30",
+                                "shadow-sm hover:shadow-glow-secondary/20"
+                              )
+                        )}>
+                          {message.sender === 'ai' ? (
+                            <MarkdownRenderer 
+                              content={message.content} 
+                              className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 text-foreground"
+                            />
+                          ) : (
+                            <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                              {message.content}
+                            </p>
+                          )}
+                        </div>
+
+                        <div className={cn(
+                          "flex items-center gap-2 mt-2 text-xs text-muted-foreground",
+                          message.sender === 'user' ? 'justify-end' : 'justify-start'
+                        )}>
+                          <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
+                        </div>
+                      </div>
+
+                      {message.sender === 'user' && (
+                        <div className="flex-shrink-0">
+                          <div className="w-10 h-10 rounded-2xl bg-gradient-secondary shadow-glow-secondary flex items-center justify-center">
+                            <User className="w-5 h-5 text-background" />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Loading placeholder */}
+                  {isLoading && (
+                    <div className="flex gap-4 justify-start animate-in slide-in-from-bottom-4 duration-500">
+                      <div className="flex-shrink-0">
+                        <div className="w-10 h-10 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center animate-pulse">
+                          <Bot className="w-5 h-5 text-background" />
+                        </div>
+                      </div>
+
+                      <div className="max-w-[80%] lg:max-w-[70%]">
+                        <div className="rounded-2xl px-6 py-4 bg-card/40 backdrop-blur-sm border border-border/30">
+                          <div className="flex gap-3 items-center">
+                            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                            <p className="text-sm italic text-muted-foreground animate-pulse">
+                              {currentPlaceholder}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Scroll anchor */}
+                  <div ref={messagesEndRef} className="h-4" />
+                </div>
+              )}
+            </div>
           </ScrollArea>
         </div>
 
-        {/* Fixed Input Area at Bottom */}
-        <div className="sticky bottom-0 z-10 flex-shrink-0 p-2 border-t backdrop-blur-sm sm:p-3 lg:p-4 bg-background/95">
+        {/* Input Area - Adaptive Height */}
+        <div className="flex-shrink-0 border-t border-border/30 bg-background/95 backdrop-blur-md p-4 space-y-4 rounded-b-2xl">
           {/* Web Search Status Indicator */}
           {isWebSearchEnabled && (
-            <div className="flex gap-2 items-center px-4 py-3 mb-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl border shadow-sm backdrop-blur-sm dark:from-blue-950/40 dark:to-cyan-950/40 border-blue-200/60 dark:border-blue-800/60">
-              <div className="flex justify-center items-center w-6 h-6 bg-blue-100 rounded-full dark:bg-blue-900/50">
-                <Search className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+            <div className={cn(
+              "flex gap-3 items-center px-4 py-3 mb-4 rounded-xl",
+              "bg-gradient-to-r from-secondary/10 to-accent/10",
+              "border border-secondary/20 backdrop-blur-sm",
+              "animate-in slide-in-from-bottom-2 duration-300"
+            )}>
+              <div className="w-8 h-8 bg-secondary/20 rounded-full flex items-center justify-center">
+                <Search className="w-4 h-4 text-secondary" />
               </div>
-              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+              <span className="text-sm font-medium text-secondary">
                 Web search enabled - Your queries will include web results
               </span>
             </div>
           )}
           
-          <div className="flex gap-2 lg:gap-3">
-            <Button
-              onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
-              variant="outline"
-              size="sm"
-              className={cn(
-                "px-3 border-2 transition-all duration-300 ease-in-out lg:px-4 shrink-0 lg:h-12",
-                isWebSearchEnabled 
-                  ? "text-white bg-blue-500 border-blue-500 shadow-lg scale-105 hover:bg-blue-600 shadow-blue-500/25" 
-                  : "hover:bg-muted border-border hover:border-blue-300 dark:hover:border-blue-600"
-              )}
-              title={isWebSearchEnabled ? "Web search enabled - Click to disable" : "Web search disabled - Click to enable"}
-            >
-              {isWebSearchEnabled ? (
-                <Search className="w-4 h-4 lg:w-5 lg:h-5" />
-              ) : (
-                <SearchX className="w-4 h-4 lg:w-5 lg:h-5" />
-              )}
-            </Button>
-            <Input
-              ref={inputRef}
-              placeholder={isWebSearchEnabled ? "🔍 Web search enabled - Type your message..." : "Type your message..."}
-              value={currentMessage}
-              onChange={(e) => setCurrentMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              disabled={isLoading}
-              className="flex-1 text-sm rounded-xl border-2 transition-colors sm:text-base lg:text-lg lg:h-12 lg:px-4 focus:border-primary/50"
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!currentMessage.trim() || isLoading}
-              size="sm"
-              className="px-3 shadow-lg transition-transform lg:px-4 shrink-0 lg:h-12 hover:scale-105 shadow-primary/20"
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 animate-spin lg:w-5 lg:h-5" />
-              ) : (
-                <Send className="w-4 h-4 lg:w-5 lg:h-5" />
-              )}
-            </Button>
+          <div className="flex gap-3 items-end">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
+                  variant="outline"
+                  size="lg"
+                  className={cn(
+                    "relative overflow-hidden group transition-all duration-300",
+                    "border-2 hover:scale-105",
+                    isWebSearchEnabled 
+                      ? "bg-gradient-secondary text-background border-secondary shadow-glow-secondary" 
+                      : "border-border/50 hover:border-secondary/50 hover:shadow-glow-secondary/20"
+                  )}
+                >
+                  {isWebSearchEnabled ? (
+                    <Search className="w-5 h-5" />
+                  ) : (
+                    <SearchX className="w-5 h-5" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {isWebSearchEnabled ? "Disable web search" : "Enable web search"}
+              </TooltipContent>
+            </Tooltip>
+            
+            <div className="flex-1 relative">
+              <Input
+                ref={inputRef}
+                placeholder={isWebSearchEnabled ? "🔍 Web search enabled - Type your message..." : "Type your message..."}
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isLoading}
+                className={cn(
+                  "text-base h-14 px-6 rounded-2xl border-2 transition-all duration-300",
+                  "bg-background/50 backdrop-blur-sm",
+                  "focus:border-primary/50 focus:shadow-glow-primary/20",
+                  "placeholder:text-muted-foreground/70"
+                )}
+              />
+            </div>
+            
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  onClick={handleSendMessage}
+                  disabled={!currentMessage.trim() || isLoading}
+                  size="lg"
+                  className={cn(
+                    "relative overflow-hidden group h-14 px-6",
+                    "bg-gradient-primary hover:shadow-glow-primary",
+                    "transition-all duration-300 hover:scale-105",
+                    "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  )}
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <Send className="w-5 h-5" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                {isLoading ? "Sending message..." : "Send message (Enter)"}
+              </TooltipContent>
+            </Tooltip>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </TooltipProvider>
   )
 }

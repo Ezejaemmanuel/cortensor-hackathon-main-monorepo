@@ -1,6 +1,6 @@
 
 // Allow responses up to 30 seconds
-import { mastra } from "@repo/ai/server";
+import { cortiGPTAgent } from "@repo/ai/server";
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
@@ -27,7 +27,6 @@ export async function POST(req: Request) {
 
   //TODO WOULD ADD PROPER AUTHENTICATION USING SIWE
   // Get the cortiGPT agent instance from Mastra
-  const agent = mastra.getAgent("cortiGPTAgent");
 
   // Extract the last user message from the messages array
   const lastMessage = messages[messages.length - 1];
@@ -38,7 +37,7 @@ export async function POST(req: Request) {
 
   // Generate the response using the agent WITH memory context
   // chatId is used as threadId and userAddress as resource for memory management
-  const result = await agent.generate([lastMessage], {
+  const result = await cortiGPTAgent.generate([lastMessage], {
     memory: {
       thread: chatId, // Use chatId as threadId for conversation memory
       resource: userAddress // Use userAddress as resource identifier

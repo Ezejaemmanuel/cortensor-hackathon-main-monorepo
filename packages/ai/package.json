@@ -29,7 +29,7 @@
     "@mastra/memory": "0.12.2",
     "@mastra/upstash": "0.14.0",
     "ai": "^4.0.38",
-    "cortensor-openai-provider": "0.2.11",
+    "cortensor-openai-provider": "0.2.12",
     "openai": "^4.73.1",
     "viem": "^2.21.54",
     "wagmi": "^2.14.5",

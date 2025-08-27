@@ -180,13 +180,13 @@ export function CortensorChatWeb2() {
 
                                             {/* Chat Interface - Desktop */}
                             <motion.div
-                                className="flex-1 min-h-0"
+                                className="flex-1 min-h-0 h-full"
                                 initial={{ y: 50, opacity: 0 }}
                                 animate={{ y: 0, opacity: 1 }}
                                 transition={{ delay: 0.2 }}
                             >
                                 {userId ? (
-                                    <ChatInterface className="h-full" userAddress={userId} />
+                                    <ChatInterface userAddress={userId} className="h-full" />
                                 ) : (
                                     <Card className="h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
                                         <CardContent className="flex items-center justify-center h-full">
@@ -211,9 +211,9 @@ export function CortensorChatWeb2() {
                             className="flex relative flex-col flex-1 min-h-0"
                         >
                             {/* Mobile Chat Interface - Full Width */}
-                            <div className="flex-1 min-h-0">
+                            <div className="flex-1 min-h-0 h-full p-2">
                                 {userId ? (
-                                    <ChatInterface className="h-full" userAddress={userId} />
+                                    <ChatInterface userAddress={userId} className="h-full" />
                                 ) : (
                                     <Card className="h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
                                         <CardContent className="flex items-center justify-center h-full">

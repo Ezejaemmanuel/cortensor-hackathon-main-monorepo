@@ -6,7 +6,7 @@ export const SEARCH_MARKER = '[**search**]' as const
 
 // AI response cleanup patterns
 export const AI_RESPONSE_CLEANUP_PATTERNS = [
-  /<\/s>$/g // Remove </s> tags at the end of responses
+  /<\/s>/g // Remove </s> tags anywhere in responses
 ] as const
 
 // Session configuration defaults
