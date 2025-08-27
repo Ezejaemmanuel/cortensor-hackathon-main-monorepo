@@ -9,7 +9,11 @@
   "orientation": "portrait-primary",
   "scope": "/",
   "lang": "en",
-  "categories": ["productivity", "utilities", "education"],
+  "categories": [
+    "productivity",
+    "utilities",
+    "education"
+  ],
   "icons": [
     {
       "src": "/cortigpt-4.png",

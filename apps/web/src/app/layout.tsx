@@ -3,7 +3,7 @@ import { Orbitron, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Web3Provider } from "@/providers/web3-provider";
-import Navbar  from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/Navbar";
 
 const orbitron = Orbitron({
   variable: "--font-orbitron",
