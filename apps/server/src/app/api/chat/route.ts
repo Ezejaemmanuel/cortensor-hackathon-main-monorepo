@@ -1,7 +1,6 @@
 
 // Allow responses up to 30 seconds
 import { cortiGPTAgent } from "@repo/ai/server";
-export const maxDuration = 30;
 
 export async function POST(req: Request) {
   // Extract userAddress and chatId from search params
