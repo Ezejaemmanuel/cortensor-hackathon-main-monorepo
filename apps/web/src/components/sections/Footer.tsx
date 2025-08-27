@@ -83,7 +83,7 @@ export const Footer = () => {
           </div>
 
           <div className="text-center sm:text-right">
-            <div className="text-2xl font-futura font-bold gradient-text mb-2">CortiGPT</div>
+            <div className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-futura font-bold gradient-text mb-2">CortiGPT</div>
             <p className="text-sm text-muted-foreground font-tech">
               Powered by Cortensor Protocol
             </p>

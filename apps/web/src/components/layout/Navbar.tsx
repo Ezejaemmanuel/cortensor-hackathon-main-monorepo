@@ -97,7 +97,7 @@ const Navbar = () => {
                 isMobile ? 'h-4 w-4' : 'h-5 w-5'
               }`} />
             </div>
-            <span className={`font-bold gradient-text ${
+            <span className={`font-bold gradient-text text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl ${
               isMobile ? 'text-sm' : 'text-xl'
             }`}>CortiGPT</span>
           </div>
@@ -167,7 +167,7 @@ const Navbar = () => {
                         <div className="w-6 h-6 bg-gradient-primary rounded-md flex items-center justify-center">
                           <Zap className="h-4 w-4 text-primary-foreground" />
                         </div>
-                        <span className="font-bold gradient-text">CortiGPT</span>
+                        <span className="font-bold gradient-text text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">CortiGPT</span>
                       </div>
                     </div>
 

@@ -362,7 +362,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 </div>
               </div>
               <div>
-                <CardTitle className="text-lg sm:text-2xl font-bold font-futura bg-gradient-primary bg-clip-text text-transparent gradient-text">
+                <CardTitle className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold font-futura bg-gradient-primary bg-clip-text text-transparent gradient-text">
                   cortiGPT
                 </CardTitle>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-tech">
