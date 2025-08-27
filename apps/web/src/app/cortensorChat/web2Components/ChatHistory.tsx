@@ -15,14 +15,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { formatDistanceToNow } from 'date-fns'
 import { cn } from '@/lib/utils'
-
-interface ChatHistoryItem {
-  id: string
-  title: string
-  lastMessage: string
-  timestamp: Date
-  messageCount: number
-}
+import { useWeb2Chat, ChatHistoryItem } from '../store/useWeb2ChatStore'
 
 interface ChatHistoryProps {
   className?: string
@@ -30,86 +23,23 @@ interface ChatHistoryProps {
 }
 
 export function ChatHistory({ className, userAddress }: ChatHistoryProps) {
-  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([])
+  const {
+    selectedChatId,
+    chatHistory,
+    setUserAddress,
+    createNewChat,
+    switchToChat,
+    deleteChat
+  } = useWeb2Chat()
+  
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
-  // Load chat history from localStorage
+  // Initialize user address in store
   useEffect(() => {
-    const storageKey =  `cortensor_chat_history_${userAddress}`
-      
+    setUserAddress(userAddress)
+  }, [userAddress, setUserAddress])
 
-    const savedHistory = localStorage.getItem(storageKey)
-    if (savedHistory) {
-      try {
-        const parsed = JSON.parse(savedHistory) as Array<{
-          id: string
-          title: string
-          lastMessage: string
-          timestamp: string
-          messageCount: number
-        }>
-        setChatHistory(parsed.map((item) => ({
-          ...item,
-          timestamp: new Date(item.timestamp)
-        })))
-      } catch (error) {
-        console.error('Failed to parse chat history:', error)
-      }
-    }
 
-    // Load current selected chat
-    const currentChatId = localStorage.getItem(`cortensor_current_chat_${userAddress}`)
-    if (currentChatId) {
-      setSelectedChatId(currentChatId)
-    }
-  }, [userAddress])
-
-  // Save chat history to localStorage
-  const saveChatHistory = (history: ChatHistoryItem[]) => {
-    const storageKey = `cortensor_chat_history_${userAddress}`
-
-    localStorage.setItem(storageKey, JSON.stringify(history))
-    setChatHistory(history)
-  }
-
-  // Create new chat
-  const createNewChat = () => {
-    const newChat: ChatHistoryItem = {
-      id: `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      title: `Chat ${chatHistory.length + 1}`,
-      lastMessage: 'New conversation started',
-      timestamp: new Date(),
-      messageCount: 0
-    }
-    const updatedHistory = [newChat, ...chatHistory]
-    saveChatHistory(updatedHistory)
-    setSelectedChatId(newChat.id)
-
-    // Update current chat in localStorage
-    localStorage.setItem(`cortensor_current_chat_${userAddress}`, newChat.id)
-  }
-
-  // Switch to selected chat
-  const switchToChat = (chatId: string) => {
-    setSelectedChatId(chatId)
-    localStorage.setItem(`cortensor_current_chat_${userAddress}`, chatId)
-    // Trigger a custom event to notify ChatInterface about chat switch
-    window.dispatchEvent(new CustomEvent('chatSwitched', { detail: { chatId } }))
-  }
-
-  // Delete chat
-  const deleteChat = (chatId: string) => {
-    const updatedHistory = chatHistory.filter(chat => chat.id !== chatId)
-    saveChatHistory(updatedHistory)
-    if (selectedChatId === chatId) {
-      setSelectedChatId(null)
-      localStorage.removeItem(`cortensor_current_chat_${userAddress}`)
-    }
-
-    // Also delete the actual chat messages from localStorage
-    localStorage.removeItem(`cortensor_messages_${userAddress}_${chatId}`)
-  }
 
   // Filter chats based on search query
   const filteredChats = chatHistory.filter(chat =>

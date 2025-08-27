@@ -30,7 +30,7 @@ import {
   GetSelectedTextMessage,
   MessageResponse
 } from '@/types/messaging'
-import { useChatStore, ChatMessage } from '@/stores/chat-store'
+import { useWeb2Chat, ChatMessage } from '@/stores/useWeb2ChatStore'
 import type { TextSelectionData } from '@/types/messaging'
 
 interface ChatInterfaceProps {
@@ -77,34 +77,32 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
   const [selectedTextPreview, setSelectedTextPreview] = useState<SelectedTextPreview | null>(null)
-  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(false)
+  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(true)
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const isUserScrolledUpRef = useRef(false)
+  const shouldAutoScrollRef = useRef(true)
 
-  // Zustand store
-  const store = useChatStore()
-  const currentTabData = store.getCurrentTabData()
-  const messages = currentTabData?.messages || []
-  const chatHistory = currentTabData?.chatHistory || []
-  const selectedChatId = currentTabData?.selectedChatId || null
+  // Use Web2 Zustand store
+  const {
+    currentMessages: messages,
+    chatHistory,
+    selectedChatId,
+    setUserAddress,
+    createNewChat,
+    addMessage,
+    updateChatHistory
+  } = useWeb2Chat()
 
-  // Get current tab URL on mount
+  // Initialize user address in store
   useEffect(() => {
-    const getCurrentTab = async () => {
-      try {
-        const tabs = await browser.tabs.query({ active: true, currentWindow: true })
-        if (tabs[0]?.id && tabs[0]?.url) {
-          store.setCurrentTab(tabs[0].id.toString(), tabs[0].url)
-        }
-      } catch (error) {
-        console.error('Failed to get current tab:', error)
-      }
+    if (userAddress) {
+      setUserAddress(userAddress)
     }
-    getCurrentTab()
-  }, [])
+  }, [userAddress, setUserAddress])
 
   // Utility function to truncate text to two lines
   const truncateToTwoLines = (text: string, maxLength: number = 100): string => {
@@ -114,23 +112,60 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
 
 
-  // Scroll to bottom of messages when new messages arrive
-  const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
+  // Enhanced auto-scroll to bottom with smart behavior
+  const scrollToBottom = useCallback((force = false) => {
+    if (messagesEndRef.current && (shouldAutoScrollRef.current || force)) {
       messagesEndRef.current.scrollIntoView({ 
         behavior: 'smooth',
         block: 'end'
       })
+      isUserScrolledUpRef.current = false
     }
   }, [])
 
-  // Auto-scroll when new messages arrive
+  // Check if user is near bottom of scroll area
+  const checkScrollPosition = useCallback(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      if (scrollContainer) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainer
+        const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
+        isUserScrolledUpRef.current = !isNearBottom
+        shouldAutoScrollRef.current = isNearBottom
+      }
+    }
+  }, [])
+
+  // Auto-scroll when new messages arrive (only if user is near bottom)
   useEffect(() => {
     const timer = setTimeout(() => {
       scrollToBottom()
     }, 100)
     return () => clearTimeout(timer)
-  }, [messages, currentPlaceholder, scrollToBottom])
+  }, [messages, scrollToBottom])
+
+  // Auto-scroll for loading placeholder only if user is near bottom
+  useEffect(() => {
+    if (isLoading && currentPlaceholder) {
+      const timer = setTimeout(() => {
+        scrollToBottom()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [currentPlaceholder, isLoading, scrollToBottom])
+
+  // Add scroll event listener to track user scroll position
+  useEffect(() => {
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    if (scrollContainer) {
+      const handleScroll = () => {
+        checkScrollPosition()
+      }
+      
+      scrollContainer.addEventListener('scroll', handleScroll)
+      return () => scrollContainer.removeEventListener('scroll', handleScroll)
+    }
+  }, [checkScrollPosition])
 
 
 
@@ -207,24 +242,9 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     };
   }, []);
 
-  // Listen for chat switch events
-  useEffect(() => {
-    const handleChatSwitch = (event: CustomEvent) => {
-      const { chatId } = event.detail
-      // The store will handle loading the chat automatically
-    }
-
-    window.addEventListener('chatSwitched', handleChatSwitch as EventListener)
-
-    return () => {
-      window.removeEventListener('chatSwitched', handleChatSwitch as EventListener)
-    }
-  }, [])
-
-  const createNewChat = () => {
-    if (!store.currentTabId) return
-    const newChatId = store.createNewChat(store.currentTabId)
-    store.setSelectedChat(store.currentTabId, newChatId)
+  // Wrapper function for creating new chat
+  const handleCreateNewChat = () => {
+    createNewChat()
   }
 
   const clearSelectedText = () => {
@@ -236,7 +256,9 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const handleSendMessage = async () => {
     if (!currentMessage.trim() && !selectedTextPreview) return
     if (isLoading) return
-    if (!store.currentTabId) return
+
+    // Force scroll to bottom when user sends a message
+    shouldAutoScrollRef.current = true
 
     let messageContent = currentMessage.trim()
 
@@ -247,14 +269,10 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
 
     // If no chat is selected, create a new one
-    if (!selectedChatId) {
-      createNewChat()
-      // Wait a bit for the store to update
-      await new Promise(resolve => setTimeout(resolve, 100))
+    let currentChatId = selectedChatId
+    if (!currentChatId) {
+      currentChatId = createNewChat()
     }
-
-    const currentChatId = selectedChatId || store.getCurrentTabData()?.selectedChatId
-    if (!currentChatId) return
 
     // Prepare the message with search marker if enabled
     const formattedMessage = isWebSearchEnabled 
@@ -276,8 +294,8 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
 
     // Add message to store
-    store.addMessage(store.currentTabId, currentChatId, userMessage)
-    store.updateChatHistory(store.currentTabId, currentChatId, userMessage.content, messages.length + 1)
+    addMessage(currentChatId, userMessage)
+    updateChatHistory(currentChatId, userMessage.content, messages.length + 1)
 
     const messageToSend = formattedMessage
     setCurrentMessage('')
@@ -324,8 +342,8 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       }
 
       // Add AI response to store
-      store.addMessage(store.currentTabId, currentChatId, aiMessage)
-      store.updateChatHistory(store.currentTabId, currentChatId, aiMessage.content, messages.length + 2)
+      addMessage(currentChatId, aiMessage)
+      updateChatHistory(currentChatId, aiMessage.content, messages.length + 2)
 
     } catch (error) {
       console.error('Failed to send message:', error)
@@ -335,7 +353,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         sender: 'ai',
         timestamp: new Date()
       }
-      store.addMessage(store.currentTabId, currentChatId, errorMessage)
+      addMessage(currentChatId, errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -384,7 +402,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  onClick={createNewChat}
+                  onClick={handleCreateNewChat}
                   size="sm"
                   className={cn(
                     "relative overflow-hidden group",
@@ -618,7 +636,16 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
-                {isWebSearchEnabled ? "Disable web search" : "Enable web search"}
+                <div className="text-center">
+                  <div className="font-medium">
+                    {isWebSearchEnabled ? "Web Search: ON" : "Web Search: OFF"}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {isWebSearchEnabled 
+                      ? "AI will search the web for current information" 
+                      : "AI will use only its training data"}
+                  </div>
+                </div>
               </TooltipContent>
             </Tooltip>
             

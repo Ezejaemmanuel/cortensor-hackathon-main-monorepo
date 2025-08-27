@@ -22,21 +22,7 @@ import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { getApiEndpoint } from '@/lib/api-config'
 import { MarkdownRenderer } from '@/components/MarkdownRenderer'
-
-interface ChatMessage {
-  id: string
-  content: string
-  sender: 'user' | 'ai'
-  timestamp: Date
-}
-
-interface ChatHistoryItem {
-  id: string
-  title: string
-  lastMessage: string
-  timestamp: Date
-  messageCount: number
-}
+import { useWeb2Chat, type ChatMessage, type ChatHistoryItem } from '../store/useWeb2ChatStore'
 
 interface ChatInterfaceProps {
   className?: string
@@ -78,105 +64,93 @@ const CORTENSOR_PLACEHOLDER_TEXTS = [
 ]
 
 export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
-  const [messages, setMessages] = useState<ChatMessage[]>([])
+  // Use Zustand store for state management
+  const {
+    selectedChatId,
+    chatHistory,
+    currentMessages: messages,
+    setUserAddress,
+    createNewChat,
+    addMessage,
+    setMessages,
+    updateChatHistory
+  } = useWeb2Chat()
+
   const [currentMessage, setCurrentMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(false)
+  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(true)
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
-  const [chatHistory, setChatHistory] = useState<ChatHistoryItem[]>([])
-  const [selectedChatId, setSelectedChatId] = useState<string | null>(null)
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const isUserScrolledUpRef = useRef(false)
+  const shouldAutoScrollRef = useRef(true)
 
-  // Load messages for a specific chat
-  const loadChatMessages = useCallback((chatId: string) => {
-    const savedMessages = localStorage.getItem(`cortensor_messages_${userAddress}_${chatId}`)
-    if (savedMessages) {
-      try {
-        const parsed = JSON.parse(savedMessages) as Array<{
-          id: string
-          content: string
-          sender: 'user' | 'ai'
-          timestamp: string
-        }>
-        setMessages(parsed.map((msg) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        })))
-        setSelectedChatId(chatId)
-      } catch (error) {
-        console.error('Failed to parse messages:', error)
-        setMessages([])
-        setSelectedChatId(chatId)
-      }
-    } else {
-      setMessages([])
-      setSelectedChatId(chatId)
-    }
-  }, [userAddress])
-
-  // Load chat history from localStorage
+  // Initialize user address in store
   useEffect(() => {
-    const savedHistory = localStorage.getItem(`cortensor_chat_history_${userAddress}`)
-    if (savedHistory) {
-      try {
-        const parsed = JSON.parse(savedHistory) as Array<{
-          id: string
-          title: string
-          lastMessage: string
-          timestamp: string
-          messageCount: number
-        }>
-        setChatHistory(parsed.map((item) => ({
-          ...item,
-          timestamp: new Date(item.timestamp)
-        })))
-      } catch (error) {
-        console.error('Failed to parse chat history:', error)
-      }
+    if (userAddress) {
+      setUserAddress(userAddress)
     }
+  }, [userAddress, setUserAddress])
 
-    // Load current chat messages if any
-    const currentChatId = localStorage.getItem(`cortensor_current_chat_${userAddress}`)
-    if (currentChatId) {
-      loadChatMessages(currentChatId)
-    }
-  }, [userAddress, loadChatMessages])
-
-  // Listen for chat switch events
-  useEffect(() => {
-    const handleChatSwitch = (event: CustomEvent) => {
-      const { chatId } = event.detail
-      loadChatMessages(chatId)
-    }
-
-    window.addEventListener('chatSwitched', handleChatSwitch as EventListener)
-
-    return () => {
-      window.removeEventListener('chatSwitched', handleChatSwitch as EventListener)
-    }
-  }, [loadChatMessages])
+  // The store automatically handles chat switching, no need for custom events
 
   // Enhanced auto-scroll to bottom with smooth behavior
-  const scrollToBottom = useCallback(() => {
-    if (messagesEndRef.current) {
+  const scrollToBottom = useCallback((force = false) => {
+    if (messagesEndRef.current && (shouldAutoScrollRef.current || force)) {
       messagesEndRef.current.scrollIntoView({ 
         behavior: 'smooth',
         block: 'end'
       })
+      isUserScrolledUpRef.current = false
     }
   }, [])
 
-  // Auto-scroll when new messages arrive
+  // Check if user is near bottom of scroll area
+  const checkScrollPosition = useCallback(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
+      if (scrollContainer) {
+        const { scrollTop, scrollHeight, clientHeight } = scrollContainer
+        const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
+        isUserScrolledUpRef.current = !isNearBottom
+        shouldAutoScrollRef.current = isNearBottom
+      }
+    }
+  }, [])
+
+  // Auto-scroll when new messages arrive (only if user is near bottom)
   useEffect(() => {
     const timer = setTimeout(() => {
       scrollToBottom()
     }, 100)
     return () => clearTimeout(timer)
-  }, [messages, currentPlaceholder, scrollToBottom])
+  }, [messages, scrollToBottom])
+
+  // Auto-scroll for loading placeholder only if user is near bottom
+  useEffect(() => {
+    if (isLoading && currentPlaceholder) {
+      const timer = setTimeout(() => {
+        scrollToBottom()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [currentPlaceholder, isLoading, scrollToBottom])
+
+  // Add scroll event listener to track user scroll position
+  useEffect(() => {
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
+    if (scrollContainer) {
+      const handleScroll = () => {
+        checkScrollPosition()
+      }
+      
+      scrollContainer.addEventListener('scroll', handleScroll)
+      return () => scrollContainer.removeEventListener('scroll', handleScroll)
+    }
+  }, [checkScrollPosition])
 
   // Rotate placeholder texts while loading
   useEffect(() => {
@@ -201,60 +175,28 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }, [isLoading])
 
-  // Save messages to localStorage
-  const saveMessages = (chatId: string, msgs: ChatMessage[]) => {
-    localStorage.setItem(`cortensor_messages_${userAddress}_${chatId}`, JSON.stringify(msgs))
-  }
+  // Create new chat wrapper (store handles the logic)
+  const handleCreateNewChat = useCallback(() => {
+    return createNewChat()
+  }, [createNewChat])
 
-  // Save chat history to localStorage
-  const saveChatHistory = useCallback((history: ChatHistoryItem[]) => {
-    localStorage.setItem(`cortensor_chat_history_${userAddress}`, JSON.stringify(history))
-    setChatHistory(history)
-  }, [userAddress])
-
-  // Create new chat
-  const createNewChat = useCallback(() => {
-    const newChatId = `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
-    const newChat: ChatHistoryItem = {
-      id: newChatId,
-      title: `Chat ${chatHistory.length + 1}`,
-      lastMessage: 'New conversation started',
-      timestamp: new Date(),
-      messageCount: 0
+  // Update chat history wrapper
+  const handleUpdateChatHistory = useCallback((message: string) => {
+    if (selectedChatId) {
+      updateChatHistory(selectedChatId, message, messages.length + 1)
     }
-    const updatedHistory = [newChat, ...chatHistory]
-    saveChatHistory(updatedHistory)
-    setSelectedChatId(newChatId)
-    setMessages([])
-    localStorage.setItem(`cortensor_current_chat_${userAddress}`, newChatId)
-  }, [chatHistory, saveChatHistory, userAddress])
-
-  // Update chat history with latest message
-  const updateChatHistory = (message: string) => {
-    if (!selectedChatId) return
-
-    const updatedHistory = chatHistory.map(chat =>
-      chat.id === selectedChatId
-        ? {
-          ...chat,
-          lastMessage: message,
-          timestamp: new Date(),
-          messageCount: messages.length + 1
-        }
-        : chat
-    )
-    saveChatHistory(updatedHistory)
-  }
+  }, [selectedChatId, updateChatHistory, messages.length])
 
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return
 
-    if (!selectedChatId) {
-      createNewChat()
-      // Wait for state to update
-      setTimeout(() => handleSendMessage(), 100)
-      return
+    let currentChatId = selectedChatId
+    if (!currentChatId) {
+      currentChatId = handleCreateNewChat()
     }
+
+    // Force scroll to bottom when user sends a message
+    shouldAutoScrollRef.current = true
 
     // Prepare the message with search marker if enabled
     const formattedMessage = isWebSearchEnabled 
@@ -273,10 +215,9 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       timestamp: new Date()
     }
 
-    const newMessages = [...messages, userMessage]
-    setMessages(newMessages)
-    saveMessages(selectedChatId, newMessages)
-    updateChatHistory(userMessage.content)
+    // Add user message to store
+    addMessage(currentChatId, userMessage)
+    handleUpdateChatHistory(userMessage.content)
 
     const messageToSend = formattedMessage
     setCurrentMessage('')
@@ -284,7 +225,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
     try {
       // Send the current message with chatId for memory context
-      const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(selectedChatId)}`), {
+      const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(currentChatId)}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -317,10 +258,9 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         timestamp: new Date()
       }
 
-      const updatedMessages = [...newMessages, aiMessage]
-      setMessages(updatedMessages)
-      saveMessages(selectedChatId, updatedMessages)
-      updateChatHistory(aiMessage.content)
+      // Add AI message to store
+      addMessage(currentChatId, aiMessage)
+      handleUpdateChatHistory(aiMessage.content)
 
     } catch (error) {
       console.error('Failed to send message:', error)
@@ -330,9 +270,8 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         sender: 'ai',
         timestamp: new Date()
       }
-      const updatedMessages = [...newMessages, errorMessage]
-      setMessages(updatedMessages)
-      saveMessages(selectedChatId, updatedMessages)
+      // Add error message to store
+      addMessage(currentChatId, errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -388,7 +327,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  onClick={createNewChat}
+                  onClick={handleCreateNewChat}
                   size="lg"
                   className={cn(
                     "relative overflow-hidden group font-tech",
@@ -590,7 +529,16 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
-                {isWebSearchEnabled ? "Disable web search" : "Enable web search"}
+                <div className="text-center">
+                  <div className="font-medium">
+                    Web Search: {isWebSearchEnabled ? "ON" : "OFF"}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {isWebSearchEnabled 
+                      ? "AI will search the web for current information" 
+                      : "AI will use only its training data"}
+                  </div>
+                </div>
               </TooltipContent>
             </Tooltip>
             

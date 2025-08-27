@@ -69,16 +69,9 @@ function createMemoryWithUpstash() {
  * Updates the instructions to include the current date for better context awareness
  */
 function generateInstructions(): string {
-    const currentDate = new Date().toLocaleDateString('en-US', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    });
-    
+ 
     return `You are CortiGPT, a helpful AI assistant powered by Cortensor. Your goal is to help users by answering their questions and providing assistance with various tasks. Be friendly, informative, and concise in your responses.
 
-Current date: ${currentDate}
 
 Use this date information when relevant to provide accurate, time-sensitive responses.`;
 }
