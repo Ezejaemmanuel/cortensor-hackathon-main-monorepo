@@ -34,9 +34,9 @@ export const Hero = () => {
           {/* Main Content Area */}
           <div className="mb-8 sm:mb-12 lg:mb-16">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-futura font-black mb-4 sm:mb-6 lg:mb-8 leading-tight">
-              <span className="gradient-text block mb-2">CortiGPT</span>
-              <span className="text-white block mb-2">The Decentralized</span>
-              <span className="text-primary-glow block">Perplexity</span>
+              <span className="gradient-text block mb-2 text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">CortiGPT</span>
+              <span className="text-white block mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">The Decentralized</span>
+              <span className="text-primary-glow block text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">Perplexity</span>
             </h1>
 
             <p className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl text-muted-foreground mb-8 sm:mb-10 lg:mb-12 max-w-5xl mx-auto leading-relaxed font-tech px-4">

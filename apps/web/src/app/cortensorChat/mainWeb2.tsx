@@ -191,7 +191,7 @@ export function CortensorChatWeb2() {
                                     <Card className="h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
                                         <CardContent className="flex items-center justify-center h-full">
                                             <div className="text-center">
-                                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-12 h-12 mx-auto mb-4" />
+                                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-24 h-24 mx-auto mb-4" />
                                                 <p className="text-muted-foreground">Initializing Cortensor Chat...</p>
                                             </div>
                                         </CardContent>

@@ -36,7 +36,7 @@ const ChooseModePage = () => {
             variants={itemVariants}
             className="text-4xl sm:text-5xl md:text-6xl font-futura font-bold mb-6"
           >
-            Choose Your <span className="gradient-text">CortiGPT</span> Experience
+            Choose Your <span className="gradient-text text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">CortiGPT</span> Experience
           </motion.h1>
           <motion.p 
             variants={itemVariants}

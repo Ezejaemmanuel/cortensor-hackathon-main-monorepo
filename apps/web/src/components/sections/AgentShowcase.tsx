@@ -37,7 +37,7 @@ export const AgentShowcase = () => {
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16 lg:mb-20 animate-fade-in">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-futura font-bold mb-4 sm:mb-6">
-            Meet <span className="gradient-text">CortiGPT</span>
+            Meet <span className="gradient-text text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">CortiGPT</span>
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto font-tech px-4">
             The decentralized Perplexity. Verifiable AI powered by blockchain consensus.

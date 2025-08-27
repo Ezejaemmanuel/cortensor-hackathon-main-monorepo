@@ -211,11 +211,11 @@ export function CortensorChatWeb3() {
                     <div className="flex justify-between items-center">
                         <div className="flex gap-2 items-center sm:gap-3">
                             <motion.div
-                                className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10"
+                                className="flex justify-center items-center w-12 h-12 rounded-full sm:w-16 sm:h-16 bg-primary/10"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+                                <Bot className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
                             </motion.div>
                             <div>
                                 <h1 className="text-sm font-semibold sm:text-xl">CortiGPT</h1>

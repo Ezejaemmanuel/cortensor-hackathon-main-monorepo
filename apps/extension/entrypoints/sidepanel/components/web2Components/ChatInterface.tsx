@@ -466,7 +466,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   <div className="text-center space-y-4 max-w-xs">
                     <div className="relative">
                       <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-neural shadow-glow-primary animate-pulse">
-                        <img src="/cortigpt-4.png" alt="CortiGPT" className="w-10 h-10 m-3" />
+                        <img src="/cortigpt-4.png" alt="CortiGPT" className="w-20 h-20 m-3" />
                       </div>
                       <div className="absolute -top-1 -right-1 w-6 h-6 bg-accent rounded-full shadow-glow-accent animate-bounce">
                         <Zap className="w-3 h-3 text-background m-1.5" />
@@ -507,7 +507,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                       {message.sender === 'ai' && (
                         <div className="flex-shrink-0">
                           <div className="w-8 h-8 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center">
-                            <img src="/cortigpt-4.png" alt="CortiGPT" className="w-4 h-4" />
+                            <img src="/cortigpt-4.png" alt="CortiGPT" className="w-8 h-8" />
                           </div>
                         </div>
                       )}

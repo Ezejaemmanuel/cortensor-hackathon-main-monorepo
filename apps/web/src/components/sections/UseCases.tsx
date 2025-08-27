@@ -41,7 +41,7 @@ export const UseCases = () => {
         {/* Section Header */}
         <div className="text-center mb-12 sm:mb-16 lg:mb-20 animate-fade-in">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-futura font-bold mb-4 sm:mb-6">
-            Use Cases <span className="gradient-text">in the Wild</span>
+            Use Cases <span className="gradient-text text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">in the Wild</span>
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-3xl mx-auto font-tech px-4">
             Real-world applications of verifiable AI across industries
@@ -96,7 +96,7 @@ export const UseCases = () => {
         <div className="text-center px-4">
           <div className="glass p-6 sm:p-8 rounded-2xl max-w-4xl mx-auto animate-fade-in">
             <h3 className="text-2xl sm:text-3xl font-futura font-bold mb-3 sm:mb-4">
-              Ready to Build with <span className="gradient-text">CortiGPT</span>?
+              Ready to Build with <span className="gradient-text text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl">CortiGPT</span>?
             </h3>
             <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-8 font-tech px-4">
               Integrate verifiable AI into your applications with our comprehensive API and SDK

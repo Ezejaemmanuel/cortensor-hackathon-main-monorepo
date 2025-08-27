@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Zap, 
-  Play, 
-  Users, 
-  Shield, 
-  Database, 
-  Link, 
-  ArrowRight, 
+import {
+  Zap,
+  Play,
+  Users,
+  Shield,
+  Database,
+  Link,
+  ArrowRight,
   CheckCircle2,
   Sparkles,
   Globe,
@@ -134,7 +134,7 @@ export const HowItWorksNew = () => {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 sm:w-80 lg:w-96 h-64 sm:h-80 lg:h-96 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-1/4 right-1/4 w-64 sm:w-80 lg:w-96 h-64 sm:h-80 lg:h-96 bg-gradient-to-r from-secondary/10 to-accent/10 rounded-full blur-3xl animate-pulse delay-1000" />
-        
+
         {/* Floating Particles - Reduced for mobile performance */}
         {[...Array(typeof window !== 'undefined' && window.innerWidth < 768 ? 8 : 20)].map((_, i) => (
           <motion.div
@@ -183,16 +183,16 @@ export const HowItWorksNew = () => {
             <span className="text-xs sm:text-sm font-semibold text-primary tracking-wider">DECENTRALIZED AI INFERENCE</span>
             <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-secondary" />
           </motion.div>
-          
+
           <motion.h2
             className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold mb-4 sm:mb-6 bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
-            How <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Cortensor</span> Works
+            How <span className="bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">Cortensor</span> Works
           </motion.h2>
-          
+
           <motion.p
             className="text-sm sm:text-base lg:text-lg xl:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed px-4 sm:px-0"
             initial={{ opacity: 0, y: 20 }}
@@ -223,36 +223,36 @@ export const HowItWorksNew = () => {
                   <Globe className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                   Process Flow
                 </motion.h3>
-                
+
                 <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2">
-                   <motion.button
-                     onClick={() => setIsAutoPlaying(!isAutoPlaying)}
-                     className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-300 text-xs sm:text-sm"
-                     whileHover={{ scale: 1.05 }}
-                     whileTap={{ scale: 0.95 }}
-                   >
-                     {isAutoPlaying ? (
-                       <Pause className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
-                     ) : (
-                       <Play className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
-                     )}
-                     <span className="text-xs text-white/80">
-                       {isAutoPlaying ? 'Auto' : 'Manual'}
-                     </span>
-                   </motion.button>
-                   
-                   {isAutoPlaying && (
-                     <div className="w-16 sm:w-20 h-1 bg-white/20 rounded-full overflow-hidden">
-                       <motion.div
-                         className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
-                         style={{ width: `${progress}%` }}
-                         transition={{ duration: 0.1 }}
-                       />
-                     </div>
-                   )}
-                 </div>
-               </div>
-              
+                  <motion.button
+                    onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 border border-white/20 transition-all duration-300 text-xs sm:text-sm"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    {isAutoPlaying ? (
+                      <Pause className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                    ) : (
+                      <Play className="h-3 w-3 sm:h-4 sm:w-4 text-primary" />
+                    )}
+                    <span className="text-xs text-white/80">
+                      {isAutoPlaying ? 'Auto' : 'Manual'}
+                    </span>
+                  </motion.button>
+
+                  {isAutoPlaying && (
+                    <div className="w-16 sm:w-20 h-1 bg-white/20 rounded-full overflow-hidden">
+                      <motion.div
+                        className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
+                        style={{ width: `${progress}%` }}
+                        transition={{ duration: 0.1 }}
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="space-y-4">
                 {processSteps.map((step, index) => (
                   <motion.div
@@ -266,21 +266,19 @@ export const HowItWorksNew = () => {
                       onClick={() => handleStepClick(step.id)}
                       onHoverStart={() => setHoveredStep(step.id)}
                       onHoverEnd={() => setHoveredStep(null)}
-                      className={`w-full text-left p-3 sm:p-4 rounded-xl border transition-all duration-300 group ${
-                        activeStep === step.id
+                      className={`w-full text-left p-3 sm:p-4 rounded-xl border transition-all duration-300 group ${activeStep === step.id
                           ? 'bg-gradient-to-r from-primary/20 to-secondary/20 border-primary/50 shadow-lg shadow-primary/25'
                           : 'bg-background/50 border-white/10 hover:border-white/20 hover:bg-background/70'
-                      }`}
+                        }`}
                       whileHover={{ scale: 1.02, x: 8 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       <div className="flex items-center gap-3 sm:gap-4">
                         <motion.div
-                          className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 ${
-                            activeStep === step.id
+                          className={`flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 ${activeStep === step.id
                               ? 'bg-primary/20 border-primary text-primary'
                               : 'bg-white/5 border-white/20 text-white/60 group-hover:text-white/80'
-                          }`}
+                            }`}
                           animate={{
                             scale: activeStep === step.id ? 1.1 : 1,
                             rotate: hoveredStep === step.id ? 5 : 0
@@ -288,14 +286,13 @@ export const HowItWorksNew = () => {
                         >
                           <step.icon className="h-5 w-5 sm:h-6 sm:w-6" />
                         </motion.div>
-                        
+
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                              activeStep === step.id
+                            <span className={`text-xs font-semibold px-2 py-1 rounded-full ${activeStep === step.id
                                 ? 'bg-primary/20 text-primary'
                                 : 'bg-white/10 text-white/60'
-                            }`}>
+                              }`}>
                               STEP {step.id}
                             </span>
                             {activeStep === step.id && (
@@ -306,29 +303,26 @@ export const HowItWorksNew = () => {
                               />
                             )}
                           </div>
-                          <h4 className={`text-sm sm:text-base font-semibold transition-colors ${
-                            activeStep === step.id ? 'text-white' : 'text-white/80 group-hover:text-white'
-                          }`}>
+                          <h4 className={`text-sm sm:text-base font-semibold transition-colors ${activeStep === step.id ? 'text-white' : 'text-white/80 group-hover:text-white'
+                            }`}>
                             {step.title}
                           </h4>
-                          <p className={`text-xs sm:text-sm transition-colors ${
-                            activeStep === step.id ? 'text-white/80' : 'text-white/60 group-hover:text-white/70'
-                          }`}>
+                          <p className={`text-xs sm:text-sm transition-colors ${activeStep === step.id ? 'text-white/80' : 'text-white/60 group-hover:text-white/70'
+                            }`}>
                             {step.subtitle}
                           </p>
                         </div>
-                        
+
                         <motion.div
                           animate={{ x: activeStep === step.id ? 4 : 0 }}
-                          className={`transition-colors ${
-                            activeStep === step.id ? 'text-primary' : 'text-white/40 group-hover:text-white/60'
-                          }`}
+                          className={`transition-colors ${activeStep === step.id ? 'text-primary' : 'text-white/40 group-hover:text-white/60'
+                            }`}
                         >
                           <ArrowRight className="h-4 w-4" />
                         </motion.div>
                       </div>
                     </motion.button>
-                    
+
                     {/* Connection Line */}
                     {index < processSteps.length - 1 && (
                       <motion.div
@@ -361,9 +355,8 @@ export const HowItWorksNew = () => {
                 transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
               >
                 {/* Main Step Card */}
-                <div className={`relative p-4 sm:p-6 lg:p-8 xl:p-10 rounded-xl lg:rounded-2xl border backdrop-blur-sm overflow-hidden ${
-                  currentStep.gradient
-                } border-white/20 shadow-2xl`}>
+                <div className={`relative p-4 sm:p-6 lg:p-8 xl:p-10 rounded-xl lg:rounded-2xl border backdrop-blur-sm overflow-hidden ${currentStep.gradient
+                  } border-white/20 shadow-2xl`}>
                   {/* Background Pattern */}
                   <div className="absolute inset-0 opacity-5">
                     <div className="absolute inset-0" style={{
@@ -371,16 +364,16 @@ export const HowItWorksNew = () => {
                       backgroundSize: '24px 24px'
                     }} />
                   </div>
-                  
+
                   {/* Floating Icon */}
                   <motion.div
                     className="absolute top-4 right-4 sm:top-6 sm:right-6"
-                    animate={{ 
+                    animate={{
                       rotate: [0, 10, -10, 0],
                       scale: [1, 1.1, 1]
                     }}
-                    transition={{ 
-                      duration: 4, 
+                    transition={{
+                      duration: 4,
                       repeat: Infinity,
                       ease: "easeInOut"
                     }}
@@ -389,7 +382,7 @@ export const HowItWorksNew = () => {
                       <currentStep.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                     </div>
                   </motion.div>
-                  
+
                   <div className="relative z-10">
                     {/* Step Header */}
                     <motion.div
@@ -411,7 +404,7 @@ export const HowItWorksNew = () => {
                         {currentStep.subtitle}
                       </p>
                     </motion.div>
-                    
+
                     {/* Description */}
                     <motion.p
                       className="text-white/90 text-sm sm:text-base lg:text-lg leading-relaxed mb-6 sm:mb-8"
@@ -421,7 +414,7 @@ export const HowItWorksNew = () => {
                     >
                       {currentStep.description}
                     </motion.p>
-                    
+
                     {/* Features List */}
                     <motion.div
                       className="space-y-3"
@@ -451,7 +444,7 @@ export const HowItWorksNew = () => {
                     </motion.div>
                   </div>
                 </div>
-                
+
                 {/* Progress Indicator */}
                 <motion.div
                   className="mt-8 flex justify-center"
@@ -464,11 +457,10 @@ export const HowItWorksNew = () => {
                       <motion.button
                         key={step.id}
                         onClick={() => handleStepClick(step.id)}
-                        className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                          activeStep === step.id
+                        className={`w-3 h-3 rounded-full transition-all duration-300 ${activeStep === step.id
                             ? 'bg-primary scale-125 shadow-lg shadow-primary/50'
                             : 'bg-white/30 hover:bg-white/50'
-                        }`}
+                          }`}
                         whileHover={{ scale: 1.2 }}
                         whileTap={{ scale: 0.9 }}
                       />
@@ -479,7 +471,7 @@ export const HowItWorksNew = () => {
             </AnimatePresence>
           </motion.div>
         </div>
-        
+
         {/* Bottom CTA Section */}
         <motion.div
           className="mt-12 sm:mt-16 lg:mt-20 text-center"

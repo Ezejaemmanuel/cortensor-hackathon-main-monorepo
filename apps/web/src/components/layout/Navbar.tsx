@@ -93,7 +93,7 @@ const Navbar = () => {
             <div className={`bg-gradient-primary rounded-lg flex items-center justify-center ${
               isMobile ? 'w-6 h-6' : 'w-8 h-8'
             }`}>
-              <Zap className={`text-primary-foreground ${
+              <img src="/cortigpt-4.png" alt="CortiGPT" className={`${
                 isMobile ? 'h-4 w-4' : 'h-5 w-5'
               }`} />
             </div>

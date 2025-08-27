@@ -403,7 +403,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   <div className="text-center space-y-4 sm:space-y-6 max-w-xs sm:max-w-md">
                     <div className="relative">
                       <div className="w-16 sm:w-20 h-16 sm:h-20 mx-auto rounded-3xl bg-gradient-neural shadow-glow-primary animate-pulse flex items-center justify-center">
-                        <img src="/cortigpt-4.png" alt="CortiGPT" className="w-10 sm:w-12 h-10 sm:h-12" />
+                        <img src="/cortigpt-4.png" alt="CortiGPT" className="w-20 sm:w-24 h-20 sm:h-24" />
                       </div>
                       <div className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 w-6 sm:w-8 h-6 sm:h-8 bg-accent rounded-full shadow-glow-accent animate-bounce">
                         <Zap className="w-3 sm:w-4 h-3 sm:h-4 text-background m-1.5 sm:m-2" />

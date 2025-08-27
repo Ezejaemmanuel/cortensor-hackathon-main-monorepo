@@ -12,7 +12,6 @@ import NewIntroSplash from "@/components/ui/new-intro-splash";
 
 const Index = () => {
   const [showIntro, setShowIntro] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Check if intro has been shown in this session
@@ -23,7 +22,6 @@ const Index = () => {
       setShowIntro(true);
     }
     
-    setIsLoading(false);
   }, []);
 
   const handleIntroComplete = () => {
@@ -32,13 +30,7 @@ const Index = () => {
     setShowIntro(false);
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-primary">Loading...</div>
-      </div>
-    );
-  }
+  
 
   return (
     <>

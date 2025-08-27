@@ -101,7 +101,7 @@ const ExtensionInstallPage = () => {
             variants={itemVariants}
             className="mb-6 text-4xl font-bold sm:text-5xl md:text-6xl font-futura"
           >
-            Install <span className="gradient-text">CortiGPT</span> Extension
+            Install <span className="gradient-text text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl">CortiGPT</span> Extension
           </motion.h1>
           
           <motion.p 
