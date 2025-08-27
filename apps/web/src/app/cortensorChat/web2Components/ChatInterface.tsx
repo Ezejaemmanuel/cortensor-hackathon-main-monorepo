@@ -131,7 +131,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
   // Auto-scroll for loading placeholder only if user is near bottom
   useEffect(() => {
-    if (isLoading && currentPlaceholder) {
+    if (isLoading && currentPlaceholder && shouldAutoScrollRef.current) {
       const timer = setTimeout(() => {
         scrollToBottom()
       }, 100)
@@ -151,6 +151,16 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       return () => scrollContainer.removeEventListener('scroll', handleScroll)
     }
   }, [checkScrollPosition])
+
+  // Ensure scroll is always enabled, even during loading
+  useEffect(() => {
+    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
+    if (scrollContainer) {
+      // Remove any potential scroll blocking styles
+      scrollContainer.style.pointerEvents = 'auto'
+      scrollContainer.style.overflow = 'auto'
+    }
+  }, [isLoading])
 
   // Rotate placeholder texts while loading
   useEffect(() => {
