@@ -226,6 +226,7 @@ export function CortensorChatWeb2() {
                                 )}
                             </div>
 
+                            
                             {/* Floating Chat History Button */}
                             <div className="fixed right-4 bottom-20 z-50">
                                 <Credenza>
