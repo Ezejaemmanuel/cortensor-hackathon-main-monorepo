@@ -697,7 +697,8 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   "text-sm h-12 px-4 rounded-2xl border-2 transition-all duration-300 w-full",
                   "bg-background/50 backdrop-blur-sm resize-none",
                   "focus:border-primary/50 focus:shadow-glow-primary/20",
-                  "placeholder:text-muted-foreground/70"
+                  "placeholder:text-muted-foreground/70",
+                  "focus:h-12"
                 )}
               />
             </div>
@@ -731,10 +732,6 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             </Tooltip>
           </div>
         </div>
-        <div className='h-36'>
-
-        </div>
-
       </div>
     </TooltipProvider>
   )

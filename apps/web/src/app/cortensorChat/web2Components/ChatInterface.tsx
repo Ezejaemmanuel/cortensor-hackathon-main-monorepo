@@ -599,7 +599,8 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   "text-sm sm:text-base h-12 sm:h-14 px-4 sm:px-6 rounded-2xl border-2 transition-all duration-300 font-tech",
                   "bg-background/50 backdrop-blur-sm glass",
                   "focus:border-neural-primary/50 focus:shadow-glow-primary/20 focus:glow-primary",
-                  "placeholder:text-muted-foreground/70"
+                  "placeholder:text-muted-foreground/70",
+                  "focus:h-12 sm:focus:h-14"
                 )}
               />
             </div>

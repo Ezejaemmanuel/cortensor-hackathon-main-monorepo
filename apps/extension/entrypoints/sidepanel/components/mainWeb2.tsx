@@ -227,7 +227,7 @@ export function CortensorChatWeb2() {
                             </div>
 
                             {/* Floating Chat History Button */}
-                            <div className="fixed right-4 bottom-4 z-50">
+                            <div className="fixed right-4 bottom-20 z-50">
                                 <Credenza>
                                     <CredenzaTrigger asChild>
                                         <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
