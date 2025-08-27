@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import {
   Send,
-  Bot,
   User,
   Loader2,
   Clock,
@@ -133,7 +132,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
             <div className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10">
-              <Bot className="w-3 h-3 sm:h-4 sm:w-4 text-primary" />
+              <img src="/cortigpt-4.png" alt="CortiGPT" className="w-3 h-3 sm:h-4 sm:w-4 rounded-full" />
             </div>
             <div>
               <h1 className="text-sm font-semibold sm:text-lg">Chat</h1>
@@ -175,7 +174,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
         {!currentSession ? (
           <div className="flex flex-1 justify-center items-center p-4 sm:p-6">
             <div className="text-center">
-              <Bot className="mx-auto mb-2 w-8 h-8 sm:h-12 sm:w-12 text-muted-foreground sm:mb-4" />
+              <img src="/cortigpt-4.png" alt="CortiGPT" className="mx-auto mb-2 w-8 h-8 sm:h-12 sm:w-12 rounded-full sm:mb-4" />
               <h3 className="mb-2 text-base font-medium sm:text-lg">No Active Session</h3>
               <p className="mb-4 text-xs sm:text-sm text-muted-foreground">
                 Select an existing session or create a new one to start chatting.
@@ -192,7 +191,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
               {messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full min-h-[200px]">
                   <div className="text-center">
-                    <Bot className="mx-auto mb-2 w-6 h-6 sm:h-8 sm:w-8 text-muted-foreground" />
+                    <img src="/cortigpt-4.png" alt="CortiGPT" className="mx-auto mb-2 w-6 h-6 sm:h-8 sm:w-8 rounded-full" />
                     <p className="text-xs sm:text-sm text-muted-foreground">
                       Start a conversation by typing a message below.
                     </p>
@@ -212,7 +211,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
                         {message.sender === 'ai' && (
                           <div className="flex-shrink-0">
                             <div className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10">
-                              <Bot className="w-3 h-3 sm:h-4 sm:w-4 text-primary" />
+                              <img src="/cortigpt-4.png" alt="CortiGPT" className="w-3 h-3 sm:h-4 sm:w-4 rounded-full" />
                             </div>
                           </div>
                         )}

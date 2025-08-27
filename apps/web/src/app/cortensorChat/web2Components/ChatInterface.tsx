@@ -8,7 +8,6 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip'
 import {
   Send,
-  Bot,
   User,
   Loader2,
   Plus,
@@ -356,7 +355,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="relative">
                 <div className="flex justify-center items-center w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-gradient-primary shadow-glow-primary">
-                  <Bot className="w-5 sm:w-7 h-5 sm:h-7 text-background" />
+                  <img src="/cortigpt-4.png" alt="CortiGPT" className="w-5 sm:w-7 h-5 sm:h-7" />
                   <div className="absolute -top-1 -right-1 w-3 sm:w-4 h-3 sm:h-4 bg-accent rounded-full animate-pulse shadow-glow-accent">
                     <Sparkles className="w-2 sm:w-2.5 h-2 sm:h-2.5 text-background m-0.5" />
                   </div>
@@ -403,8 +402,8 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 <div className="flex items-center justify-center h-full min-h-[300px] sm:min-h-[400px]">
                   <div className="text-center space-y-4 sm:space-y-6 max-w-xs sm:max-w-md">
                     <div className="relative">
-                      <div className="w-16 sm:w-20 h-16 sm:h-20 mx-auto rounded-3xl bg-gradient-neural shadow-glow-primary animate-pulse">
-                        <Bot className="w-10 sm:w-12 h-10 sm:h-12 text-background m-3 sm:m-4" />
+                      <div className="w-16 sm:w-20 h-16 sm:h-20 mx-auto rounded-3xl bg-gradient-neural shadow-glow-primary animate-pulse flex items-center justify-center">
+                        <img src="/cortigpt-4.png" alt="CortiGPT" className="w-10 sm:w-12 h-10 sm:h-12" />
                       </div>
                       <div className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 w-6 sm:w-8 h-6 sm:h-8 bg-accent rounded-full shadow-glow-accent animate-bounce">
                         <Zap className="w-3 sm:w-4 h-3 sm:h-4 text-background m-1.5 sm:m-2" />
@@ -445,7 +444,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                       {message.sender === 'ai' && (
                         <div className="flex-shrink-0">
                           <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center">
-                            <Bot className="w-4 sm:w-5 h-4 sm:h-5 text-background" />
+                            <img src="/cortigpt-4.png" alt="CortiGPT" className="w-4 sm:w-5 h-4 sm:h-5" />
                           </div>
                         </div>
                       )}
@@ -507,7 +506,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                     <div className="flex gap-3 sm:gap-4 justify-start animate-in slide-in-from-bottom-4 duration-500">
                       <div className="flex-shrink-0">
                         <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center animate-pulse">
-                          <Bot className="w-4 sm:w-5 h-4 sm:h-5 text-background" />
+                          <img src="/cortigpt-4.png" alt="CortiGPT" className="w-4 sm:w-5 h-4 sm:h-5" />
                         </div>
                       </div>
 

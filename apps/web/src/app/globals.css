@@ -103,29 +103,61 @@ All colors MUST be HSL for Web3 premium aesthetic.
     overflow-x: hidden;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-orbitron), 'Inter', system-ui, sans-serif;
     @apply font-semibold leading-tight;
   }
 
   /* Responsive text scaling for web app */
   @media (max-width: 640px) {
-    * { @apply text-sm; }
-    h1 { @apply text-lg; }
-    h2 { @apply text-base; }
-    h3 { @apply text-sm; }
+    * {
+      @apply text-sm;
+    }
+
+    h1 {
+      @apply text-lg;
+    }
+
+    h2 {
+      @apply text-base;
+    }
+
+    h3 {
+      @apply text-sm;
+    }
   }
 
   @media (min-width: 641px) and (max-width: 1024px) {
-    * { @apply text-base; }
-    h1 { @apply text-xl; }
-    h2 { @apply text-lg; }
+    * {
+      @apply text-base;
+    }
+
+    h1 {
+      @apply text-xl;
+    }
+
+    h2 {
+      @apply text-lg;
+    }
   }
 
   @media (min-width: 1025px) {
-    * { @apply text-base; }
-    h1 { @apply text-2xl; }
-    h2 { @apply text-xl; }
+    * {
+      @apply text-base;
+    }
+
+    h1 {
+      @apply text-2xl;
+    }
+
+    h2 {
+      @apply text-xl;
+    }
   }
 
   /* Glassmorphism Base */
@@ -228,9 +260,11 @@ All colors MUST be HSL for Web3 premium aesthetic.
       transform: translateX(-100px);
       opacity: 0;
     }
+
     50% {
       opacity: 1;
     }
+
     100% {
       transform: translateX(calc(100vw + 100px));
       opacity: 0;

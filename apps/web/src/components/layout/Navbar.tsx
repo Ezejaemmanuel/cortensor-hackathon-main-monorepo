@@ -10,7 +10,7 @@ import {
   NavigationMenuTrigger 
 } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, Zap, Bot, Users, Lightbulb, ChevronDown } from "lucide-react";
+import { Menu, X, Zap, Users, Lightbulb, ChevronDown } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ConnectWalletButton } from '@/components/ui/connect-wallet-button';
 
@@ -41,7 +41,7 @@ const Navbar = () => {
     {
       title: "Features",
       items: [
-        { name: "AI Agents", href: "#agents", icon: Bot },
+        { name: "AI Agents", href: "#agents", icon: () => <img src="/cortigpt-4.png" alt="CortiGPT" className="w-4 h-4" /> },
         { name: "Neural Networks", href: "#neural", icon: Zap },
         { name: "Use Cases", href: "#use-cases", icon: Lightbulb }
       ]

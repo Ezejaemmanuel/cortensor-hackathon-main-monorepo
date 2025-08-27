@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/credenza'
 import { useIsMobile } from '@/hooks/use-mobile'
 import {
-    Bot,
     Activity,
     Settings,
     Zap,
@@ -78,7 +77,7 @@ export function CortensorChatWeb3() {
                 <Card className="w-full">
                     <CardHeader className="text-center">
                         <div className="flex justify-center items-center mx-auto mb-4 w-12 h-12 rounded-full bg-primary/10">
-                            <Bot className="w-6 h-6 text-primary" />
+                            <img src="/cortigpt-4.png" alt="CortiGPT" className="w-6 h-6" />
                         </div>
                         <CardTitle className="text-2xl">CortiGPT</CardTitle>
                         <CardDescription>
@@ -131,7 +130,7 @@ export function CortensorChatWeb3() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-3 h-3 sm:w-4 sm:h-4" />
                             </motion.div>
                             <div>
                                 <h1 className="text-sm font-semibold sm:text-xl">CortiGPT</h1>

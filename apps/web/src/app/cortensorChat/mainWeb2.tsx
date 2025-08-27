@@ -3,7 +3,7 @@
 import { useAccount } from 'wagmi'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ConnectWalletButton } from '@/components/ui/connect-wallet-button'
-import { Bot, Wallet, Zap, Menu } from 'lucide-react'
+import { Wallet, Zap, Menu } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import {
     Credenza,
@@ -133,7 +133,7 @@ export function CortensorChatWeb2() {
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
+                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-3 h-3 sm:w-4 sm:h-4" />
                             </motion.div>
                             <div>
                                 <h1 className="text-sm font-semibold sm:text-xl">CortiGPT Web2</h1>
@@ -191,7 +191,7 @@ export function CortensorChatWeb2() {
                                     <Card className="h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
                                         <CardContent className="flex items-center justify-center h-full">
                                             <div className="text-center">
-                                                <Bot className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-12 h-12 mx-auto mb-4" />
                                                 <p className="text-muted-foreground">Initializing Cortensor Chat...</p>
                                             </div>
                                         </CardContent>
@@ -218,7 +218,7 @@ export function CortensorChatWeb2() {
                                     <Card className="h-full backdrop-blur-xl bg-card/50 border-border/50 shadow-glass">
                                         <CardContent className="flex items-center justify-center h-full">
                                             <div className="text-center">
-                                                <Bot className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-12 h-12 mx-auto mb-4" />
                                                 <p className="text-muted-foreground">Initializing Cortensor Chat...</p>
                                             </div>
                                         </CardContent>
