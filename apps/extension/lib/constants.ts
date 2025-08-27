@@ -3,7 +3,7 @@ export const COR_TOKEN_ADDRESS = '0xF9C355394e7b3F147e8aFEBF95B3Ebbf688457f3' as
 
 // Search marker constant for web search functionality
 export const SEARCH_MARKER = '[**search**]' as const
-
+export const CHAT_HISTORY_LIMIT = 4;
 // AI response cleanup patterns
 export const AI_RESPONSE_CLEANUP_PATTERNS = [
   /<\/s>/g // Remove </s> tags anywhere in responses

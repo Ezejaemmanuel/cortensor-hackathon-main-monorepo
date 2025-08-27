@@ -22,7 +22,7 @@ import {
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { getApiEndpoint } from '@/lib/api-config'
-import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS } from '@/lib/constants'
+import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS, CHAT_HISTORY_LIMIT } from '@/lib/constants'
 import { MarkdownRenderer } from '@/components/MarkdownRenderer'
 import {
   SelectedTextPreview,
@@ -320,17 +320,32 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     setAbortController(controller)
 
     try {
-      // Send the current message with chatId for memory context
+      // Get the last N messages for context (including the new user message)
+      const allMessages = [...messages, userMessage];
+      const recentMessages = allMessages.slice(-CHAT_HISTORY_LIMIT);
+      
+      // Format messages for the API
+      const formattedMessages = recentMessages.map(msg => ({
+        role: msg.sender === 'user' ? 'user' : 'assistant',
+        content: [{ type: 'text', text: msg.content }]
+      }));
+      
+      // Override the last message with the formatted message (including search marker if enabled)
+      if (formattedMessages.length > 0) {
+        formattedMessages[formattedMessages.length - 1] = {
+          role: 'user',
+          content: [{ type: 'text', text: messageToSend }]
+        };
+      }
+      
+      // Send the message history with chatId for context
       const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(currentChatId)}`), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          messages: [{
-            role: 'user',
-            content: [{ type: 'text', text: messageToSend }]
-          }]
+          messages: formattedMessages
         }),
         signal: controller.signal
       });
