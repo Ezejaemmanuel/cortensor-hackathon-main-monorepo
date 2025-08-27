@@ -355,31 +355,33 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   return (
     <TooltipProvider>
       <div className={cn(
-        "flex flex-col max-w-4xl mx-auto",
+        "flex flex-col w-full max-w-4xl mx-auto",
         "bg-gradient-to-br from-background via-background to-card/20",
         "backdrop-blur-xl border border-border/30 rounded-2xl",
         "shadow-glass overflow-hidden",
         "h-[calc(100vh-8rem)] min-h-[600px]",
+        "sm:h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)]",
+        "sm:min-h-[500px] md:min-h-[600px]",
         className
       )}>
         {/* Header */}
-        <div className="flex-shrink-0 px-6 py-4 border-b border-border/30 bg-card/20 backdrop-blur-sm">
+        <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-b border-border/30 bg-card/20 backdrop-blur-sm">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3 sm:space-x-4">
               <div className="relative">
-                <div className="flex justify-center items-center w-12 h-12 rounded-2xl bg-gradient-primary shadow-glow-primary">
-                  <Bot className="w-7 h-7 text-background" />
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full animate-pulse shadow-glow-accent">
-                    <Sparkles className="w-2.5 h-2.5 text-background m-0.5" />
+                <div className="flex justify-center items-center w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-gradient-primary shadow-glow-primary">
+                  <Bot className="w-5 sm:w-7 h-5 sm:h-7 text-background" />
+                  <div className="absolute -top-1 -right-1 w-3 sm:w-4 h-3 sm:h-4 bg-accent rounded-full animate-pulse shadow-glow-accent">
+                    <Sparkles className="w-2 sm:w-2.5 h-2 sm:h-2.5 text-background m-0.5" />
                   </div>
                 </div>
               </div>
               <div>
-                <CardTitle className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                <CardTitle className="text-lg sm:text-2xl font-bold font-futura bg-gradient-primary bg-clip-text text-transparent gradient-text">
                   cortiGPT
                 </CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Powered by Neural Network Intelligence
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-tech">
+                  Neural Network Intelligence
                 </p>
               </div>
             </div>
@@ -389,10 +391,10 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   onClick={createNewChat}
                   size="lg"
                   className={cn(
-                    "relative overflow-hidden group",
+                    "relative overflow-hidden group font-tech",
                     "bg-gradient-secondary hover:shadow-glow-secondary",
                     "transition-all duration-300 hover:scale-105",
-                    "border border-secondary/20"
+                    "border border-secondary/20 glow-secondary"
                   )}
                 >
                   <Plus className="w-5 h-5 mr-2" />
@@ -410,64 +412,64 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         {/* Messages Area */}
         <div className="flex-1 min-h-0 overflow-hidden">
           <ScrollArea className="h-full" ref={scrollAreaRef}>
-            <div className="px-6 py-6">
+            <div className="px-4 sm:px-6 py-4 sm:py-6">
               {messages.length === 0 && !isLoading ? (
-                <div className="flex items-center justify-center h-full min-h-[400px]">
-                  <div className="text-center space-y-6 max-w-md">
+                <div className="flex items-center justify-center h-full min-h-[300px] sm:min-h-[400px]">
+                  <div className="text-center space-y-4 sm:space-y-6 max-w-xs sm:max-w-md">
                     <div className="relative">
-                      <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-neural shadow-glow-primary animate-pulse">
-                        <Bot className="w-12 h-12 text-background m-4" />
+                      <div className="w-16 sm:w-20 h-16 sm:h-20 mx-auto rounded-3xl bg-gradient-neural shadow-glow-primary animate-pulse">
+                        <Bot className="w-10 sm:w-12 h-10 sm:h-12 text-background m-3 sm:m-4" />
                       </div>
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-accent rounded-full shadow-glow-accent animate-bounce">
-                        <Zap className="w-4 h-4 text-background m-2" />
+                      <div className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 w-6 sm:w-8 h-6 sm:h-8 bg-accent rounded-full shadow-glow-accent animate-bounce">
+                        <Zap className="w-3 sm:w-4 h-3 sm:h-4 text-background m-1.5 sm:m-2" />
                       </div>
                     </div>
-                    <div className="space-y-3">
-                      <h3 className="text-xl font-semibold text-foreground">
+                    <div className="space-y-2 sm:space-y-3">
+                      <h3 className="text-lg sm:text-xl font-semibold font-futura text-primary-glow">
                         Welcome to cortiGPT
                       </h3>
-                      <p className="text-muted-foreground leading-relaxed">
+                      <p className="text-sm sm:text-base text-muted-foreground leading-relaxed font-tech">
                         Your AI-powered assistant is ready to help. Start a conversation by typing a message below.
                       </p>
                     </div>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                      <div className="px-3 py-1 bg-primary/10 rounded-full text-xs text-primary border border-primary/20">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 justify-center">
+                      <div className="px-2 sm:px-3 py-1 bg-neural-primary/10 rounded-full text-xs text-neural-primary border border-neural-primary/20 glow-primary">
                         Neural Network
                       </div>
-                      <div className="px-3 py-1 bg-secondary/10 rounded-full text-xs text-secondary border border-secondary/20">
+                      <div className="px-2 sm:px-3 py-1 bg-neural-secondary/10 rounded-full text-xs text-neural-secondary border border-neural-secondary/20 glow-secondary">
                         Web Search
                       </div>
-                      <div className="px-3 py-1 bg-accent/10 rounded-full text-xs text-accent border border-accent/20">
+                      <div className="px-2 sm:px-3 py-1 bg-neural-tertiary/10 rounded-full text-xs text-neural-tertiary border border-neural-tertiary/20 glow-accent">
                         Real-time
                       </div>
                     </div>
                   </div>
                 </div>
               ) : (
-                <div className="space-y-8">
+                <div className="space-y-6 sm:space-y-8">
                   {messages.map((message, index) => (
                     <div
                       key={message.id}
                       className={cn(
-                        "flex gap-4 group animate-in slide-in-from-bottom-4 duration-500",
+                        "flex gap-3 sm:gap-4 group animate-in slide-in-from-bottom-4 duration-500",
                         message.sender === 'user' ? 'justify-end' : 'justify-start'
                       )}
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {message.sender === 'ai' && (
                         <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center">
-                            <Bot className="w-5 h-5 text-background" />
+                          <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center">
+                            <Bot className="w-4 sm:w-5 h-4 sm:h-5 text-background" />
                           </div>
                         </div>
                       )}
 
                       <div className={cn(
-                        "max-w-[80%] lg:max-w-[70%]",
+                        "max-w-[85%] sm:max-w-[80%] lg:max-w-[70%]",
                         message.sender === 'user' ? 'order-first' : ''
                       )}>
                         <div className={cn(
-                          "rounded-2xl px-6 py-4 relative overflow-hidden",
+                          "rounded-2xl px-4 sm:px-6 py-3 sm:py-4 relative overflow-hidden",
                           "backdrop-blur-sm border transition-all duration-300",
                           "group-hover:shadow-lg group-hover:scale-[1.02]",
                           message.sender === 'user'
@@ -487,17 +489,17 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                           {message.sender === 'ai' ? (
                             <MarkdownRenderer 
                               content={message.content} 
-                              className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 text-foreground"
+                              className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 text-foreground text-xs sm:text-sm font-tech"
                             />
                           ) : (
-                            <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                            <p className="text-xs sm:text-sm whitespace-pre-wrap leading-relaxed font-tech break-words">
                               {message.content}
                             </p>
                           )}
                         </div>
 
                         <div className={cn(
-                          "flex items-center gap-2 mt-2 text-xs text-muted-foreground",
+                          "flex items-center gap-2 mt-1 text-xs text-muted-foreground",
                           message.sender === 'user' ? 'justify-end' : 'justify-start'
                         )}>
                           <span>{formatDistanceToNow(message.timestamp, { addSuffix: true })}</span>
@@ -506,8 +508,8 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
                       {message.sender === 'user' && (
                         <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-2xl bg-gradient-secondary shadow-glow-secondary flex items-center justify-center">
-                            <User className="w-5 h-5 text-background" />
+                          <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-2xl bg-gradient-secondary shadow-glow-secondary flex items-center justify-center">
+                            <User className="w-4 sm:w-5 h-4 sm:h-5 text-background" />
                           </div>
                         </div>
                       )}
@@ -516,18 +518,18 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
                   {/* Loading placeholder */}
                   {isLoading && (
-                    <div className="flex gap-4 justify-start animate-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex gap-3 sm:gap-4 justify-start animate-in slide-in-from-bottom-4 duration-500">
                       <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center animate-pulse">
-                          <Bot className="w-5 h-5 text-background" />
+                        <div className="w-8 sm:w-10 h-8 sm:h-10 rounded-2xl bg-gradient-primary shadow-glow-primary flex items-center justify-center animate-pulse">
+                          <Bot className="w-4 sm:w-5 h-4 sm:h-5 text-background" />
                         </div>
                       </div>
 
-                      <div className="max-w-[80%] lg:max-w-[70%]">
-                        <div className="rounded-2xl px-6 py-4 bg-card/40 backdrop-blur-sm border border-border/30">
-                          <div className="flex gap-3 items-center">
-                            <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                            <p className="text-sm italic text-muted-foreground animate-pulse">
+                      <div className="max-w-[85%] sm:max-w-[80%] lg:max-w-[70%]">
+                        <div className="rounded-2xl px-4 sm:px-6 py-3 sm:py-4 bg-card/40 backdrop-blur-sm border border-border/30">
+                          <div className="flex gap-2 items-center">
+                            <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin text-neural-primary" />
+                            <p className="text-xs sm:text-sm italic text-muted-foreground animate-pulse font-tech break-words">
                               {currentPlaceholder}
                             </p>
                           </div>
@@ -537,7 +539,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   )}
                   
                   {/* Scroll anchor */}
-                  <div ref={messagesEndRef} className="h-4" />
+                  <div ref={messagesEndRef} className="h-4 sm:h-6" />
                 </div>
               )}
             </div>
@@ -545,43 +547,44 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         </div>
 
         {/* Input Area - Adaptive Height */}
-        <div className="flex-shrink-0 border-t border-border/30 bg-background/95 backdrop-blur-md p-4 space-y-4 rounded-b-2xl">
+        <div className="flex-shrink-0 border-t border-border/30 bg-background/95 backdrop-blur-md p-4 space-y-4 rounded-b-2xl glass">
           {/* Web Search Status Indicator */}
           {isWebSearchEnabled && (
             <div className={cn(
               "flex gap-3 items-center px-4 py-3 mb-4 rounded-xl",
-              "bg-gradient-to-r from-secondary/10 to-accent/10",
-              "border border-secondary/20 backdrop-blur-sm",
+              "bg-gradient-to-r from-neural-secondary/10 to-neural-tertiary/10",
+              "border border-neural-secondary/20 backdrop-blur-sm glow-secondary",
               "animate-in slide-in-from-bottom-2 duration-300"
             )}>
-              <div className="w-8 h-8 bg-secondary/20 rounded-full flex items-center justify-center">
-                <Search className="w-4 h-4 text-secondary" />
+              <div className="w-8 h-8 bg-neural-secondary/20 rounded-full flex items-center justify-center glow-secondary">
+                <Search className="w-4 h-4 text-neural-secondary" />
               </div>
-              <span className="text-sm font-medium text-secondary">
+              <span className="text-sm font-medium text-neural-secondary font-tech">
                 Web search enabled - Your queries will include web results
               </span>
             </div>
           )}
           
-          <div className="flex gap-3 items-end">
+          <div className="flex gap-3 sm:gap-4 items-end">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
                   onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
                   variant="outline"
-                  size="lg"
+                  size="sm"
                   className={cn(
-                    "relative overflow-hidden group transition-all duration-300",
-                    "border-2 hover:scale-105",
+                    "sm:w-auto sm:h-auto p-2 sm:p-3",
+                    "relative overflow-hidden group transition-all duration-300 font-tech",
+                    "border-2 hover:scale-105 glass",
                     isWebSearchEnabled 
-                      ? "bg-gradient-secondary text-background border-secondary shadow-glow-secondary" 
-                      : "border-border/50 hover:border-secondary/50 hover:shadow-glow-secondary/20"
+                      ? "bg-gradient-secondary text-background border-neural-secondary shadow-glow-secondary glow-secondary" 
+                      : "border-border/50 hover:border-neural-secondary/50 hover:shadow-glow-secondary/20"
                   )}
                 >
                   {isWebSearchEnabled ? (
-                    <Search className="w-5 h-5" />
+                    <Search className="w-4 sm:w-5 h-4 sm:h-5" />
                   ) : (
-                    <SearchX className="w-5 h-5" />
+                    <SearchX className="w-4 sm:w-5 h-4 sm:h-5" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
@@ -600,9 +603,9 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 onKeyPress={handleKeyPress}
                 disabled={isLoading}
                 className={cn(
-                  "text-base h-14 px-6 rounded-2xl border-2 transition-all duration-300",
-                  "bg-background/50 backdrop-blur-sm",
-                  "focus:border-primary/50 focus:shadow-glow-primary/20",
+                  "text-sm sm:text-base h-12 sm:h-14 px-4 sm:px-6 rounded-2xl border-2 transition-all duration-300 font-tech",
+                  "bg-background/50 backdrop-blur-sm glass",
+                  "focus:border-neural-primary/50 focus:shadow-glow-primary/20 focus:glow-primary",
                   "placeholder:text-muted-foreground/70"
                 )}
               />
@@ -613,18 +616,18 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 <Button
                   onClick={handleSendMessage}
                   disabled={!currentMessage.trim() || isLoading}
-                  size="lg"
+                  size="sm"
                   className={cn(
-                    "relative overflow-hidden group h-14 px-6",
-                    "bg-gradient-primary hover:shadow-glow-primary",
+                    "relative overflow-hidden group h-12 sm:h-14 px-4 sm:px-6 font-tech",
+                    "bg-gradient-primary hover:shadow-glow-primary glow-primary",
                     "transition-all duration-300 hover:scale-105",
                     "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   )}
                 >
                   {isLoading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin" />
                   ) : (
-                    <Send className="w-5 h-5" />
+                    <Send className="w-4 sm:w-5 h-4 sm:h-5" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
