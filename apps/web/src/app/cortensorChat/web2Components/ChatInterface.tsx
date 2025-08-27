@@ -535,7 +535,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className={cn(
-                  "text-sm sm:text-base h-10 sm:h-12 px-3 sm:px-4 rounded-2xl border-2 transition-all duration-300 font-tech",
+                  "text-base h-10 sm:h-12 px-3 sm:px-4 rounded-2xl border-2 transition-all duration-300 font-tech",
                   "bg-background/50 backdrop-blur-sm glass w-full",
                   "focus:border-neural-primary/50 focus:shadow-glow-primary/20 focus:glow-primary",
                   "placeholder:text-muted-foreground/70",
