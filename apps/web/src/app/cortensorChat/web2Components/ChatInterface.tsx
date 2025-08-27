@@ -15,7 +15,8 @@ import {
   Search,
   SearchX,
   Sparkles,
-  Zap
+  Zap,
+  Square
 } from 'lucide-react'
 import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS } from '@/lib/constants'
 import { cn } from '@/lib/utils'
@@ -80,6 +81,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(true)
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -197,6 +199,14 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }, [selectedChatId, updateChatHistory, messages.length])
 
+  const handleCancelRequest = () => {
+    if (abortController) {
+      abortController.abort()
+      setAbortController(null)
+      setIsLoading(false)
+    }
+  }
+
   const handleSendMessage = async () => {
     if (!currentMessage.trim() || isLoading) return
 
@@ -205,8 +215,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       currentChatId = handleCreateNewChat()
     }
 
-    // Force scroll to bottom when user sends a message
-    shouldAutoScrollRef.current = true
+    // Removed forced auto-scroll to allow user control
 
     // Prepare the message with search marker if enabled
     const formattedMessage = isWebSearchEnabled 
@@ -233,6 +242,10 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     setCurrentMessage('')
     setIsLoading(true)
 
+    // Create new AbortController for this request
+    const controller = new AbortController()
+    setAbortController(controller)
+
     try {
       // Send the current message with chatId for memory context
       const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(currentChatId)}`), {
@@ -246,6 +259,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             content: [{ type: 'text', text: messageToSend }]
           }]
         }),
+        signal: controller.signal
       });
 
       if (!response.ok) {
@@ -273,6 +287,12 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       handleUpdateChatHistory(aiMessage.content)
 
     } catch (error) {
+      // Check if the error is due to abort
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Request was cancelled by user')
+        return
+      }
+      
       console.error('Failed to send message:', error)
       const errorMessage: ChatMessage = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -284,6 +304,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       addMessage(currentChatId, errorMessage)
     } finally {
       setIsLoading(false)
+      setAbortController(null)
     }
   }
 
@@ -559,7 +580,6 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                disabled={isLoading}
                 className={cn(
                   "text-sm sm:text-base h-12 sm:h-14 px-4 sm:px-6 rounded-2xl border-2 transition-all duration-300 font-tech",
                   "bg-background/50 backdrop-blur-sm glass",
@@ -569,31 +589,49 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               />
             </div>
             
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!currentMessage.trim() || isLoading}
-                  size="sm"
-                  className={cn(
-                    "relative overflow-hidden group h-12 sm:h-14 px-4 sm:px-6 font-tech",
-                    "bg-gradient-primary hover:shadow-glow-primary glow-primary",
-                    "transition-all duration-300 hover:scale-105",
-                    "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                  )}
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 sm:w-5 h-4 sm:h-5 animate-spin" />
-                  ) : (
+            {isLoading ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={handleCancelRequest}
+                    size="sm"
+                    className={cn(
+                      "relative overflow-hidden group h-12 sm:h-14 px-4 sm:px-6 font-tech",
+                      "bg-red-600 hover:bg-red-700 text-white",
+                      "transition-all duration-300 hover:scale-105"
+                    )}
+                  >
+                    <Square className="w-4 sm:w-5 h-4 sm:h-5" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  Stop generation
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={handleSendMessage}
+                    disabled={!currentMessage.trim()}
+                    size="sm"
+                    className={cn(
+                      "relative overflow-hidden group h-12 sm:h-14 px-4 sm:px-6 font-tech",
+                      "bg-gradient-primary hover:shadow-glow-primary glow-primary",
+                      "transition-all duration-300 hover:scale-105",
+                      "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    )}
+                  >
                     <Send className="w-4 sm:w-5 h-4 sm:h-5" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                {isLoading ? "Sending message..." : "Send message (Enter)"}
-              </TooltipContent>
-            </Tooltip>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  Send message (Enter)
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </div>
       </div>

@@ -28,6 +28,13 @@ export default defineConfig({
     },
     action: {
       default_title: 'Open Sidepanel'
-    }
+    },
+    icons: {
+      16: '/cortigpt-4.png',
+      24: '/cortigpt-4.png',
+      48: '/cortigpt-4.png',
+      96: '/cortigpt-4.png',
+      128: '/cortigpt-4.png',
+    },
   },
 });

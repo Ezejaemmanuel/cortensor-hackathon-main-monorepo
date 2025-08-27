@@ -16,7 +16,8 @@ import {
   SearchX,
   Sparkles,
   Zap,
-  X
+  X,
+  Square
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
@@ -78,6 +79,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
   const [selectedTextPreview, setSelectedTextPreview] = useState<SelectedTextPreview | null>(null)
   const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(true)
+  const [abortController, setAbortController] = useState<AbortController | null>(null)
 
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -253,12 +255,19 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     browser.runtime.sendMessage(clearMessage)
   }
 
+  const handleCancelRequest = () => {
+    if (abortController) {
+      abortController.abort()
+      setAbortController(null)
+      setIsLoading(false)
+    }
+  }
+
   const handleSendMessage = async () => {
     if (!currentMessage.trim() && !selectedTextPreview) return
     if (isLoading) return
 
-    // Force scroll to bottom when user sends a message
-    shouldAutoScrollRef.current = true
+    // Removed forced auto-scroll to allow user control
 
     let messageContent = currentMessage.trim()
 
@@ -306,6 +315,10 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     const clearMessage: ClearSelectedTextMessage = { type: 'CLEAR_SELECTED_TEXT' }
     browser.runtime.sendMessage(clearMessage)
 
+    // Create new AbortController for this request
+    const controller = new AbortController()
+    setAbortController(controller)
+
     try {
       // Send the current message with chatId for memory context
       const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(currentChatId)}`), {
@@ -319,6 +332,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             content: [{ type: 'text', text: messageToSend }]
           }]
         }),
+        signal: controller.signal
       });
 
       if (!response.ok) {
@@ -346,6 +360,12 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       updateChatHistory(currentChatId, aiMessage.content, messages.length + 2)
 
     } catch (error) {
+      // Check if the error is due to abort
+      if (error instanceof Error && error.name === 'AbortError') {
+        console.log('Request was cancelled by user')
+        return
+      }
+      
       console.error('Failed to send message:', error)
       const errorMessage: ChatMessage = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -356,6 +376,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       addMessage(currentChatId, errorMessage)
     } finally {
       setIsLoading(false)
+      setAbortController(null)
     }
   }
 
@@ -658,7 +679,6 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
-                disabled={isLoading}
                 className={cn(
                   "text-sm h-12 px-4 rounded-2xl border-2 transition-all duration-300 w-full",
                   "bg-background/50 backdrop-blur-sm resize-none",
@@ -671,18 +691,20 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  onClick={handleSendMessage}
-                  disabled={!canSend}
+                  onClick={isLoading ? handleCancelRequest : handleSendMessage}
+                  disabled={!canSend && !isLoading}
                   size="sm"
                   className={cn(
                     "relative overflow-hidden group h-12 px-4 flex-shrink-0",
-                    "bg-gradient-primary hover:shadow-glow-primary",
+                    isLoading 
+                      ? "bg-destructive hover:bg-destructive/90 hover:shadow-glow-destructive"
+                      : "bg-gradient-primary hover:shadow-glow-primary",
                     "transition-all duration-300 hover:scale-105",
                     "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
                   )}
                 >
                   {isLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <Square className="w-4 h-4" />
                   ) : (
                     <Send className="w-4 h-4" />
                   )}
@@ -690,7 +712,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
-                {isLoading ? "Sending message..." : "Send message (Enter)"}
+                {isLoading ? "Cancel request" : "Send message (Enter)"}
               </TooltipContent>
             </Tooltip>
           </div>
