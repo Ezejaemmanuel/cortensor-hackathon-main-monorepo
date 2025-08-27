@@ -69,7 +69,7 @@ export function CortensorChatWeb2() {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-background">
+        <div className="flex flex-col h-full bg-background">
             {/* Wallet Connection Prompt Credenza */}
             <Credenza open={showWalletPrompt} onOpenChange={setShowWalletPrompt}>
                 <CredenzaContent className="backdrop-blur-xl bg-card/95 border-border/50 shadow-glass">

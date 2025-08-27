@@ -280,13 +280,10 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   return (
     <TooltipProvider>
       <div className={cn(
-        "relative flex flex-col w-full max-w-4xl mx-auto",
+        "relative flex flex-col w-full h-full",
         "bg-gradient-to-br from-background via-background to-card/20",
         "backdrop-blur-xl border border-border/30 rounded-2xl",
         "shadow-glass",
-        "h-[calc(100vh-8rem)] min-h-[600px]",
-        "sm:h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)]",
-        "sm:min-h-[500px] md:min-h-[600px]",
         className
       )}>
         {/* Header - Optimized for small screens */}
@@ -467,12 +464,15 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   {/* Removed scroll anchor to allow free scrolling */}
                 </div>
               )}
+              
+              {/* Bottom spacing to allow scrolling past last message */}
+              <div className="h-32 sm:h-40" aria-hidden="true" />
             </div>
           </ScrollArea>
         </div>
 
-        {/* Input Area - Fixed at bottom of viewport */}
-        <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-4xl border-t border-border/30 bg-background/95 backdrop-blur-md p-3 sm:p-4 space-y-3 sm:space-y-4 rounded-b-2xl glass z-50">
+        {/* Input Area - Absolutely positioned at bottom */}
+        <div className="absolute bottom-4 left-0 right-0 border-t border-border/30 bg-background/95 backdrop-blur-md p-3 sm:p-4 space-y-3 sm:space-y-4 rounded-b-2xl glass z-50">
           {/* Web Search Status Indicator */}
           {isWebSearchEnabled && (
             <div className={cn(

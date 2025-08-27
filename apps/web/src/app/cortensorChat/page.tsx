@@ -47,7 +47,7 @@ const MainChatPage = () => {
   }
 
   return (
-    <div className="h-[calc(100vh-5rem)] bg-background pt-6 flex flex-col">
+    <div className="h-screen bg-background flex flex-col">
       {/* Custom Glassmorphism Tabs - Compact Design */}
       <div className="sticky top-0 z-50 border-b backdrop-blur-xl bg-background/80 border-border/50 flex-shrink-0">
         <div className="px-2 py-1.5 mx-auto max-w-4xl sm:px-4 sm:py-2">

@@ -348,7 +348,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   return (
     <TooltipProvider>
       <div className={cn(
-        "flex flex-col h-full max-h-full overflow-hidden",
+        "relative flex flex-col w-full h-full",
         "bg-gradient-to-br from-background via-background to-card/20",
         "backdrop-blur-xl border border-border/30 rounded-2xl",
         "shadow-glass",
@@ -528,15 +528,16 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                     </div>
                   )}
 
-                  {/* Removed scroll anchor to allow free scrolling */}
+                  {/* Bottom spacing for scrolling past last message */}
+                  <div className="h-32 sm:h-40"></div>
                 </div>
               )}
             </div>
           </ScrollArea>
         </div>
 
-        {/* Input Area - Optimized for small screens */}
-        <div className="flex-shrink-0 flex-grow-0 p-2 sm:p-4 border-t border-border/30 bg-background/95 backdrop-blur-md rounded-b-2xl w-full">
+        {/* Input Area - Fixed at bottom */}
+        <div className="absolute bottom-4 left-0 right-0 p-2 sm:p-4 border-t border-border/30 bg-background/95 backdrop-blur-md rounded-b-2xl w-full z-50">
           {/* Web Search Status Indicator */}
           {isWebSearchEnabled && (
             <div className={cn(
