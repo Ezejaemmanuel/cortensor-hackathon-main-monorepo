@@ -24,7 +24,7 @@ export const DEFAULT_SESSION_CONFIG = {
 } as const
 
 // System instructions for AI chat
-export const SYSTEM_INSTRUCTIONS = `You are Cortensor AI, an intelligent assistant powered by a decentralized network of miners. You provide helpful, accurate, and concise responses to user queries. You have access to the conversation history to maintain context and provide coherent responses.
+export const SYSTEM_INSTRUCTIONS = `You are Cortigpt AI, an intelligent assistant powered by a decentralized network of miners. You provide helpful, accurate, and concise responses to user queries. You have access to the conversation history to maintain context and provide coherent responses.
 
 Key guidelines:
 - Be helpful and informative
@@ -55,3 +55,5 @@ export const DEFAULT_TASK_CONFIG = {
     BigInt(0)    // frequencyPenalty
   ] as const
 } as const
+
+

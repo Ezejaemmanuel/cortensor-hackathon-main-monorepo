@@ -1,7 +1,7 @@
 
 // Allow responses up to 30 seconds
-import { cortiGPTAgent } from "@repo/ai/server";
 import { CHAT_HISTORY_LIMIT } from "@repo/ai/server";
+import { cortiGPTAgent } from "@repo/ai/server";
 
 // Define message type
 interface Message {

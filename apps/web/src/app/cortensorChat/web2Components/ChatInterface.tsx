@@ -18,7 +18,7 @@ import {
   Square
 } from 'lucide-react'
 import { SEARCH_MARKER, AI_RESPONSE_CLEANUP_PATTERNS } from '@/lib/constants'
-import { CHAT_HISTORY_LIMIT } from '@repo/ai/server'
+import { CHAT_HISTORY_LIMIT } from '@repo/ai';
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
 import { getApiEndpoint } from '@/lib/api-config'
