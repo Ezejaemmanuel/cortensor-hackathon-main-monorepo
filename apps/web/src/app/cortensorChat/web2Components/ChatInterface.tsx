@@ -83,12 +83,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
   const [abortController, setAbortController] = useState<AbortController | null>(null)
 
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const isUserScrolledUpRef = useRef(false)
-  const shouldAutoScrollRef = useRef(true)
 
   // Initialize user address in store
   useEffect(() => {
@@ -99,70 +94,15 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
   // The store automatically handles chat switching, no need for custom events
 
-  // Enhanced auto-scroll to bottom with smooth behavior
-  const scrollToBottom = useCallback((force = false) => {
-    if (messagesEndRef.current && (shouldAutoScrollRef.current || force)) {
-      messagesEndRef.current.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'end'
-      })
-      isUserScrolledUpRef.current = false
-    }
-  }, [])
+  // Removed auto-scroll functionality to allow free scrolling during loading
 
-  // Check if user is near bottom of scroll area
-  const checkScrollPosition = useCallback(() => {
-    if (scrollAreaRef.current) {
-      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]')
-      if (scrollContainer) {
-        const { scrollTop, scrollHeight, clientHeight } = scrollContainer
-        const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
-        isUserScrolledUpRef.current = !isNearBottom
-        shouldAutoScrollRef.current = isNearBottom
-      }
-    }
-  }, [])
+  // Removed scroll position checking to allow free scrolling
 
-  // Auto-scroll when new messages arrive (only if user is near bottom)
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      scrollToBottom()
-    }, 100)
-    return () => clearTimeout(timer)
-  }, [messages, scrollToBottom])
+  // Removed auto-scroll on new messages to allow free scrolling
 
-  // Auto-scroll for loading placeholder only if user is near bottom
-  useEffect(() => {
-    if (isLoading && currentPlaceholder && shouldAutoScrollRef.current) {
-      const timer = setTimeout(() => {
-        scrollToBottom()
-      }, 100)
-      return () => clearTimeout(timer)
-    }
-  }, [currentPlaceholder, isLoading, scrollToBottom])
+  // Removed auto-scroll during loading to allow free scrolling
 
-  // Add scroll event listener to track user scroll position
-  useEffect(() => {
-    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]')
-    if (scrollContainer) {
-      const handleScroll = () => {
-        checkScrollPosition()
-      }
-      
-      scrollContainer.addEventListener('scroll', handleScroll)
-      return () => scrollContainer.removeEventListener('scroll', handleScroll)
-    }
-  }, [checkScrollPosition])
-
-  // Ensure scroll is always enabled, even during loading
-  useEffect(() => {
-    const scrollContainer = scrollAreaRef.current?.querySelector('[data-radix-scroll-area-viewport]') as HTMLElement
-    if (scrollContainer) {
-      // Remove any potential scroll blocking styles
-      scrollContainer.style.pointerEvents = 'auto'
-      scrollContainer.style.overflow = 'auto'
-    }
-  }, [isLoading])
+  // Removed scroll event listeners to allow free scrolling during loading
 
   // Rotate placeholder texts while loading
   useEffect(() => {
@@ -218,7 +158,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     // Removed forced auto-scroll to allow user control
 
     // Prepare the message with search marker if enabled
-    const formattedMessage = isWebSearchEnabled 
+    const formattedMessage = isWebSearchEnabled
       ? `${SEARCH_MARKER} ${currentMessage.trim()}`
       : currentMessage.trim()
 
@@ -250,13 +190,13 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       // Get the last N messages for context (including the new user message)
       const allMessages = [...messages, userMessage];
       const recentMessages = allMessages.slice(-CHAT_HISTORY_LIMIT);
-      
+
       // Format messages for the API
       const formattedMessages = recentMessages.map(msg => ({
         role: msg.sender === 'user' ? 'user' : 'assistant',
         content: [{ type: 'text', text: msg.content }]
       }));
-      
+
       // Override the last message with the formatted message (including search marker if enabled)
       if (formattedMessages.length > 0) {
         formattedMessages[formattedMessages.length - 1] = {
@@ -264,7 +204,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
           content: [{ type: 'text', text: messageToSend }]
         };
       }
-      
+
       // Send the message history with chatId for context
       const response = await fetch(getApiEndpoint(`/api/chat?userAddress=${encodeURIComponent(userAddress)}&chatId=${encodeURIComponent(currentChatId)}`), {
         method: "POST",
@@ -307,7 +247,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         console.log('Request was cancelled by user')
         return
       }
-      
+
       console.error('Failed to send message:', error)
       const errorMessage: ChatMessage = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -340,32 +280,32 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   return (
     <TooltipProvider>
       <div className={cn(
-        "flex flex-col w-full max-w-4xl mx-auto",
+        "relative flex flex-col w-full max-w-4xl mx-auto",
         "bg-gradient-to-br from-background via-background to-card/20",
         "backdrop-blur-xl border border-border/30 rounded-2xl",
-        "shadow-glass overflow-hidden",
+        "shadow-glass",
         "h-[calc(100vh-8rem)] min-h-[600px]",
         "sm:h-[calc(100vh-6rem)] md:h-[calc(100vh-8rem)]",
         "sm:min-h-[500px] md:min-h-[600px]",
         className
       )}>
-        {/* Header */}
-        <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-b border-border/30 bg-card/20 backdrop-blur-sm">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="relative">
-                <div className="flex justify-center items-center w-10 sm:w-12 h-10 sm:h-12 rounded-2xl bg-gradient-primary shadow-glow-primary">
-                  <img src="/cortigpt-4.png" alt="CortiGPT" className="w-5 sm:w-7 h-5 sm:h-7" />
-                  <div className="absolute -top-1 -right-1 w-3 sm:w-4 h-3 sm:h-4 bg-accent rounded-full animate-pulse shadow-glow-accent">
-                    <Sparkles className="w-2 sm:w-2.5 h-2 sm:h-2.5 text-background m-0.5" />
+        {/* Header - Optimized for small screens */}
+        <div className="flex-shrink-0 px-3 sm:px-4 md:px-6 py-2 sm:py-3 border-b border-border/30 bg-card/20 backdrop-blur-sm">
+          <div className="flex justify-between items-center gap-2">
+            <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+              <div className="relative flex-shrink-0">
+                <div className="flex justify-center items-center w-8 sm:w-10 h-8 sm:h-10 rounded-2xl bg-gradient-primary shadow-glow-primary">
+                  <img src="/cortigpt-4.png" alt="CortiGPT" className="w-4 sm:w-5 h-4 sm:h-5" />
+                  <div className="absolute -top-0.5 -right-0.5 w-2.5 sm:w-3 h-2.5 sm:h-3 bg-accent rounded-full animate-pulse shadow-glow-accent">
+                    <Sparkles className="w-1.5 sm:w-2 h-1.5 sm:h-2 text-background m-0.5" />
                   </div>
                 </div>
               </div>
-              <div>
-                <CardTitle className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold font-futura bg-gradient-primary bg-clip-text text-transparent gradient-text">
+              <div className="min-w-0 flex-1">
+                <CardTitle className="text-base sm:text-lg md:text-xl font-bold font-futura bg-gradient-primary bg-clip-text text-transparent gradient-text truncate">
                   cortiGPT
                 </CardTitle>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1 font-tech">
+                <p className="text-xs text-muted-foreground font-tech hidden sm:block">
                   Neural Network Intelligence
                 </p>
               </div>
@@ -374,16 +314,17 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               <TooltipTrigger asChild>
                 <Button
                   onClick={handleCreateNewChat}
-                  size="lg"
+                  size="sm"
                   className={cn(
-                    "relative overflow-hidden group font-tech",
+                    "relative overflow-hidden group font-tech flex-shrink-0",
                     "bg-gradient-secondary hover:shadow-glow-secondary",
                     "transition-all duration-300 hover:scale-105",
-                    "border border-secondary/20 glow-secondary"
+                    "border border-secondary/20 glow-secondary",
+                    "w-8 h-8 p-0 sm:w-auto sm:h-auto sm:px-3 sm:py-2"
                   )}
                 >
-                  <Plus className="w-5 h-5 mr-2" />
-                  New Chat
+                  <Plus className="w-4 h-4 sm:mr-2" />
+                  <span className="hidden sm:inline">New Chat</span>
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
                 </Button>
               </TooltipTrigger>
@@ -394,10 +335,10 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
           </div>
         </div>
 
-        {/* Messages Area */}
+        {/* Messages Area - with bottom padding for fixed input */}
         <div className="flex-1 min-h-0 overflow-hidden">
-          <ScrollArea className="h-full" ref={scrollAreaRef}>
-            <div className="px-4 sm:px-6 py-4 sm:py-6">
+          <ScrollArea className="h-full">
+            <div className="px-4 sm:px-6 py-4 sm:py-6 pb-32 sm:pb-36">
               {messages.length === 0 && !isLoading ? (
                 <div className="flex items-center justify-center h-full min-h-[300px] sm:min-h-[400px]">
                   <div className="text-center space-y-4 sm:space-y-6 max-w-xs sm:max-w-md">
@@ -459,21 +400,21 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                           "group-hover:shadow-lg group-hover:scale-[1.02]",
                           message.sender === 'user'
                             ? cn(
-                                "bg-gradient-primary text-background ml-auto",
-                                "shadow-glow-primary/30 border-primary/20",
-                                "before:absolute before:inset-0 before:bg-gradient-to-r",
-                                "before:from-transparent before:via-white/10 before:to-transparent",
-                                "before:-translate-x-full hover:before:translate-x-full",
-                                "before:transition-transform before:duration-700"
-                              )
+                              "bg-gradient-primary text-background ml-auto",
+                              "shadow-glow-primary/30 border-primary/20",
+                              "before:absolute before:inset-0 before:bg-gradient-to-r",
+                              "before:from-transparent before:via-white/10 before:to-transparent",
+                              "before:-translate-x-full hover:before:translate-x-full",
+                              "before:transition-transform before:duration-700"
+                            )
                             : cn(
-                                "bg-card/40 border-border/30",
-                                "shadow-sm hover:shadow-glow-secondary/20"
-                              )
+                              "bg-card/40 border-border/30",
+                              "shadow-sm hover:shadow-glow-secondary/20"
+                            )
                         )}>
                           {message.sender === 'ai' ? (
-                            <MarkdownRenderer 
-                              content={message.content} 
+                            <MarkdownRenderer
+                              content={message.content}
                               className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 text-foreground text-xs sm:text-sm font-tech"
                             />
                           ) : (
@@ -522,17 +463,16 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                       </div>
                     </div>
                   )}
-                  
-                  {/* Scroll anchor */}
-                  <div ref={messagesEndRef} className="h-4 sm:h-6" />
+
+                  {/* Removed scroll anchor to allow free scrolling */}
                 </div>
               )}
             </div>
           </ScrollArea>
         </div>
 
-        {/* Input Area - Adaptive Height */}
-        <div className="flex-shrink-0 border-t border-border/30 bg-background/95 backdrop-blur-md p-4 space-y-4 rounded-b-2xl glass">
+        {/* Input Area - Fixed at bottom of viewport */}
+        <div className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-4xl border-t border-border/30 bg-background/95 backdrop-blur-md p-3 sm:p-4 space-y-3 sm:space-y-4 rounded-b-2xl glass z-50">
           {/* Web Search Status Indicator */}
           {isWebSearchEnabled && (
             <div className={cn(
@@ -549,8 +489,8 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               </span>
             </div>
           )}
-          
-          <div className="flex gap-3 sm:gap-4 items-end">
+
+          <div className="flex gap-2 sm:gap-3 items-end">
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -558,11 +498,11 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   variant="outline"
                   size="sm"
                   className={cn(
-                    "sm:w-auto sm:h-auto p-2 sm:p-3",
+                    "w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0",
                     "relative overflow-hidden group transition-all duration-300 font-tech",
                     "border-2 hover:scale-105 glass",
-                    isWebSearchEnabled 
-                      ? "bg-gradient-secondary text-background border-neural-secondary shadow-glow-secondary glow-secondary" 
+                    isWebSearchEnabled
+                      ? "bg-gradient-secondary text-background border-neural-secondary shadow-glow-secondary glow-secondary"
                       : "border-border/50 hover:border-neural-secondary/50 hover:shadow-glow-secondary/20"
                   )}
                 >
@@ -580,31 +520,30 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                     Web Search: {isWebSearchEnabled ? "ON" : "OFF"}
                   </div>
                   <div className="text-xs text-muted-foreground mt-1">
-                    {isWebSearchEnabled 
-                      ? "AI will search the web for current information" 
+                    {isWebSearchEnabled
+                      ? "AI will search the web for current information"
                       : "AI will use only its training data"}
                   </div>
                 </div>
               </TooltipContent>
             </Tooltip>
-            
-            <div className="flex-1 relative">
+
+            <div className="flex-1 relative min-w-0">
               <Input
-                ref={inputRef}
                 placeholder={isWebSearchEnabled ? "🔍 Web search enabled - Type your message..." : "Type your message..."}
                 value={currentMessage}
                 onChange={(e) => setCurrentMessage(e.target.value)}
                 onKeyPress={handleKeyPress}
                 className={cn(
-                  "text-sm sm:text-base h-12 sm:h-14 px-4 sm:px-6 rounded-2xl border-2 transition-all duration-300 font-tech",
-                  "bg-background/50 backdrop-blur-sm glass",
+                  "text-sm sm:text-base h-10 sm:h-12 px-3 sm:px-4 rounded-2xl border-2 transition-all duration-300 font-tech",
+                  "bg-background/50 backdrop-blur-sm glass w-full",
                   "focus:border-neural-primary/50 focus:shadow-glow-primary/20 focus:glow-primary",
                   "placeholder:text-muted-foreground/70",
-                  "focus:h-12 sm:focus:h-14"
+                  "focus:h-10 sm:focus:h-12"
                 )}
               />
             </div>
-            
+
             {isLoading ? (
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -612,7 +551,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                     onClick={handleCancelRequest}
                     size="sm"
                     className={cn(
-                      "relative overflow-hidden group h-12 sm:h-14 px-4 sm:px-6 font-tech",
+                      "relative overflow-hidden group w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0 font-tech",
                       "bg-red-600 hover:bg-red-700 text-white",
                       "transition-all duration-300 hover:scale-105"
                     )}
@@ -633,7 +572,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                     disabled={!currentMessage.trim()}
                     size="sm"
                     className={cn(
-                      "relative overflow-hidden group h-12 sm:h-14 px-4 sm:px-6 font-tech",
+                      "relative overflow-hidden group w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0 font-tech",
                       "bg-gradient-primary hover:shadow-glow-primary glow-primary",
                       "transition-all duration-300 hover:scale-105",
                       "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"

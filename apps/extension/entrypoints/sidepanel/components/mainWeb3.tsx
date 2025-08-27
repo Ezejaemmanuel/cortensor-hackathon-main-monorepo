@@ -207,59 +207,59 @@ export function CortensorChatWeb3() {
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-                <div className="container px-2 py-2 mx-auto sm:px-4 sm:py-4">
+                <div className="container px-1 py-1 mx-auto sm:px-3 sm:py-2">
                     <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center sm:gap-3">
+                        <div className="flex gap-1 items-center sm:gap-2">
                             <motion.div
-                                className="flex justify-center items-center w-12 h-12 rounded-full sm:w-16 sm:h-16 bg-primary/10"
+                                className="flex justify-center items-center w-8 h-8 rounded-full sm:w-12 sm:h-12 bg-primary/10"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <Bot className="w-6 h-6 sm:w-8 sm:h-8 text-primary" />
+                                <Bot className="w-4 h-4 sm:w-6 sm:h-6 text-primary" />
                             </motion.div>
                             <div>
-                                <h1 className="text-sm font-semibold sm:text-xl">CortiGPT</h1>
-                                <p className="hidden text-xs sm:text-sm text-muted-foreground sm:block">
+                                <h1 className="text-xs font-semibold sm:text-lg">CortiGPT</h1>
+                                <p className="hidden text-xs text-muted-foreground md:block">
                                     Powered by Cortensor Network
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex gap-2 items-center sm:gap-4">
+                        <div className="flex gap-1 items-center sm:gap-2">
                             {/* Status Indicators - Responsive */}
-                            <div className="flex gap-1 items-center sm:gap-3">
+                            <div className="hidden gap-1 items-center sm:flex sm:gap-2">
                                 {currentSessionFromStore && (
-                                    <Badge variant="outline" className="px-1 py-0 text-xs sm:px-2">
-                                        <Zap className="mr-1 w-2 h-2 sm:w-3 sm:h-3" />
-                                        <span className="hidden sm:inline">Session </span>#{currentSessionFromStore.sessionId}
+                                    <Badge variant="outline" className="px-1 py-0 text-xs">
+                                        <Zap className="mr-1 w-2 h-2" />
+                                        <span className="hidden md:inline">Session </span>#{currentSessionFromStore.sessionId}
                                     </Badge>
                                 )}
 
                                 {activeTasks.length > 0 && (
-                                    <Badge variant="secondary" className="px-1 py-0 text-xs sm:px-2">
-                                        <Activity className="mr-1 w-2 h-2 sm:w-3 sm:h-3" />
-                                        {activeTasks.length}<span className="hidden sm:inline"> active</span>
+                                    <Badge variant="secondary" className="px-1 py-0 text-xs">
+                                        <Activity className="mr-1 w-2 h-2" />
+                                        {activeTasks.length}<span className="hidden md:inline"> active</span>
                                     </Badge>
                                 )}
 
                                 {completedTasks.length > 0 && (
-                                    <Badge variant="default" className="hidden px-1 py-0 text-xs sm:px-2 sm:flex">
-                                        <MessageSquare className="mr-1 w-3 h-3" />
+                                    <Badge variant="default" className="hidden px-1 py-0 text-xs md:flex">
+                                        <MessageSquare className="mr-1 w-2 h-2" />
                                         {completedTasks.length} completed
                                     </Badge>
                                 )}
 
-                                <Badge variant="outline" className="hidden px-1 py-0 text-xs sm:px-2 md:flex">
-                                    <Grid3X3 className="mr-1 w-3 h-3" />
+                                <Badge variant="outline" className="hidden px-1 py-0 text-xs lg:flex">
+                                    <Grid3X3 className="mr-1 w-2 h-2" />
                                     {tasks.length} total
                                 </Badge>
                             </div>
 
                             {/* Wallet Info - Responsive */}
-                            <div className="flex gap-1 items-center text-xs sm:gap-2 sm:text-sm">
-                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full" />
+                            <div className="flex gap-1 items-center text-xs">
+                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
                                 <span className="font-mono text-xs">
-                                    {address?.slice(0, 4)}...{address?.slice(-2)}
+                                    {address?.slice(0, 3)}...{address?.slice(-2)}
                                 </span>
                             </div>
                         </div>

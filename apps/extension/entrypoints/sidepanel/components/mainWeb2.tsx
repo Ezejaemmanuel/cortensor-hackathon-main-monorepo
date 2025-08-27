@@ -32,7 +32,7 @@ export function CortensorChatWeb2() {
     // Generate or retrieve user ID
     useEffect(() => {
         const storedUserId = localStorage.getItem('cortensor_user_id')
-        
+
         if (isConnected && address) {
             // If wallet is connected, use wallet address as user ID
             setUserId(address)
@@ -48,7 +48,7 @@ export function CortensorChatWeb2() {
                     generateRandomUserId()
                 }
             }, 3000) // 3 second delay
-            
+
             return () => clearTimeout(fallbackTimer)
         }
     }, [isConnected, address, userId])
@@ -104,12 +104,12 @@ export function CortensorChatWeb2() {
                         </div>
                     </CredenzaBody>
                     <CredenzaFooter className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-2">
-                        <ConnectWalletButton 
-                            className="flex-1" 
+                        <ConnectWalletButton
+                            className="flex-1"
                         />
-                        <Button 
-                            variant="outline" 
-                            className="flex-1" 
+                        <Button
+                            variant="outline"
+                            className="flex-1"
                             onClick={generateRandomUserId}
                         >
                             Continue Without Wallet
@@ -125,9 +125,9 @@ export function CortensorChatWeb2() {
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-                <div className="container px-1 py-1 mx-auto sm:px-4 sm:py-4">
+                <div className="container px-1 py-1 mx-auto sm:px-3 sm:py-2">
                     <div className="flex justify-between items-center">
-                        <div className="flex gap-1 items-center sm:gap-3">
+                        <div className="flex gap-1 items-center sm:gap-2">
                             <motion.div
                                 className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10"
                                 whileHover={{ scale: 1.05 }}
@@ -136,20 +136,20 @@ export function CortensorChatWeb2() {
                                 <Bot className="w-3 h-3 sm:w-4 sm:h-4 text-primary" />
                             </motion.div>
                             <div>
-                                <h1 className="text-sm font-semibold sm:text-xl">CortiGPT Web2</h1>
-                                <p className="hidden text-xs sm:text-sm text-muted-foreground sm:block">
+                                <h1 className="text-xs font-semibold sm:text-lg">CortiGPT Web2</h1>
+                                <p className="hidden text-xs text-muted-foreground md:block">
                                     Traditional AI Chat Interface
                                 </p>
                             </div>
                         </div>
 
                         {/* User Info - Responsive */}
-                        <div className="flex gap-1 items-center text-xs sm:gap-2 sm:text-sm">
-                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full" />
+                        <div className="flex gap-1 items-center text-xs">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
                             <span className="font-mono text-xs">
-                                {isConnected && address 
-                                    ? `${address.slice(0, 4)}...${address.slice(-2)}`
-                                    : userId ? `${userId.slice(0, 8)}...` : 'Guest'
+                                {isConnected && address
+                                    ? `${address.slice(0, 3)}...${address.slice(-2)}`
+                                    : userId ? `${userId.slice(0, 6)}...` : 'Guest'
                                 }
                             </span>
                         </div>
@@ -175,10 +175,10 @@ export function CortensorChatWeb2() {
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.1 }}
                             >
-                              {userId && <ChatHistory className="h-full" userAddress={userId} />}
+                                {userId && <ChatHistory className="h-full" userAddress={userId} />}
                             </motion.div>
 
-                                            {/* Chat Interface - Desktop */}
+                            {/* Chat Interface - Desktop */}
                             <motion.div
                                 className="flex-1 min-h-0 h-full"
                                 initial={{ y: 50, opacity: 0 }}
@@ -226,7 +226,7 @@ export function CortensorChatWeb2() {
                                 )}
                             </div>
 
-                            
+
                             {/* Floating Chat History Button */}
                             <div className="fixed right-4 bottom-20 z-50">
                                 <Credenza>
@@ -248,7 +248,7 @@ export function CortensorChatWeb2() {
                                         </CredenzaHeader>
                                         <CredenzaBody className="p-0">
                                             <div className="h-[60vh]">
-                                             {userId && <ChatHistory className="h-full" userAddress={userId} />}
+                                                {userId && <ChatHistory className="h-full" userAddress={userId} />}
                                             </div>
                                         </CredenzaBody>
                                     </CredenzaContent>

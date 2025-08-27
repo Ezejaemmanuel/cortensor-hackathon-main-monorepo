@@ -118,35 +118,35 @@ export function CortensorChatWeb2() {
                 </CredenzaContent>
             </Credenza>
 
-            {/* Header - Responsive */}
+            {/* Header - Sleek & Responsive */}
             <motion.header
-                className="flex-shrink-0 border-b bg-card"
+                className="flex-shrink-0 border-b bg-card/80 backdrop-blur-sm"
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-                <div className="container px-2 py-2 mx-auto sm:px-4 sm:py-4">
-                    <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center sm:gap-3">
+                <div className="px-2 py-1.5 mx-auto max-w-7xl sm:px-4 sm:py-2">
+                    <div className="flex justify-between items-center min-w-0">
+                        <div className="flex gap-1.5 items-center min-w-0 sm:gap-2">
                             <motion.div
-                                className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10"
+                                className="flex justify-center items-center w-5 h-5 rounded-full sm:w-6 sm:h-6 bg-primary/10 flex-shrink-0"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-3 h-3 sm:w-4 sm:h-4" />
+                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-4 h-4 sm:w-5 sm:h-5" />
                             </motion.div>
-                            <div>
-                                <h1 className="text-sm font-semibold sm:text-xl">CortiGPT Web2</h1>
-                                <p className="hidden text-xs sm:text-sm text-muted-foreground sm:block">
-                                    Traditional AI Chat Interface
+                            <div className="min-w-0">
+                                <h1 className="text-xs font-semibold truncate sm:text-sm">CortiGPT Web2</h1>
+                                <p className="hidden text-xs text-muted-foreground truncate md:block">
+                                    Traditional AI Chat
                                 </p>
                             </div>
                         </div>
 
-                        {/* User Info - Responsive */}
-                        <div className="flex gap-1 items-center text-xs sm:gap-2 sm:text-sm">
-                            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full" />
-                            <span className="font-mono text-xs">
+                        {/* User Info - Compact */}
+                        <div className="flex gap-1 items-center text-xs flex-shrink-0">
+                            <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                            <span className="font-mono text-xs max-w-20 truncate">
                                 {isConnected && address 
                                     ? `${address.slice(0, 4)}...${address.slice(-2)}`
                                     : userId ? `${userId.slice(0, 8)}...` : 'Guest'

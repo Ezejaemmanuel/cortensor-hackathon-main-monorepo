@@ -48,19 +48,19 @@ const MainChatPage = () => {
 
   return (
     <div className="h-[calc(100vh-5rem)] bg-background pt-6 flex flex-col">
-      {/* Custom Glassmorphism Tabs */}
+      {/* Custom Glassmorphism Tabs - Compact Design */}
       <div className="sticky top-0 z-50 border-b backdrop-blur-xl bg-background/80 border-border/50 flex-shrink-0">
-        <div className="px-2 py-2 mx-auto max-w-7xl sm:px-4 sm:py-4">
+        <div className="px-2 py-1.5 mx-auto max-w-4xl sm:px-4 sm:py-2">
           <div className="flex justify-center items-center">
-            <div className="flex relative p-1 rounded-2xl border backdrop-blur-xl bg-card/30 border-border/50 shadow-glass sm:p-2">
+            <div className="flex relative p-0.5 rounded-xl border backdrop-blur-xl bg-card/30 border-border/50 shadow-glass sm:p-1">
               {/* Active tab indicator */}
               <motion.div
-                className="absolute inset-y-2 rounded-xl bg-gradient-primary shadow-glow-primary"
+                className="absolute inset-y-1 rounded-lg bg-gradient-primary shadow-glow-primary"
                 layoutId="activeTab"
                 initial={false}
                 animate={{
-                  x: activeTab === 'web3' ? 'calc(50% + 2px)' : '2px',
-                  width: 'calc(50% - 4px)'
+                  x: activeTab === 'web3' ? 'calc(50% + 1px)' : '1px',
+                  width: 'calc(50% - 2px)'
                 }}
                 transition={{
                   type: 'spring',
@@ -77,24 +77,24 @@ const MainChatPage = () => {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`relative z-10 flex items-center space-x-2 sm:space-x-3 px-3 py-2 sm:px-6 sm:py-3 rounded-xl transition-all duration-smooth font-futura ${
+                    className={`relative z-10 flex items-center space-x-1.5 sm:space-x-2 px-2 py-1.5 sm:px-4 sm:py-2 rounded-lg transition-all duration-smooth font-futura ${
                       isActive
                         ? 'text-primary-foreground'
                         : 'text-muted-foreground hover:text-foreground'
                     }`}
                   >
                     <Icon 
-                      className={`w-4 h-4 sm:w-5 sm:h-5 transition-all duration-smooth ${
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 transition-all duration-smooth ${
                         isActive ? 'text-primary-foreground' : 'text-muted-foreground'
                       }`} 
                     />
                     <div className="text-left">
-                      <div className={`text-xs sm:text-sm font-medium transition-all duration-smooth ${
+                      <div className={`text-xs font-medium transition-all duration-smooth ${
                         isActive ? 'text-primary-foreground' : 'text-foreground'
                       }`}>
                         {tab.label}
                       </div>
-                      <div className={`text-xs transition-all duration-smooth hidden sm:block ${
+                      <div className={`text-xs transition-all duration-smooth hidden md:block ${
                         isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'
                       }`}>
                         {tab.description}

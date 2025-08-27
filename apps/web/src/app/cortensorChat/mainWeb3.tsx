@@ -115,65 +115,65 @@ export function CortensorChatWeb3() {
 
     return (
         <div className="flex flex-col h-screen bg-background">
-            {/* Header - Responsive */}
+            {/* Header - Sleek & Responsive */}
             <motion.header
-                className="flex-shrink-0 border-b bg-card"
+                className="flex-shrink-0 border-b bg-card/80 backdrop-blur-sm"
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-                <div className="container px-2 py-2 mx-auto sm:px-4 sm:py-4">
-                    <div className="flex justify-between items-center">
-                        <div className="flex gap-2 items-center sm:gap-3">
+                <div className="px-2 py-1.5 mx-auto max-w-7xl sm:px-4 sm:py-2">
+                    <div className="flex justify-between items-center min-w-0">
+                        <div className="flex gap-1.5 items-center min-w-0 sm:gap-2">
                             <motion.div
-                                className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10"
+                                className="flex justify-center items-center w-5 h-5 rounded-full sm:w-6 sm:h-6 bg-primary/10 flex-shrink-0"
                                 whileHover={{ scale: 1.05 }}
                                 whileTap={{ scale: 0.95 }}
                             >
-                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-6 h-6 sm:w-8 sm:h-8" />
+                                <img src="/cortigpt-4.png" alt="CortiGPT" className="w-4 h-4 sm:w-5 sm:h-5" />
                             </motion.div>
-                            <div>
-                                <h1 className="text-sm font-semibold sm:text-xl">CortiGPT</h1>
-                                <p className="hidden text-xs sm:text-sm text-muted-foreground sm:block">
-                                    Powered by Cortensor Network
+                            <div className="min-w-0">
+                                <h1 className="text-xs font-semibold truncate sm:text-sm">CortiGPT</h1>
+                                <p className="hidden text-xs text-muted-foreground truncate md:block">
+                                    Cortensor Network
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex gap-2 items-center sm:gap-4">
-                            {/* Status Indicators - Responsive */}
-                            <div className="flex gap-1 items-center sm:gap-3">
+                        <div className="flex gap-1 items-center min-w-0 sm:gap-2">
+                            {/* Status Indicators - Compact */}
+                            <div className="flex gap-0.5 items-center overflow-hidden sm:gap-1">
                                 {currentSessionFromStore && (
-                                    <Badge variant="outline" className="px-1 py-0 text-xs sm:px-2">
-                                        <Zap className="mr-1 w-2 h-2 sm:w-3 sm:h-3" />
-                                        <span className="hidden sm:inline">Session </span>#{currentSessionFromStore.sessionId}
+                                    <Badge variant="outline" className="px-1 py-0 text-xs flex-shrink-0">
+                                        <Zap className="w-2 h-2" />
+                                        <span className="hidden ml-1 sm:inline">#{currentSessionFromStore.sessionId}</span>
                                     </Badge>
                                 )}
 
                                 {activeTasks.length > 0 && (
-                                    <Badge variant="secondary" className="px-1 py-0 text-xs sm:px-2">
-                                        <Activity className="mr-1 w-2 h-2 sm:w-3 sm:h-3" />
-                                        {activeTasks.length}<span className="hidden sm:inline"> active</span>
+                                    <Badge variant="secondary" className="px-1 py-0 text-xs flex-shrink-0">
+                                        <Activity className="w-2 h-2" />
+                                        <span className="ml-0.5">{activeTasks.length}</span>
                                     </Badge>
                                 )}
 
                                 {completedTasks.length > 0 && (
-                                    <Badge variant="default" className="hidden px-1 py-0 text-xs sm:px-2 sm:flex">
-                                        <MessageSquare className="mr-1 w-3 h-3" />
-                                        {completedTasks.length} completed
+                                    <Badge variant="default" className="hidden px-1 py-0 text-xs flex-shrink-0 lg:flex">
+                                        <MessageSquare className="w-2 h-2" />
+                                        <span className="ml-0.5">{completedTasks.length}</span>
                                     </Badge>
                                 )}
 
-                                <Badge variant="outline" className="hidden px-1 py-0 text-xs sm:px-2 md:flex">
-                                    <Grid3X3 className="mr-1 w-3 h-3" />
-                                    {tasks.length} total
+                                <Badge variant="outline" className="hidden px-1 py-0 text-xs flex-shrink-0 xl:flex">
+                                    <Grid3X3 className="w-2 h-2" />
+                                    <span className="ml-0.5">{tasks.length}</span>
                                 </Badge>
                             </div>
 
-                            {/* Wallet Info - Responsive */}
-                            <div className="flex gap-1 items-center text-xs sm:gap-2 sm:text-sm">
-                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-500 rounded-full" />
-                                <span className="font-mono text-xs">
+                            {/* Wallet Info - Compact */}
+                            <div className="flex gap-1 items-center text-xs flex-shrink-0">
+                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                                <span className="font-mono text-xs max-w-16 truncate">
                                     {address?.slice(0, 4)}...{address?.slice(-2)}
                                 </span>
                             </div>

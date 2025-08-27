@@ -579,11 +579,11 @@ importers:
         specifier: ^4.0.38
         version: 4.3.19(react@19.1.1)(zod@3.25.76)
       cortensor-openai-provider:
-        specifier: 0.3.1
-        version: 0.3.1(react@19.1.1)(zod@3.25.76)
+        specifier: 0.3.7
+        version: 0.3.7(react@19.1.1)(zod@3.25.76)
       openai:
         specifier: ^4.73.1
-        version: 4.104.0(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.76)
+        version: 4.104.0(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.76)
       react:
         specifier: '>=19.0.0'
         version: 19.1.1
@@ -4317,8 +4317,8 @@ packages:
     resolution: {integrity: sha512-KIHbLJqu73RGr/hnbrO9uBeixNGuvSQjul/jdFvS/KFSIH1hWVd1ng7zOHx+YrEfInLG7q4n6GHQ9cDtxv/P6g==}
     engines: {node: '>= 0.10'}
 
-  cortensor-openai-provider@0.3.1:
-    resolution: {integrity: sha512-O2hou86KlemErIQZ4sE0+Xp4xwC30Ruv0K0plFTAxF5wheVBLtfHs5zNdIMh7rwmEvOyoAZF/1EMeR39jBTcig==}
+  cortensor-openai-provider@0.3.7:
+    resolution: {integrity: sha512-BnkprC429FpN1VaPP/KhVIvWyanzBpPFYxok6cj6LKIPYPypyKw56M6XyVI1O/NzSF+lclHb1Fx6m7Z9DsBNNg==}
     engines: {node: '>=18.0.0'}
 
   crc-32@1.2.2:
@@ -14925,7 +14925,7 @@ snapshots:
       object-assign: 4.1.1
       vary: 1.1.2
 
-  cortensor-openai-provider@0.3.1(react@19.1.1)(zod@3.25.76):
+  cortensor-openai-provider@0.3.7(react@19.1.1)(zod@3.25.76):
     dependencies:
       '@ai-sdk/openai-compatible': 0.2.16(zod@3.25.76)
       '@tavily/core': 0.5.11
@@ -17748,7 +17748,7 @@ snapshots:
       is-inside-container: 1.0.0
       is-wsl: 2.2.0
 
-  openai@4.104.0(ws@8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.76):
+  openai@4.104.0(ws@8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(zod@3.25.76):
     dependencies:
       '@types/node': 18.19.123
       '@types/node-fetch': 2.6.13
@@ -17758,7 +17758,7 @@ snapshots:
       formdata-node: 4.4.1
       node-fetch: 2.7.0
     optionalDependencies:
-      ws: 8.18.3(bufferutil@4.0.9)(utf-8-validate@5.0.10)
+      ws: 8.18.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
       zod: 3.25.76
     transitivePeerDependencies:
       - encoding
