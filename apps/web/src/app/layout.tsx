@@ -4,7 +4,7 @@ import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
 import { Web3Provider } from "@/providers/web3-provider";
 import Navbar from "@/components/layout/Navbar";
-
+import { Analytics } from "@vercel/analytics/next"
 const orbitron = Orbitron({
   variable: "--font-orbitron",
   subsets: ["latin"],
@@ -126,6 +126,7 @@ export default function RootLayout({
       <body className={`${orbitron.variable} ${spaceGrotesk.variable} antialiased`}>
         <Web3Provider>
           <Navbar />
+          <Analytics />
           <div className="pt-20">
             {children}
           </div>
