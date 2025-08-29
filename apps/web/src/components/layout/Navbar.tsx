@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { 
   NavigationMenu, 
@@ -87,7 +88,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo - smaller on mobile, stays on left */}
-          <a href="/" className={`flex items-center ${
+          <Link href="/" className={`flex items-center ${
             isMobile ? 'space-x-1' : 'space-x-2'
           } hover:opacity-80 transition-opacity cursor-pointer`}>
             <div className={`bg-gradient-primary rounded-lg flex items-center justify-center ${
@@ -100,7 +101,7 @@ const Navbar = () => {
             <span className={`font-bold gradient-text text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl ${
               isMobile ? 'text-sm' : 'text-xl'
             }`}>CortiGPT</span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           {!isMobile && (
@@ -163,12 +164,12 @@ const Navbar = () => {
                   <div className="flex flex-col h-full">
                     {/* Mobile Header */}
                     <div className="flex items-center justify-between py-4 border-b border-border/20">
-                      <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer" onClick={() => setIsOpen(false)}>
+                      <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity cursor-pointer" onClick={() => setIsOpen(false)}>
                         <div className="w-6 h-6 bg-gradient-primary rounded-md flex items-center justify-center">
                           <Zap className="h-4 w-4 text-primary-foreground" />
                         </div>
                         <span className="font-bold gradient-text text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl">CortiGPT</span>
-                      </a>
+                      </Link>
                     </div>
 
                     {/* Mobile Navigation */}
