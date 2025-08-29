@@ -42,7 +42,7 @@ CortiGPT Browser Extension provides instant access to decentralized AI assistanc
 1. **Clone or use this template**
    ```bash
    git clone <repository-url>
-   cd cortensor-main-monorepo/apps/extension
+   cd cortigpt-monorepo/apps/extension
    ```
 
 2. **Install dependencies**

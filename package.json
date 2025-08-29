@@ -1,5 +1,5 @@
 {
-  "name": "cortensor-main-monorepo",
+  "name": "cortigpt-monorepo",
   "private": true,
   "workspaces": [
     "apps/*",

@@ -1,7 +1,7 @@
 # Sample PROJECTS.yml entry for CortiGPT Monorepo
 # Add this entry to the main PROJECTS.yml file in cortensor/community-projects
 
-- name: cortensor-main-monorepo
+- name: cortigpt-monorepo
   category: apps
   owner: "@ezejaemmanuel"  # Replace with your GitHub username
   collaborators: ["@ezejaemmanuel"]
