@@ -119,7 +119,10 @@ const ExtensionInstallPage = () => {
             variants={itemVariants}
             className="mx-auto mb-8 max-w-3xl text-lg sm:text-xl text-muted-foreground font-tech"
           >
-            Get the full power of decentralized AI with context awareness and highlight-to-explain features
+            Get the full power of decentralized AI with context awareness and highlight-to-explain features. 
+            <br />
+            <span className="text-primary font-semibold">Note:</span> Extension has been submitted to Chrome Web Store and Edge Add-ons store and is currently awaiting review. 
+            For now, please use the manual installation method below.
           </motion.p>
 
           <motion.div variants={itemVariants} className="flex flex-wrap gap-4 justify-center mb-8">
@@ -131,6 +134,12 @@ const ExtensionInstallPage = () => {
             </Badge>
             <Badge className="px-4 py-2 text-blue-400 bg-blue-500/20 border-blue-500/30">
               🔒 Privacy First
+            </Badge>
+            <Badge className="px-4 py-2 text-yellow-400 bg-yellow-500/20 border-yellow-500/30">
+              ⏳ Chrome Web Store (Pending Review)
+            </Badge>
+            <Badge className="px-4 py-2 text-purple-400 bg-purple-500/20 border-purple-500/30">
+              ⏳ Edge Add-ons (Pending Review)
             </Badge>
           </motion.div>
 
