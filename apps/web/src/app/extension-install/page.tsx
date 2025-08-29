@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Download, Chrome, CheckCircle, ExternalLink, ArrowLeft, Zap, Shield, Eye } from "lucide-react";
+import { ArrowRight, Download, Chrome, CheckCircle, ExternalLink, ArrowLeft, Zap, Shield, Eye, FolderOpen, Upload } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -27,26 +27,32 @@ const ExtensionInstallPage = () => {
     {
       step: 1,
       title: "Download the Extension",
-      description: "Click the download button to get the latest CortiGPT Chrome extension",
+      description: "Click the download button to get the CortiGPT Chrome extension ZIP file",
       icon: Download
     },
     {
       step: 2,
-      title: "Install in Chrome",
-      description: "Open Chrome Extensions (chrome://extensions/) and drag the downloaded file",
-      icon: Chrome
+      title: "Extract the ZIP File",
+      description: "Unzip the downloaded file to a folder on your computer (e.g., Desktop or Downloads)",
+      icon: FolderOpen
     },
     {
       step: 3,
-      title: "Enable Developer Mode",
-      description: "Toggle &apos;Developer mode&apos; in the top-right corner of the Extensions page",
-      icon: CheckCircle
+      title: "Open Browser Extensions",
+      description: "Go to your browser's extensions page: Chrome: chrome://extensions/, Edge: edge://extensions/, Comet: comet://extensions/",
+      icon: Chrome
     },
     {
       step: 4,
-      title: "Start Using CortiGPT",
-      description: "Click the CortiGPT icon in your browser toolbar to open the sidepanel",
-      icon: Zap
+      title: "Enable Developer Mode",
+      description: "Toggle 'Developer mode' in the top-right corner of the Extensions page",
+      icon: CheckCircle
+    },
+    {
+      step: 5,
+      title: "Load Unpacked Extension",
+      description: "Click 'Load unpacked' and select the unzipped extension folder",
+      icon: Upload
     }
   ];
 
@@ -67,6 +73,11 @@ const ExtensionInstallPage = () => {
       description: "Powered by blockchain consensus for verified, trustless AI"
     }
   ];
+
+  const handleDownload = () => {
+    // Redirect to the actual extension download URL
+    window.open('https://cfsdjs9pal.ufs.sh/f/t6qIjUsyOkeQFnC2GC66avg38CPSdDnOsKLxBUGJXVtuh5eQ', '_blank');
+  };
 
   return (
     <div className="pt-32 pb-16 min-h-screen bg-background">
@@ -128,10 +139,7 @@ const ExtensionInstallPage = () => {
             <Button 
               size="lg" 
               className="px-8 py-4 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground group"
-              onClick={() => {
-                // In a real implementation, this would trigger the download
-                alert('Extension download would start here. Currently in development.');
-              }}
+              onClick={handleDownload}
             >
               <Download className="mr-3 w-5 h-5" />
               Download CortiGPT Extension
@@ -154,7 +162,7 @@ const ExtensionInstallPage = () => {
             Installation Steps
           </motion.h2>
           
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-5">
             {installSteps.map((step, index) => {
               const IconComponent = step.icon;
               return (
