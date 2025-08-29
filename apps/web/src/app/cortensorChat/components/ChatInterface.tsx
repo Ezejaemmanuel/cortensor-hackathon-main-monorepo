@@ -126,9 +126,9 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
   }
 
   return (
-    <div className={`flex flex-col h-full ${className}`}>
+    <div className={`relative flex flex-col h-full ${className}`}>
       {/* Header - Compact for mobile */}
-      <div className="flex-shrink-0 p-0 border-b bg-card sm:p-4">
+      <div className="flex-shrink-0 p-2 border-b bg-card/80 backdrop-blur-sm sm:p-4">
         <div className="flex justify-between items-center">
           <div className="flex gap-2 items-center">
             <div className="flex justify-center items-center w-6 h-6 rounded-full sm:w-8 sm:h-8 bg-primary/10">
@@ -169,10 +169,10 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
         </div>
       </div>
 
-      {/* Messages Area - Takes remaining space */}
-      <div className="flex flex-col flex-1 min-h-0">
+      {/* Messages Area - with bottom padding for fixed input */}
+      <div className="flex-1 min-h-0 overflow-hidden">
         {!currentSession ? (
-          <div className="flex flex-1 justify-center items-center p-4 sm:p-6">
+          <div className="flex h-full justify-center items-center p-4 sm:p-6">
             <div className="text-center">
               <img src="/cortigpt-4.png" alt="CortiGPT" className="mx-auto mb-2 w-8 h-8 sm:h-12 sm:w-12 rounded-full sm:mb-4" />
               <h3 className="mb-2 text-base font-medium sm:text-lg">No Active Session</h3>
@@ -185,11 +185,10 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
             </div>
           </div>
         ) : (
-          <>
-            {/* Scrollable Messages */}
-            <ScrollArea className="flex-1 px-1 sm:px-4" ref={scrollAreaRef}>
+          <ScrollArea className="h-full" ref={scrollAreaRef}>
+            <div className="px-2 py-3 pb-24 space-y-3 sm:px-4 sm:py-4 sm:pb-32 sm:space-y-4">
               {messages.length === 0 ? (
-                <div className="flex items-center justify-center h-full min-h-[200px]">
+                <div className="flex items-center justify-center min-h-[300px] sm:min-h-[400px]">
                   <div className="text-center">
                     <img src="/cortigpt-4.png" alt="CortiGPT" className="mx-auto mb-2 w-6 h-6 sm:h-8 sm:w-8 rounded-full" />
                     <p className="text-xs sm:text-sm text-muted-foreground">
@@ -198,7 +197,7 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
                   </div>
                 </div>
               ) : (
-                <div className="py-3 space-y-3 sm:space-y-4 sm:py-4">
+                <>
                   {messages.map((message) => {
                     const task = getMessageTask(message)
 
@@ -259,46 +258,50 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
                       </div>
                     )
                   })}
-                </div>
-              )}
-            </ScrollArea>
-
-            {/* Fixed Input Area at Bottom */}
-            <div className="flex-shrink-0 p-1 border-t bg-background/95 backdrop-blur-sm sticky bottom-0 z-10 sm:p-4">
-              <div className="flex gap-2">
-                <Input
-                  ref={inputRef}
-                  placeholder="Type your message..."
-                  value={currentMessage}
-                  onChange={(e) => setCurrentMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  disabled={isSubmittingTask}
-                  className="flex-1 text-sm sm:text-base"
-                />
-                <Button
-                  onClick={handleSendMessage}
-                  disabled={!currentMessage.trim() || isSubmittingTask}
-                  size="sm"
-                  className="px-3 shrink-0"
-                >
-                  {isSubmittingTask ? (
-                    <Loader2 className="w-3 h-3 animate-spin sm:h-4 sm:w-4" />
-                  ) : (
-                    <Send className="w-3 h-3 sm:h-4 sm:w-4" />
-                  )}
-                </Button>
-              </div>
-
-              {isSubmittingTask && (
-                <div className="flex gap-2 items-center mt-2 text-xs text-muted-foreground">
-                  <Loader2 className="w-3 h-3 animate-spin" />
-                  <span>Submitting task...</span>
-                </div>
+                </>
               )}
             </div>
-          </>
+          </ScrollArea>
         )}
       </div>
+
+      {/* Fixed Input Area - Absolutely positioned at bottom with mobile menu spacing */}
+      {currentSession && (
+        <div className="absolute bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur-sm p-2 sm:p-4 z-40">
+          <div className="flex justify-center">
+            <div className="flex gap-2 w-full max-w-2xl pr-0 sm:pr-0">
+              <Input
+                ref={inputRef}
+                placeholder="Type your message..."
+                value={currentMessage}
+                onChange={(e) => setCurrentMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                disabled={isSubmittingTask}
+                className="flex-1 text-sm sm:text-base"
+              />
+              <Button
+                onClick={handleSendMessage}
+                disabled={!currentMessage.trim() || isSubmittingTask}
+                size="sm"
+                className="px-3 shrink-0"
+              >
+                {isSubmittingTask ? (
+                  <Loader2 className="w-3 h-3 animate-spin sm:h-4 sm:w-4" />
+                ) : (
+                  <Send className="w-3 h-3 sm:h-4 sm:w-4" />
+                )}
+              </Button>
+            </div>
+          </div>
+
+          {isSubmittingTask && (
+            <div className="flex gap-2 items-center mt-2 text-xs text-muted-foreground">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Submitting task...</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

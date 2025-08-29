@@ -41,6 +41,126 @@ import { useSessionStore, useCurrentSession } from './store/useSessionStore'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
+// Mobile Menu Component with Animation
+interface MobileMenuProps {
+  onSessionClick: () => void
+  onTaskClick: () => void
+  onEventClick: () => void
+}
+
+function MobileMenu({ onSessionClick, onTaskClick, onEventClick }: MobileMenuProps) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const toggleMenu = () => setIsOpen(!isOpen)
+
+  return (
+    <div className="relative">
+      {/* Menu Items - Animated */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            {/* Session Manager Button */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0, y: 20 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 300, damping: 20 }}
+              className="absolute bottom-16 right-0"
+            >
+              <Button
+                onClick={() => {
+                  onSessionClick()
+                  setIsOpen(false)
+                }}
+                size="sm"
+                className="w-12 h-12 rounded-full shadow-lg bg-primary hover:bg-primary/80"
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+            </motion.div>
+
+            {/* Task Manager Button */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0, y: 20 }}
+              transition={{ delay: 0.15, type: "spring", stiffness: 300, damping: 20 }}
+              className="absolute bottom-32 right-0"
+            >
+              <Button
+                onClick={() => {
+                  onTaskClick()
+                  setIsOpen(false)
+                }}
+                size="sm"
+                className="w-12 h-12 rounded-full shadow-lg bg-secondary hover:bg-secondary/80"
+              >
+                <Activity className="w-5 h-5" />
+              </Button>
+            </motion.div>
+
+            {/* Event Logger Button */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0, y: 20 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 300, damping: 20 }}
+              className="absolute bottom-48 right-0"
+            >
+              <Button
+                onClick={() => {
+                  onEventClick()
+                  setIsOpen(false)
+                }}
+                size="sm"
+                className="w-12 h-12 rounded-full shadow-lg bg-accent hover:bg-accent/80"
+              >
+                <BarChart3 className="w-5 h-5" />
+              </Button>
+            </motion.div>
+
+            {/* Background Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+              onClick={() => setIsOpen(false)}
+              style={{ zIndex: -1 }}
+            />
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Main Menu Button */}
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        animate={{ rotate: isOpen ? 45 : 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      >
+        <Button
+          onClick={toggleMenu}
+          size="sm"
+          className={cn(
+            "w-12 h-12 rounded-full shadow-lg transition-colors duration-200",
+            isOpen 
+              ? "bg-red-500 hover:bg-red-600" 
+              : "bg-primary hover:bg-primary/80"
+          )}
+        >
+          <motion.div
+            animate={{ rotate: isOpen ? 45 : 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </motion.div>
+        </Button>
+      </motion.div>
+    </div>
+  )
+}
+
 export function CortensorChatWeb3() {
     const { address, isConnected } = useAccount()
     const { currentSession, userSessions, isLoadingSessions } = useCortensorSession()
@@ -279,37 +399,13 @@ export function CortensorChatWeb3() {
                                 <ChatInterface className="h-full" />
                             </div>
 
-                            {/* Floating Action Buttons - Smaller and more responsive */}
-                            <div className="flex fixed right-4 bottom-4 z-50 flex-col gap-2">
-                                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                    <Button
-                                        onClick={() => setSessionCredenzaOpen(true)}
-                                        size="sm"
-                                        className="w-10 h-10 rounded-full shadow-lg sm:w-12 sm:h-12"
-                                    >
-                                        <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
-                                    </Button>
-                                </motion.div>
-
-                                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                    <Button
-                                        onClick={() => setTaskCredenzaOpen(true)}
-                                        size="sm"
-                                        className="w-10 h-10 rounded-full shadow-lg sm:w-12 sm:h-12 bg-secondary hover:bg-secondary/80"
-                                    >
-                                        <Activity className="w-4 h-4 sm:w-5 sm:h-5" />
-                                    </Button>
-                                </motion.div>
-
-                                <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                                    <Button
-                                        onClick={() => setEventCredenzaOpen(true)}
-                                        size="sm"
-                                        className="w-10 h-10 rounded-full shadow-lg sm:w-12 sm:h-12 bg-accent hover:bg-accent/80"
-                                    >
-                                        <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5" />
-                                    </Button>
-                                </motion.div>
+                            {/* Animated Mobile Menu - Positioned to avoid send button */}
+                            <div className="fixed right-4 bottom-20 z-50">
+                                <MobileMenu
+                                    onSessionClick={() => setSessionCredenzaOpen(true)}
+                                    onTaskClick={() => setTaskCredenzaOpen(true)}
+                                    onEventClick={() => setEventCredenzaOpen(true)}
+                                />
                             </div>
                         </motion.div>
                     )}

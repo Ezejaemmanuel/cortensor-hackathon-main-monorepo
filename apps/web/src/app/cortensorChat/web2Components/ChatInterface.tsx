@@ -481,151 +481,124 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
         {/* Input Area - Absolutely positioned at bottom */}
         <div className="absolute bottom-4 left-0 right-0 border-t border-border/30 bg-background/95 backdrop-blur-md p-3 sm:p-4 space-y-3 sm:space-y-4 rounded-b-2xl glass z-50">
-          {/* Web Search Status Indicator */}
-          {isWebSearchEnabled && (
-            <div className={cn(
-              "flex gap-3 items-center px-4 py-3 mb-4 rounded-xl",
-              "bg-gradient-to-r from-neural-secondary/10 to-neural-tertiary/10",
-              "border border-neural-secondary/20 backdrop-blur-sm glow-secondary",
-              "animate-in slide-in-from-bottom-2 duration-300"
-            )}>
-              <div className="w-8 h-8 bg-neural-secondary/20 rounded-full flex items-center justify-center glow-secondary">
-                <Search className="w-4 h-4 text-neural-secondary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-sm font-medium text-neural-secondary font-tech">
-                  Web search enabled - Your queries will include web results
-                </span>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs text-neural-secondary/80 font-tech">
-                    Character limit: {currentMessage.length}/{WEB_SEARCH_CHAR_LIMIT}
-                  </span>
-                  {isNearLimit && (
-                    <span className="text-xs text-amber-500 font-tech animate-pulse">
-                      ⚠️ Near limit
-                    </span>
-                  )}
-                  {isOverLimit && (
-                    <span className="text-xs text-red-500 font-tech animate-pulse">
-                      ❌ Over limit - Message will be truncated
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="flex justify-center">
+            <div className="flex gap-2 sm:gap-3 items-end w-full max-w-3xl">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0",
+                      "relative overflow-hidden group transition-all duration-300 font-tech",
+                      "border-2 hover:scale-105 glass",
+                      isWebSearchEnabled
+                        ? "bg-gradient-secondary text-background border-neural-secondary shadow-glow-secondary glow-secondary"
+                        : "border-border/50 hover:border-neural-secondary/50 hover:shadow-glow-secondary/20"
+                    )}
+                  >
+                    {isWebSearchEnabled ? (
+                      <Search className="w-4 sm:w-5 h-4 sm:h-5" />
+                    ) : (
+                      <SearchX className="w-4 sm:w-5 h-4 sm:h-5" />
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="top">
+                  <div className="text-center">
+                    <div className="font-medium">
+                      Web Search: {isWebSearchEnabled ? "ON" : "OFF"}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {isWebSearchEnabled
+                        ? "AI will search the web for current information"
+                        : "AI will use only its training data"}
+                    </div>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
 
-          <div className="flex gap-2 sm:gap-3 items-end">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  onClick={() => setIsWebSearchEnabled(!isWebSearchEnabled)}
-                  variant="outline"
-                  size="sm"
+              <div className="flex-1 relative min-w-0">
+                <Input
+                  placeholder={isWebSearchEnabled ? "🔍 Web search enabled - Type your message..." : "Type your message..."}
+                  value={currentMessage}
+                  onChange={(e) => setCurrentMessage(e.target.value)}
+                  onKeyPress={handleKeyPress}
                   className={cn(
-                    "w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0",
-                    "relative overflow-hidden group transition-all duration-300 font-tech",
-                    "border-2 hover:scale-105 glass",
-                    isWebSearchEnabled
-                      ? "bg-gradient-secondary text-background border-neural-secondary shadow-glow-secondary glow-secondary"
-                      : "border-border/50 hover:border-neural-secondary/50 hover:shadow-glow-secondary/20"
+                    "text-base h-10 sm:h-12 px-3 sm:px-4 rounded-2xl border-2 transition-all duration-300 font-tech",
+                    "bg-background/50 backdrop-blur-sm glass w-full",
+                    "focus:border-neural-primary/50 focus:shadow-glow-primary/20 focus:glow-primary",
+                    "placeholder:text-muted-foreground/70",
+                    "focus:h-10 sm:focus:h-12",
+                    isOverLimit && "border-red-500/50 shadow-glow-accent/20",
+                    isNearLimit && "border-amber-500/50 shadow-glow-secondary/20"
                   )}
-                >
-                  {isWebSearchEnabled ? (
-                    <Search className="w-4 sm:w-5 h-4 sm:h-5" />
-                  ) : (
-                    <SearchX className="w-4 sm:w-5 h-4 sm:h-5" />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <div className="text-center">
-                  <div className="font-medium">
-                    Web Search: {isWebSearchEnabled ? "ON" : "OFF"}
+                />
+                {/* Compact web search status and character counter */}
+                {isWebSearchEnabled && (
+                  <div className="flex items-center justify-between mt-2 px-1">
+                    <div className="flex items-center gap-2 text-xs text-neural-secondary/80 font-tech">
+                      <Search className="w-3 h-3" />
+                      <span>Web search enabled</span>
+                    </div>
+                    <span className={cn(
+                      "text-xs font-tech",
+                      remainingChars <= 0 ? "text-red-500" : 
+                      remainingChars <= 50 ? "text-amber-500" : 
+                      "text-muted-foreground"
+                    )}>
+                      {remainingChars <= 0 ? `${Math.abs(remainingChars)} over` : `${remainingChars} left`}
+                    </span>
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    {isWebSearchEnabled
-                      ? "AI will search the web for current information"
-                      : "AI will use only its training data"}
-                  </div>
-                </div>
-              </TooltipContent>
-            </Tooltip>
-
-            <div className="flex-1 relative min-w-0">
-              <Input
-                placeholder={isWebSearchEnabled ? "🔍 Web search enabled - Type your message..." : "Type your message..."}
-                value={currentMessage}
-                onChange={(e) => setCurrentMessage(e.target.value)}
-                onKeyPress={handleKeyPress}
-                className={cn(
-                  "text-base h-10 sm:h-12 px-3 sm:px-4 rounded-2xl border-2 transition-all duration-300 font-tech",
-                  "bg-background/50 backdrop-blur-sm glass w-full",
-                  "focus:border-neural-primary/50 focus:shadow-glow-primary/20 focus:glow-primary",
-                  "placeholder:text-muted-foreground/70",
-                  "focus:h-10 sm:focus:h-12",
-                  isOverLimit && "border-red-500/50 shadow-glow-accent/20",
-                  isNearLimit && "border-amber-500/50 shadow-glow-secondary/20"
                 )}
-              />
-              {/* Character counter overlay */}
-              {isWebSearchEnabled && (
-                <div className="absolute -bottom-6 right-0 text-xs text-muted-foreground font-tech">
-                  <span className={cn(
-                    remainingChars <= 0 ? "text-red-500" : 
-                    remainingChars <= 50 ? "text-amber-500" : 
-                    "text-muted-foreground"
-                  )}>
-                    {remainingChars <= 0 ? `${Math.abs(remainingChars)} over` : `${remainingChars} left`}
-                  </span>
-                </div>
+              </div>
+
+              {isLoading ? (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleCancelRequest}
+                      size="sm"
+                      className={cn(
+                        "relative overflow-hidden group w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0 font-tech",
+                        "bg-red-600 hover:bg-red-700 text-white",
+                        "transition-all duration-300 hover:scale-105"
+                      )}
+                    >
+                      <Square className="w-4 sm:w-5 h-4 sm:h-5" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    Stop generation
+                  </TooltipContent>
+                </Tooltip>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!currentMessage.trim() || (isWebSearchEnabled && isOverLimit)}
+                      size="sm"
+                      className={cn(
+                        "relative overflow-hidden group w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0 font-tech",
+                        "bg-gradient-primary hover:shadow-glow-primary glow-primary",
+                        "transition-all duration-300 hover:scale-105",
+                        "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                      )}
+                    >
+                      <Send className="w-4 sm:w-5 h-4 sm:h-5" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">
+                    Send message (Enter)
+                  </TooltipContent>
+                </Tooltip>
               )}
             </div>
-
-            {isLoading ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={handleCancelRequest}
-                    size="sm"
-                    className={cn(
-                      "relative overflow-hidden group w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0 font-tech",
-                      "bg-red-600 hover:bg-red-700 text-white",
-                      "transition-all duration-300 hover:scale-105"
-                    )}
-                  >
-                    <Square className="w-4 sm:w-5 h-4 sm:h-5" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  Stop generation
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={handleSendMessage}
-                    disabled={!currentMessage.trim() || (isWebSearchEnabled && isOverLimit)}
-                    size="sm"
-                    className={cn(
-                      "relative overflow-hidden group w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0 font-tech",
-                      "bg-gradient-primary hover:shadow-glow-primary glow-primary",
-                      "transition-all duration-300 hover:scale-105",
-                      "disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                    )}
-                  >
-                    <Send className="w-4 sm:w-5 h-4 sm:h-5" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                  Send message (Enter)
-                </TooltipContent>
-              </Tooltip>
-            )}
           </div>
         </div>
       </div>
