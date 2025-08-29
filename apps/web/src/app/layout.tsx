@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Orbitron, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -114,6 +114,13 @@ export const metadata: Metadata = {
     'msapplication-TileColor': '#0066ff',
     'msapplication-config': '/browserconfig.xml',
   },
+};
+
+export const viewport: Viewport = {
+  initialScale: 1,
+  width: 'device-width',
+  maximumScale: 1,
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({

@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Globe, Search, Shield, Chrome, Zap, MessageSquare } from "lucide-react";
+import Link from "next/link";
 // Images are now referenced directly from the public folder
 
 const capabilities = [
@@ -102,10 +103,12 @@ export const AgentShowcase = () => {
               Powered by blockchain consensus • Verified by multiple AI nodes • Transparent and trustless
             </p>
           </div>
-          <Button variant="hero" size="lg" className="w-full sm:w-auto group">
-            Install Chrome Extension
-            <Chrome className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform" />
-          </Button>
+          <Link href="/extension-install">
+            <Button variant="hero" size="lg" className="w-full sm:w-auto group">
+              Install Chrome Extension
+              <Chrome className="ml-2 h-4 w-4 sm:h-5 sm:w-5 transition-transform" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
