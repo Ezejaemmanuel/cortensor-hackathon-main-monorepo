@@ -44,3 +44,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .vscode/settings.json
+
+sync-to-community-projects.js
