@@ -56,10 +56,7 @@ export const Hero = () => {
                 </Button>
               </Link>
 
-              <Button variant="neural" size="default" className="w-full sm:w-auto sm:px-6 lg:px-8 group text-sm sm:text-base">
-                <Play className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                View Docs
-              </Button>
+
             </div>
           </div>
 

@@ -582,7 +582,6 @@ export default function NewIntroSplash({ onComplete }: NewIntroSplashProps) {
                      animate={{
                        scale: [0.3, 1.2, 1, 1.5, 1],
                        opacity: [0, 1, 1, 1, 1],
-                       rotate: [0, 360],
                        boxShadow: [
                          '0 0 40px hsl(120, 100%, 50%, 0.6)',
                          '0 0 80px hsl(120, 100%, 50%, 1)',
@@ -592,7 +591,6 @@ export default function NewIntroSplash({ onComplete }: NewIntroSplashProps) {
                      transition={{
                        scale: { duration: 2.5, ease: "easeOut" },
                        opacity: { duration: 1.5 },
-                       rotate: { duration: 4, repeat: Infinity, ease: 'linear' },
                        boxShadow: { duration: 2, repeat: Infinity },
                      }}
                    >
@@ -611,6 +609,67 @@ export default function NewIntroSplash({ onComplete }: NewIntroSplashProps) {
                        }}
                      />
                    </motion.div>
+                   
+                   {/* Orbiting 2D Planet Elements */}
+                   {[0, 1, 2, 3, 4, 5].map((i) => (
+                     <motion.div
+                       key={i}
+                       className="absolute rounded-full"
+                       style={{
+                         width: 8 + (i % 3) * 4 + 'px',
+                         height: 8 + (i % 3) * 4 + 'px',
+                         background: `linear-gradient(45deg, hsl(${120 + i * 30}, 100%, 50%), hsl(${180 + i * 20}, 100%, 50%))`,
+                         boxShadow: `0 0 8px hsl(${120 + i * 30}, 100%, 50%, 0.8)`,
+                         left: '50%',
+                         top: '50%',
+                         transform: 'translate(-50%, -50%)',
+                       }}
+                       animate={{
+                         x: [
+                           Math.cos((i * 60) * Math.PI / 180) * (60 + i * 15),
+                           Math.cos((i * 60 + 360) * Math.PI / 180) * (60 + i * 15)
+                         ],
+                         y: [
+                           Math.sin((i * 60) * Math.PI / 180) * (60 + i * 15),
+                           Math.sin((i * 60 + 360) * Math.PI / 180) * (60 + i * 15)
+                         ],
+                         scale: [1, 1.2, 1],
+                         opacity: [0.6, 1, 0.6],
+                       }}
+                       transition={{
+                         x: { duration: 8 + i * 2, repeat: Infinity, ease: 'linear' },
+                         y: { duration: 8 + i * 2, repeat: Infinity, ease: 'linear' },
+                         scale: { duration: 2, repeat: Infinity, delay: i * 0.3 },
+                         opacity: { duration: 2, repeat: Infinity, delay: i * 0.3 },
+                       }}
+                     />
+                   ))}
+                   
+                   {/* Additional Orbiting Rings */}
+                   {[0, 1, 2].map((i) => (
+                     <motion.div
+                       key={`ring-${i}`}
+                       className="absolute rounded-full border border-dashed opacity-30"
+                       style={{
+                         borderColor: `hsl(${120 + i * 40}, 100%, 50%)`,
+                         width: 80 + i * 40 + 'px',
+                         height: 80 + i * 40 + 'px',
+                         left: '50%',
+                         top: '50%',
+                         transform: 'translate(-50%, -50%)',
+                       }}
+                       animate={{
+                         rotate: [0, 360],
+                         scale: [1, 1.1, 1],
+                         opacity: [0.2, 0.4, 0.2],
+                       }}
+                       transition={{
+                         rotate: { duration: 12 + i * 4, repeat: Infinity, ease: 'linear' },
+                         scale: { duration: 4, repeat: Infinity, delay: i * 0.5 },
+                         opacity: { duration: 4, repeat: Infinity, delay: i * 0.5 },
+                       }}
+                     />
+                   ))}
                  </motion.div>
                </motion.div>
              )}
