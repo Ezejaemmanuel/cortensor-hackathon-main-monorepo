@@ -27,7 +27,7 @@
     "@mastra/core": "0.13.2",
     "@mastra/loggers": "0.10.6",
     "ai": "^4.0.38",
-    "cortensor-openai-provider": "0.3.12",
+    "cortensor-openai-provider": "0.4.0",
     "openai": "^4.73.1",
     "viem": "^2.21.54",
     "wagmi": "^2.14.5",

@@ -5,7 +5,6 @@ import { Toaster } from "@/components/ui/sonner";
 import Navbar from "./Navbar";
 import SplashScreen from "./components/SplashScreen";
 import { useSplashScreen } from "@/hooks/use-splash-screen";
-import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
   const { showSplash, hideSplash, isLoading } = useSplashScreen();
@@ -23,7 +22,6 @@ function App() {
   }
 
   return (
-    <ErrorBoundary>
       <Web3Provider>
         <TooltipProvider>
           <Navbar />
@@ -36,7 +34,6 @@ function App() {
           />
         </TooltipProvider>
       </Web3Provider>
-    </ErrorBoundary>
   )
 }
 

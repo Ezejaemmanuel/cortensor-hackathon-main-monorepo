@@ -13,7 +13,7 @@ const Dashboard = () => {
   return (
     <div className="flex flex-col h-screen bg-background neural-bg pt-16">
       {/* Header with Custom Glassmorphism Tabs - Compact Design */}
-      <div className="flex-shrink-0 p-1.5 sm:p-2">
+      <div className="flex-shrink-0 p-1 sm:p-1.5">
         <div className="glass rounded-lg p-0.5 flex space-x-0.5 max-w-xs mx-auto">
           <button
             onClick={() => setActiveTab('web2')}

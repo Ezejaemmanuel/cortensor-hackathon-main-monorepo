@@ -125,7 +125,7 @@ export function CortensorChatWeb2() {
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
             >
-                <div className="container px-1 py-1 mx-auto sm:px-3 sm:py-2">
+                <div className="container px-1 py-0.5 mx-auto sm:px-3 sm:py-1.5">
                     <div className="flex justify-between items-center">
                         <div className="flex gap-1 items-center sm:gap-2">
                             <motion.div
@@ -166,7 +166,7 @@ export function CortensorChatWeb2() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="flex flex-1 gap-2 p-2 min-h-0 sm:gap-4 sm:p-4"
+                            className="flex flex-1 gap-1 p-1 min-h-0 sm:gap-2 md:gap-4 sm:p-2 md:p-4"
                         >
                             {/* Chat History Sidebar - Desktop */}
                             <motion.div
@@ -211,7 +211,7 @@ export function CortensorChatWeb2() {
                             className="flex relative flex-col flex-1 min-h-0"
                         >
                             {/* Mobile Chat Interface - Full Width */}
-                            <div className="flex-1 min-h-0 h-full p-2">
+                            <div className="flex-1 min-h-0 h-full p-1 sm:p-2">
                                 {userId ? (
                                     <ChatInterface userAddress={userId} className="h-full" />
                                 ) : (
@@ -228,7 +228,7 @@ export function CortensorChatWeb2() {
 
 
                             {/* Floating Chat History Button */}
-                            <div className="fixed right-4 bottom-20 z-50">
+                            <div className="fixed right-2 bottom-16 z-50 sm:right-4 sm:bottom-20">
                                 <Credenza>
                                     <CredenzaTrigger asChild>
                                         <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>

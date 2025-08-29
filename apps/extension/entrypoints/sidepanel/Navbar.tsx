@@ -88,7 +88,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo - smaller on mobile, stays on left */}
           <div className={`flex items-center ${
-            isMobile ? 'space-x-1' : 'space-x-2'
+            isMobile ? 'space-x-2' : 'space-x-3'
           }`}>
             <div className={`bg-gradient-primary rounded-lg flex items-center justify-center ${
               isMobile ? 'w-6 h-6' : 'w-8 h-8'
@@ -147,7 +147,9 @@ const Navbar = () => {
           )}
 
           {/* Connect Wallet Button - Always visible but responsive */}
-          <div className="flex items-center gap-2 ml-auto">
+          <div className={`flex items-center gap-2 ml-auto ${
+            isMobile ? 'ml-4' : 'ml-8'
+          }`}>
             <ConnectWalletButton isMobile={isMobile} className="flex-shrink-0" />
             
             {/* Mobile Menu Button */}

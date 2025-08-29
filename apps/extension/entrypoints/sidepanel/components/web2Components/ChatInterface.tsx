@@ -396,7 +396,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         className
       )}>
         {/* Header - Optimized for small screens */}
-        <div className="flex-shrink-0 px-2 sm:px-4 py-2 sm:py-3 border-b border-border/30 bg-card/20 backdrop-blur-sm">
+        <div className="flex-shrink-0 px-2 sm:px-4 py-1.5 sm:py-2 border-b border-border/30 bg-card/20 backdrop-blur-sm">
           <div className="flex justify-between items-center gap-2">
             <div className="flex items-center space-x-2 min-w-0 flex-1">
               <div className="relative flex-shrink-0">
@@ -442,7 +442,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         {/* Messages Area */}
         <div className="flex-1 min-h-0 overflow-hidden">
           <ScrollArea className="w-full h-full max-h-full">
-            <div className="px-4 py-4">
+            <div className="px-2 sm:px-4 py-2 sm:py-4">
               {messages.length === 0 && !isLoading ? (
                 <div className="flex items-center justify-center h-full min-h-[300px]">
                   <div className="text-center space-y-4 max-w-xs">
@@ -476,7 +476,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-6">
+                <div className="space-y-3 sm:space-y-4">
                   {messages.map((message: ChatMessage, index) => (
                     <div
                       key={message.id}
@@ -586,7 +586,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   )}
 
                   {/* Bottom spacing for scrolling past last message */}
-                  <div className="h-32 sm:h-40"></div>
+                  <div className="h-16 sm:h-24"></div>
                 </div>
               )}
             </div>
@@ -594,11 +594,11 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         </div>
 
         {/* Input Area - Fixed at bottom */}
-        <div className="absolute bottom-4 left-0 right-0 p-2 sm:p-4 border-t border-border/30 bg-background/95 backdrop-blur-md rounded-b-2xl w-full z-50">
+        <div className="absolute bottom-2 sm:bottom-4 left-0 right-0 p-2 sm:p-4 border-t border-border/30 bg-background/95 backdrop-blur-md rounded-b-2xl w-full z-50">
           {/* Web Search Status Indicator */}
           {isWebSearchEnabled && (
             <div className={cn(
-              "flex gap-2 items-center px-2 sm:px-3 py-1.5 sm:py-2 mb-2 sm:mb-3 rounded-xl",
+              "flex gap-2 items-center px-2 sm:px-3 py-1.5 sm:py-2 mb-1.5 sm:mb-2 rounded-xl",
               "bg-gradient-to-r from-secondary/10 to-accent/10",
               "border border-secondary/20 backdrop-blur-sm",
               "animate-in slide-in-from-bottom-2 duration-300"
@@ -632,7 +632,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
           {/* Selected Text Preview */}
           {selectedTextPreview && selectedTextPreview.isVisible && (
             <div className={cn(
-              "p-3 mb-3 rounded-xl border backdrop-blur-sm",
+              "p-2 sm:p-3 mb-2 sm:mb-3 rounded-xl border backdrop-blur-sm",
               "bg-gradient-to-r from-accent/10 to-primary/10",
               "border-accent/20 animate-in slide-in-from-bottom-2 duration-300"
             )}>
