@@ -23,6 +23,9 @@ export default defineConfig({
   manifest: {
     permissions: ['sidePanel', 'storage', 'activeTab', 'tabs'],
     host_permissions: ['<all_urls>'],
+    content_security_policy: {
+      extension_pages: "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https:;"
+    },
     side_panel: {
       default_path: 'sidepanel.html'
     },

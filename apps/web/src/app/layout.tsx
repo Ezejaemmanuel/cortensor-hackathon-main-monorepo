@@ -23,12 +23,6 @@ export const metadata: Metadata = {
     template: "%s | CortiGPT"
   },
   description: "Experience the future of AI-powered search with CortiGPT - where Perplexity meets Decentralization. Get verifiable, trustless intelligence from multiple specialized AI agents on the Cortensor protocol with immutable proof receipts.",
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   keywords: [
     "CortiGPT",
     "Cortensor",

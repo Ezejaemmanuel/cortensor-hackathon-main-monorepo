@@ -79,7 +79,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
   const [currentMessage, setCurrentMessage] = useState('')
   const [isLoading, setIsLoading] = useState(false)
-  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(false)
+  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(true)
   const [currentPlaceholder, setCurrentPlaceholder] = useState('')
   const [abortController, setAbortController] = useState<AbortController | null>(null)
 
@@ -285,49 +285,13 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }, [selectedChatId, chatHistory.length, createNewChat])
 
-  // Prevent zoom on mobile devices
-  useEffect(() => {
-    const preventDefault = (e: Event) => e.preventDefault();
-    const preventZoom = (e: TouchEvent) => {
-      if (e.touches.length > 1) {
-        e.preventDefault();
-      }
-    };
-    const preventGesture = (e: Event) => e.preventDefault();
-
-    // Prevent various zoom-related events
-    document.addEventListener('gesturestart', preventGesture, { passive: false });
-    document.addEventListener('gesturechange', preventGesture, { passive: false });
-    document.addEventListener('gestureend', preventGesture, { passive: false });
-    document.addEventListener('touchstart', preventZoom, { passive: false });
-    
-    // Prevent double-tap zoom
-    let lastTouchEnd = 0;
-    const preventDoubleTap = (e: TouchEvent) => {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
-      }
-      lastTouchEnd = now;
-    };
-    document.addEventListener('touchend', preventDoubleTap, { passive: false });
-
-    return () => {
-      document.removeEventListener('gesturestart', preventGesture);
-      document.removeEventListener('gesturechange', preventGesture);
-      document.removeEventListener('gestureend', preventGesture);
-      document.removeEventListener('touchstart', preventZoom);
-      document.removeEventListener('touchend', preventDoubleTap);
-    };
-  }, []);
-
   return (
     <TooltipProvider>
       <div className={cn(
         "relative flex flex-col w-full h-full",
         "bg-gradient-to-br from-background via-background to-card/20",
         "backdrop-blur-xl border border-border/30 rounded-2xl",
-        "shadow-glass touch-none select-none",
+        "shadow-glass",
         className
       )}>
         {/* Header - Optimized for small screens */}
@@ -421,7 +385,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                         "flex gap-3 sm:gap-4 group animate-in slide-in-from-bottom-4 duration-500",
                         message.sender === 'user' ? 'justify-end' : 'justify-start'
                       )}
-                      style={{"--animation-delay": `${index * 100}ms`} as React.CSSProperties}
+                      style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {message.sender === 'ai' && (
                         <div className="flex-shrink-0">
