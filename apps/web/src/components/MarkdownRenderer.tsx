@@ -33,7 +33,7 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ children, className, inline }) =>
 
   if (inline) {
     return (
-      <code className="px-1.5 py-0.5 font-mono text-xs sm:text-sm rounded border bg-muted text-muted-foreground break-all">
+      <code className="px-1.5 py-0.5 font-mono text-xs sm:text-sm rounded border bg-muted text-muted-foreground break-words">
         {children}
       </code>
     )
@@ -101,28 +101,28 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
   };
 
   return (
-    <div className={cn('overflow-hidden max-w-none prose prose-slate dark:prose-invert prose-sm sm:prose-base', className)}>
+    <div className={cn('overflow-hidden max-w-none prose prose-slate dark:prose-invert prose-sm sm:prose-base break-words', className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
           // Enhanced Headings with better typography and responsive sizing
           h1: ({ children }) => (
-            <h1 className="pb-2 mt-4 mb-3 text-lg font-bold leading-tight border-b sm:text-xl text-foreground border-border">
+            <h1 className="pb-2 mt-4 mb-3 text-lg font-bold leading-tight border-b sm:text-xl text-foreground border-border break-words">
               {children}
             </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="mt-3 mb-2 text-base font-semibold leading-tight sm:text-lg text-foreground">
+            <h2 className="mt-3 mb-2 text-base font-semibold leading-tight sm:text-lg text-foreground break-words">
               {children}
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="mt-3 mb-2 text-sm font-semibold leading-tight sm:text-base text-foreground">
+            <h3 className="mt-3 mb-2 text-sm font-semibold leading-tight sm:text-base text-foreground break-words">
               {children}
             </h3>
           ),
           h4: ({ children }) => (
-            <h4 className="mt-2 mb-1 text-sm font-medium text-muted-foreground">
+            <h4 className="mt-2 mb-1 text-sm font-medium text-muted-foreground break-words">
               {children}
             </h4>
           ),
@@ -136,12 +136,12 @@ export const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
 
           // Enhanced Lists with better styling and responsive spacing
           ul: ({ children }) => (
-            <ul className="pl-4 mb-2 space-y-1 text-sm sm:text-base text-foreground">
+            <ul className="pl-4 mb-2 space-y-1 text-sm sm:text-base text-foreground break-words">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="pl-4 mb-2 space-y-1 text-sm sm:text-base text-foreground">
+            <ol className="pl-4 mb-2 space-y-1 text-sm sm:text-base text-foreground break-words">
               {children}
             </ol>
           ),

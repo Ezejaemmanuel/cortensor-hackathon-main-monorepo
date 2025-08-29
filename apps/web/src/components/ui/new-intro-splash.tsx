@@ -573,25 +573,43 @@ export default function NewIntroSplash({ onComplete }: NewIntroSplashProps) {
                    
                    {/* Center Logo */}
                    <motion.div
-                     className="relative z-10 w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold"
+                     className="relative z-10 w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28 rounded-full flex items-center justify-center overflow-hidden"
                      style={{
                        background: 'linear-gradient(45deg, hsl(120, 100%, 50%), hsl(180, 100%, 50%))',
                        boxShadow: '0 0 40px hsl(120, 100%, 50%, 0.6)',
                      }}
+                     initial={{ scale: 0.3, opacity: 0 }}
                      animate={{
+                       scale: [0.3, 1.2, 1, 1.5, 1],
+                       opacity: [0, 1, 1, 1, 1],
                        rotate: [0, 360],
                        boxShadow: [
                          '0 0 40px hsl(120, 100%, 50%, 0.6)',
-                         '0 0 60px hsl(120, 100%, 50%, 1)',
+                         '0 0 80px hsl(120, 100%, 50%, 1)',
                          '0 0 40px hsl(120, 100%, 50%, 0.6)',
                        ],
                      }}
                      transition={{
+                       scale: { duration: 2.5, ease: "easeOut" },
+                       opacity: { duration: 1.5 },
                        rotate: { duration: 4, repeat: Infinity, ease: 'linear' },
                        boxShadow: { duration: 2, repeat: Infinity },
                      }}
                    >
-                     ⚡
+                     <motion.img
+                       src="/cortigpt-4.png"
+                       alt="CortiGPT"
+                       className="w-full h-full object-contain p-2"
+                       initial={{ scale: 0.8 }}
+                       animate={{
+                         scale: [0.8, 1.1, 1, 1.2, 1],
+                       }}
+                       transition={{
+                         duration: 2.5,
+                         ease: "easeOut",
+                         delay: 0.3,
+                       }}
+                     />
                    </motion.div>
                  </motion.div>
                </motion.div>
