@@ -126,8 +126,44 @@ export function ChatInterface({ className }: ChatInterfaceProps) {
     )
   }
 
+  // Prevent zoom on mobile devices
+  useEffect(() => {
+    const preventDefault = (e: Event) => e.preventDefault();
+    const preventZoom = (e: TouchEvent) => {
+      if (e.touches.length > 1) {
+        e.preventDefault();
+      }
+    };
+    const preventGesture = (e: Event) => e.preventDefault();
+
+    // Prevent various zoom-related events
+    document.addEventListener('gesturestart', preventGesture, { passive: false });
+    document.addEventListener('gesturechange', preventGesture, { passive: false });
+    document.addEventListener('gestureend', preventGesture, { passive: false });
+    document.addEventListener('touchstart', preventZoom, { passive: false });
+    
+    // Prevent double-tap zoom
+    let lastTouchEnd = 0;
+    const preventDoubleTap = (e: TouchEvent) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
+      }
+      lastTouchEnd = now;
+    };
+    document.addEventListener('touchend', preventDoubleTap, { passive: false });
+
+    return () => {
+      document.removeEventListener('gesturestart', preventGesture);
+      document.removeEventListener('gesturechange', preventGesture);
+      document.removeEventListener('gestureend', preventGesture);
+      document.removeEventListener('touchstart', preventZoom);
+      document.removeEventListener('touchend', preventDoubleTap);
+    };
+  }, []);
+
   return (
-    <div className={`flex flex-col h-full ${className}`}>
+    <div className={`flex flex-col h-full touch-none select-none ${className}`}>
       {/* Header - Compact for mobile */}
       <div className="flex-shrink-0 p-0 border-b bg-card sm:p-4">
         <div className="flex justify-between items-center">
