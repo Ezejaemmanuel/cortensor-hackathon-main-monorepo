@@ -1,13 +1,16 @@
-# Sidepanel Extension Template
+# CortiGPT Browser Extension
 
-A modern browser extension template with sidepanel support, built with WXT + Tailwind CSS 4.0 + shadcn/ui.
+A modern browser extension that brings CortiGPT - the decentralized AI assistant - directly to your browser with sidepanel support, built with WXT + Tailwind CSS + shadcn/ui.
 
 ## Features
 
 - 🖥️ **Sidepanel Interface** - Click extension icon to open browser sidepanel
+- 🤖 **CortiGPT AI Integration** - Direct access to decentralized AI models
+- 🔌 **Web3 Wallet Support** - Connect your blockchain wallet
+- 🌐 **Web Search Integration** - Real-time information retrieval
 - ⚡ **WXT Framework** - Next-generation Web Extension development framework
 - ⚛️ **React** - Modern UI framework with TypeScript support
-- 🎨 **Tailwind CSS 4.0** - Latest utility-first CSS framework
+- 🎨 **Tailwind CSS** - Utility-first CSS framework with custom styling
 - 🛠️ **shadcn/ui Ready** - Pre-configured for beautiful, accessible React components
 - 🌙 **Theme Management** - System/Light/Dark theme support
 - 💾 **Local Storage** - Persistent data storage with WXT Storage API
@@ -15,11 +18,17 @@ A modern browser extension template with sidepanel support, built with WXT + Tai
 - 🔧 **TypeScript** - Full type safety and developer experience
 - 🎯 **Modern Development** - Hot reload, modern build tools
 
-## Demo
+## Overview
 
-![Extension Demo](public/demo.gif)
+CortiGPT Browser Extension provides instant access to decentralized AI assistance directly in your browser. With a beautiful sidepanel interface, you can:
 
-*Watch how the sidepanel extension works: click the extension icon to open the sidepanel interface.*
+- Chat with CortiGPT AI models
+- Connect your Web3 wallet
+- Search the web for real-time information
+- Access AI agents and tools
+- Enjoy a seamless, modern user experience
+
+*Click the extension icon to open the sidepanel interface and start chatting with AI.*
 
 ## Getting Started
 
@@ -33,7 +42,7 @@ A modern browser extension template with sidepanel support, built with WXT + Tai
 1. **Clone or use this template**
    ```bash
    git clone <repository-url>
-   cd sidepanel-extension-template
+   cd cortensor-main-monorepo/apps/extension
    ```
 
 2. **Install dependencies**
@@ -61,7 +70,7 @@ A modern browser extension template with sidepanel support, built with WXT + Tai
 ## Project Structure
 
 ```
-sidepanel-extension-template/
+apps/extension/
 ├── entrypoints/           # Extension entry points
 │   ├── background.ts      # Background script
 │   ├── content.ts         # Content script (optional)
@@ -70,12 +79,24 @@ sidepanel-extension-template/
 │       ├── index.html     # HTML template
 │       └── main.tsx       # React entry point
 ├── components/            # React components
-│   └── ui/                # shadcn/ui components
+│   ├── ui/                # shadcn/ui components
+│   ├── layout/            # Layout components
+│   └── sections/          # Page sections
 ├── lib/                   # Utility functions
-│   └── utils.ts           # Common utilities
+│   ├── utils.ts           # Common utilities
+│   ├── wagmiConfig.ts     # Web3 configuration
+│   └── api-config.ts      # API configuration
 ├── hooks/                 # Custom React hooks
 │   ├── use-theme.ts       # Theme management hook
-│   └── use-settings.ts    # Settings storage hook
+│   ├── use-settings.ts    # Settings storage hook
+│   ├── use-web3.ts        # Web3 integration hook
+│   └── use-splash-screen.ts # Splash screen hook
+├── providers/             # React context providers
+│   ├── web3-provider.tsx  # Web3 context provider
+│   └── react-query-provider.tsx # React Query provider
+├── stores/                # State management
+│   ├── chat-store.ts      # Chat state store
+│   └── useWeb2ChatStore.ts # Web2 chat store
 ├── assets/                # Static assets
 ├── public/                # Public assets (icons, etc.)
 ├── app.config.ts          # Runtime configuration
@@ -164,14 +185,25 @@ This extension supports all major browsers through WXT's universal browser compa
 
 This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
-Apache-2.0 License - feel free to use this template for your projects!
-
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
 4. Submit a pull request
+
+## 🔗 Related Projects
+
+- [CortiGPT Web App](../../web/README.md) - Main web interface
+- [Cortensor API Server](../../server/README.md) - Backend services
+- [AI Package](../../../packages/ai/README.md) - AI integration library
+- [Cortensor Provider Documentation](../../../readmeaboutCortensorOpenaiProvider.md) - AI provider details
+
+---
+
+Built with ❤️ using [WXT](https://wxt.dev), [Tailwind CSS](https://tailwindcss.com), and [shadcn/ui](https://ui.shadcn.com) for the Cortensor AI platform.
+
+
 
 ---
 
