@@ -29,7 +29,7 @@ const MainChatPage = () => {
   const tabVariants = {
     enter: {
       opacity: 0,
-      x: 20
+      x: activeTab === 'web3' ? 20 : -20
     },
     center: {
       opacity: 1,
@@ -37,12 +37,12 @@ const MainChatPage = () => {
     },
     exit: {
       opacity: 0,
-      x: -20
+      x: activeTab === 'web3' ? -20 : 20
     }
   }
 
   const tabTransition = {
-    duration: 0.3,
+    duration: 0.2,
     ease: [0.4, 0, 0.2, 1] as const
   }
 
@@ -110,7 +110,7 @@ const MainChatPage = () => {
 
       {/* Tab Content with Framer Motion */}
       <div className="relative flex-1 min-h-0">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
             key={activeTab}
             variants={tabVariants}
@@ -118,7 +118,7 @@ const MainChatPage = () => {
             animate="center"
             exit="exit"
             transition={tabTransition}
-            className="h-full"
+            className="h-full w-full"
           >
             {activeTab === 'web3' ? (
               <CortensorChatWeb3 />
