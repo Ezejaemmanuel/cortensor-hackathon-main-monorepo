@@ -27,7 +27,7 @@ export default defineConfig({
       default_path: 'sidepanel.html'
     },
     action: {
-      default_title: 'Open Sidepanel'
+      default_title: 'cortigpt - decentralized perplexity'
     },
     icons: {
       16: '/cortigpt-4.png',

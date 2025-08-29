@@ -85,6 +85,15 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Character limit for web search messages
+  const WEB_SEARCH_CHAR_LIMIT = 390
+
+  // Check if message exceeds character limit
+  const isMessageTooLong = isWebSearchEnabled && currentMessage.length > WEB_SEARCH_CHAR_LIMIT
+  const remainingChars = WEB_SEARCH_CHAR_LIMIT - currentMessage.length
+  const isNearLimit = remainingChars <= 50 && remainingChars > 0
+  const isOverLimit = remainingChars < 0
+
   // Initialize user address in store
   useEffect(() => {
     if (userAddress) {
@@ -92,17 +101,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }, [userAddress, setUserAddress])
 
-  // The store automatically handles chat switching, no need for custom events
 
-  // Removed auto-scroll functionality to allow free scrolling during loading
-
-  // Removed scroll position checking to allow free scrolling
-
-  // Removed auto-scroll on new messages to allow free scrolling
-
-  // Removed auto-scroll during loading to allow free scrolling
-
-  // Removed scroll event listeners to allow free scrolling during loading
 
   // Rotate placeholder texts while loading
   useEffect(() => {
@@ -157,10 +156,19 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
     // Removed forced auto-scroll to allow user control
 
+    // Truncate message if it exceeds character limit for web search
+    let messageToProcess = currentMessage.trim()
+    let truncatedWarning = ''
+    
+    if (isWebSearchEnabled && messageToProcess.length > WEB_SEARCH_CHAR_LIMIT) {
+      truncatedWarning = `\n\n⚠️ Message truncated to ${WEB_SEARCH_CHAR_LIMIT} characters for web search.`
+      messageToProcess = messageToProcess.substring(0, WEB_SEARCH_CHAR_LIMIT)
+    }
+
     // Prepare the message with search marker if enabled
     const formattedMessage = isWebSearchEnabled
-      ? `${SEARCH_MARKER} ${currentMessage.trim()}`
-      : currentMessage.trim()
+      ? `${SEARCH_MARKER} ${messageToProcess}`
+      : messageToProcess
 
     // Create user message without search marker for display
     const displayMessage = formattedMessage.startsWith(SEARCH_MARKER)
@@ -484,9 +492,26 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               <div className="w-8 h-8 bg-neural-secondary/20 rounded-full flex items-center justify-center glow-secondary">
                 <Search className="w-4 h-4 text-neural-secondary" />
               </div>
-              <span className="text-sm font-medium text-neural-secondary font-tech">
-                Web search enabled - Your queries will include web results
-              </span>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-medium text-neural-secondary font-tech">
+                  Web search enabled - Your queries will include web results
+                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-neural-secondary/80 font-tech">
+                    Character limit: {currentMessage.length}/{WEB_SEARCH_CHAR_LIMIT}
+                  </span>
+                  {isNearLimit && (
+                    <span className="text-xs text-amber-500 font-tech animate-pulse">
+                      ⚠️ Near limit
+                    </span>
+                  )}
+                  {isOverLimit && (
+                    <span className="text-xs text-red-500 font-tech animate-pulse">
+                      ❌ Over limit - Message will be truncated
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -539,9 +564,23 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   "bg-background/50 backdrop-blur-sm glass w-full",
                   "focus:border-neural-primary/50 focus:shadow-glow-primary/20 focus:glow-primary",
                   "placeholder:text-muted-foreground/70",
-                  "focus:h-10 sm:focus:h-12"
+                  "focus:h-10 sm:focus:h-12",
+                  isOverLimit && "border-red-500/50 shadow-glow-accent/20",
+                  isNearLimit && "border-amber-500/50 shadow-glow-secondary/20"
                 )}
               />
+              {/* Character counter overlay */}
+              {isWebSearchEnabled && (
+                <div className="absolute -bottom-6 right-0 text-xs text-muted-foreground font-tech">
+                  <span className={cn(
+                    remainingChars <= 0 ? "text-red-500" : 
+                    remainingChars <= 50 ? "text-amber-500" : 
+                    "text-muted-foreground"
+                  )}>
+                    {remainingChars <= 0 ? `${Math.abs(remainingChars)} over` : `${remainingChars} left`}
+                  </span>
+                </div>
+              )}
             </div>
 
             {isLoading ? (
@@ -569,7 +608,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                 <TooltipTrigger asChild>
                   <Button
                     onClick={handleSendMessage}
-                    disabled={!currentMessage.trim()}
+                    disabled={!currentMessage.trim() || (isWebSearchEnabled && isOverLimit)}
                     size="sm"
                     className={cn(
                       "relative overflow-hidden group w-10 h-10 sm:w-12 sm:h-12 p-0 flex-shrink-0 font-tech",

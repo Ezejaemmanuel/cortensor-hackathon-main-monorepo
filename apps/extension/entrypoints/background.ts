@@ -44,6 +44,44 @@ export default defineBackground(() => {
 
 
 
+  // Handle tab changes to clear selected text
+  browser.tabs.onActivated.addListener(async (activeInfo) => {
+    try {
+      // Clear current selection when tab changes
+      if (currentSelection) {
+        console.log('[Background] Tab changed, clearing selected text');
+        currentSelection = null;
+        
+        // Notify sidepanel to clear the preview
+        await browser.runtime.sendMessage({
+          type: 'TEXT_SELECTION_UPDATE',
+          data: null
+        });
+      }
+    } catch (error) {
+      console.log('[Background] Failed to handle tab change:', error);
+    }
+  });
+
+  // Handle tab updates (URL changes within same tab)
+  browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
+    try {
+      // Clear selection when URL changes (navigation within tab)
+      if (changeInfo.url && currentSelection) {
+        console.log('[Background] Page navigation detected, clearing selected text');
+        currentSelection = null;
+        
+        // Notify sidepanel to clear the preview
+        await browser.runtime.sendMessage({
+          type: 'TEXT_SELECTION_UPDATE',
+          data: null
+        });
+      }
+    } catch (error) {
+      console.log('[Background] Failed to handle tab update:', error);
+    }
+  });
+
   // Handle extension icon click to open sidepanel
   browser.action.onClicked.addListener(async (tab) => {
     try {

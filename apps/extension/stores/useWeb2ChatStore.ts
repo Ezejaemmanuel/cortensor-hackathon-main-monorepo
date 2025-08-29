@@ -9,6 +9,11 @@ export interface ChatMessage {
   content: string
   sender: 'user' | 'ai'
   timestamp: Date
+  selectedText?: {
+    text: string
+    url: string
+    timestamp: number
+  }
 }
 
 export interface ChatHistoryItem {
@@ -239,6 +244,11 @@ export const useWeb2ChatStore = create<Web2ChatStore>()(
                 content: string
                 sender: 'user' | 'ai'
                 timestamp: string
+                selectedText?: {
+                  text: string
+                  url: string
+                  timestamp: number
+                }
               }>
               const messages = parsed.map((msg) => ({
                 ...msg,

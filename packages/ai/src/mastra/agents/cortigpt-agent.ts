@@ -41,15 +41,15 @@ function createCortiGPTAgent(): Agent {
 
         // Use Cortensor as the language model with custom configuration and web search
         model: cortensorModel({
-            sessionId: 72,
-            maxTokens: 100000,
+            sessionId: 75,
+            maxTokens: 4096,
             temperature: 0.4,
             webSearch: {
                 mode: 'prompt', // Search triggered by [search] markers in user messages
                 provider: createTavilySearch({
                     apiKey: process.env.TAVILY_API_KEY,
                 }),
-                maxResults: 3
+                maxResults: 2
             }
         }),
 

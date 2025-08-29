@@ -15,7 +15,7 @@ export interface TextSelectedMessage {
 
 export interface TextSelectionUpdateMessage {
   type: 'TEXT_SELECTION_UPDATE';
-  data: TextSelectionData;
+  data: TextSelectionData | null;
 }
 
 export interface GetSelectedTextMessage {

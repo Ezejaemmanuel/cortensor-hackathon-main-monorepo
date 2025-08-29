@@ -82,6 +82,15 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
   const placeholderIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
+  // Character limit for web search messages
+  const WEB_SEARCH_CHAR_LIMIT = 390
+
+  // Check if message exceeds character limit
+  const isMessageTooLong = isWebSearchEnabled && currentMessage.length > WEB_SEARCH_CHAR_LIMIT
+  const remainingChars = WEB_SEARCH_CHAR_LIMIT - currentMessage.length
+  const isNearLimit = remainingChars <= 50 && remainingChars > 0
+  const isOverLimit = remainingChars < 0
+
   // Use Web2 Zustand store
   const {
     currentMessages: messages,
@@ -157,11 +166,17 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
 
     // Listen for messages from background script
-    browser.runtime.onMessage.addListener(handleMessage);
+    if (typeof browser !== 'undefined' && browser?.runtime?.onMessage) {
+      browser.runtime.onMessage.addListener(handleMessage);
+    } else if (typeof chrome !== 'undefined' && chrome?.runtime?.onMessage) {
+      chrome.runtime.onMessage.addListener(handleMessage);
+    }
 
     // Request any existing selected text when component mounts
     const getSelectedTextMessage: GetSelectedTextMessage = { type: 'GET_SELECTED_TEXT' };
-    browser.runtime.sendMessage(getSelectedTextMessage)
+    const runtimeAPI = typeof browser !== 'undefined' ? browser : chrome;
+    if (runtimeAPI?.runtime?.sendMessage) {
+      runtimeAPI.runtime.sendMessage(getSelectedTextMessage)
       .then((response: MessageResponse) => {
         if (response.success && response.data && 'text' in response.data) {
           const textData = response.data as TextSelectionData;
@@ -179,9 +194,14 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
         // Background script might not be ready yet
         console.log('Could not get selected text on mount');
       });
+    }
 
     return () => {
-      browser.runtime.onMessage.removeListener(handleMessage);
+      if (typeof browser !== 'undefined' && browser?.runtime?.onMessage) {
+        browser.runtime.onMessage.removeListener(handleMessage);
+      } else if (typeof chrome !== 'undefined' && chrome?.runtime?.onMessage) {
+        chrome.runtime.onMessage.removeListener(handleMessage);
+      }
     };
   }, []);
 
@@ -193,7 +213,10 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
   const clearSelectedText = () => {
     setSelectedTextPreview(null)
     const clearMessage: ClearSelectedTextMessage = { type: 'CLEAR_SELECTED_TEXT' }
-    browser.runtime.sendMessage(clearMessage)
+    const runtimeAPI = typeof browser !== 'undefined' ? browser : chrome;
+    if (runtimeAPI?.runtime?.sendMessage) {
+      runtimeAPI.runtime.sendMessage(clearMessage)
+    }
   }
 
   const handleCancelRequest = () => {
@@ -212,8 +235,17 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
     let messageContent = currentMessage.trim()
 
-    // If there's selected text, include it in the message
+    // Truncate message if it exceeds character limit for web search
+    let truncatedWarning = ''
+    if (isWebSearchEnabled && messageContent.length > WEB_SEARCH_CHAR_LIMIT) {
+      truncatedWarning = `\n\n⚠️ Message truncated to ${WEB_SEARCH_CHAR_LIMIT} characters for web search.`
+      messageContent = messageContent.substring(0, WEB_SEARCH_CHAR_LIMIT)
+    }
+
+    // Store the selected text for display above the message
+    let selectedTextForDisplay: SelectedTextPreview | null = null
     if (selectedTextPreview) {
+      selectedTextForDisplay = { ...selectedTextPreview }
       const contextMessage = `Context from ${new URL(selectedTextPreview.url).hostname}:\n\n"${selectedTextPreview.originalText}"\n\nUser question: ${messageContent || 'Please analyze this text.'}`
       messageContent = contextMessage
     }
@@ -240,7 +272,12 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
       id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       content: displayMessage,
       sender: 'user',
-      timestamp: new Date()
+      timestamp: new Date(),
+      selectedText: selectedTextForDisplay ? {
+        text: selectedTextForDisplay.originalText,
+        url: selectedTextForDisplay.url,
+        timestamp: selectedTextForDisplay.timestamp
+      } : undefined
     }
 
     // Add message to store
@@ -254,7 +291,10 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
 
     // Clear selected text from background
     const clearMessage: ClearSelectedTextMessage = { type: 'CLEAR_SELECTED_TEXT' }
-    browser.runtime.sendMessage(clearMessage)
+    const runtimeAPI = typeof browser !== 'undefined' ? browser : chrome;
+    if (runtimeAPI?.runtime?.sendMessage) {
+      runtimeAPI.runtime.sendMessage(clearMessage)
+    }
 
     // Create new AbortController for this request
     const controller = new AbortController()
@@ -343,7 +383,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
     }
   }
 
-  const canSend = (currentMessage.trim() || selectedTextPreview) && !isLoading
+  const canSend = (currentMessage.trim() || selectedTextPreview) && !isLoading && !(isWebSearchEnabled && isOverLimit)
 
   return (
     <TooltipProvider>
@@ -458,6 +498,23 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                         "max-w-[85%]",
                         message.sender === 'user' ? 'order-first' : ''
                       )}>
+                        {/* Selected text preview for user messages */}
+                        {message.sender === 'user' && message.selectedText && (
+                          <div className="mb-2 p-2 rounded-lg bg-accent/10 border border-accent/20 backdrop-blur-sm">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="text-accent text-xs">📄</span>
+                              <span className="text-xs text-muted-foreground">
+                                Context from {new URL(message.selectedText.url).hostname}
+                              </span>
+                            </div>
+                            <p className="text-xs text-foreground/80 italic leading-relaxed break-words">
+                              "{message.selectedText.text.length > 150 
+                                ? message.selectedText.text.substring(0, 150) + '...' 
+                                : message.selectedText.text}"
+                            </p>
+                          </div>
+                        )}
+
                         <div className={cn(
                           "rounded-2xl px-4 py-3 relative overflow-hidden",
                           "backdrop-blur-sm border transition-all duration-300",
@@ -549,9 +606,26 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               <div className="w-5 sm:w-6 h-5 sm:h-6 bg-secondary/20 rounded-full flex items-center justify-center">
                 <Search className="w-2.5 sm:w-3 h-2.5 sm:h-3 text-secondary" />
               </div>
-              <span className="text-xs font-medium text-secondary">
-                Web search enabled
-              </span>
+              <div className="flex-1 min-w-0">
+                <span className="text-xs font-medium text-secondary">
+                  Web search enabled
+                </span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs text-secondary/80">
+                    {currentMessage.length}/{WEB_SEARCH_CHAR_LIMIT}
+                  </span>
+                  {isNearLimit && (
+                    <span className="text-xs text-amber-500 animate-pulse">
+                      ⚠️
+                    </span>
+                  )}
+                  {isOverLimit && (
+                    <span className="text-xs text-red-500 animate-pulse">
+                      ❌
+                    </span>
+                  )}
+                </div>
+              </div>
             </div>
           )}
 
@@ -626,7 +700,7 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
               </TooltipContent>
             </Tooltip>
 
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 relative">
               <Input
                 placeholder={selectedTextPreview
                   ? "Ask about the selected text..."
@@ -639,9 +713,23 @@ export function ChatInterface({ className, userAddress }: ChatInterfaceProps) {
                   "bg-background/50 backdrop-blur-sm resize-none",
                   "focus:border-primary/50 focus:shadow-glow-primary/20",
                   "placeholder:text-muted-foreground/70",
-                  "focus:h-10 sm:focus:h-12"
+                  "focus:h-10 sm:focus:h-12",
+                  isOverLimit && "border-red-500/50",
+                  isNearLimit && "border-amber-500/50"
                 )}
               />
+              {/* Character counter overlay */}
+              {isWebSearchEnabled && (
+                <div className="absolute -bottom-5 right-0 text-xs text-muted-foreground">
+                  <span className={cn(
+                    remainingChars <= 0 ? "text-red-500" : 
+                    remainingChars <= 50 ? "text-amber-500" : 
+                    "text-muted-foreground"
+                  )}>
+                    {remainingChars <= 0 ? `${Math.abs(remainingChars)} over` : `${remainingChars} left`}
+                  </span>
+                </div>
+              )}
             </div>
 
             <Tooltip>

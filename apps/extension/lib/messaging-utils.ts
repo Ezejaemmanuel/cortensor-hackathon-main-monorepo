@@ -3,11 +3,16 @@
  * Simple, focused functions for sending messages between extension components
  */
 
-import type { 
-  ExtensionMessage, 
-  TextSelectedMessage, 
-  MessageResponse 
+import type {
+  ExtensionMessage,
+  TextSelectedMessage,
+  MessageResponse
 } from '../types/messaging';
+
+// Declare chrome types for compatibility
+declare global {
+  const chrome: typeof browser;
+}
 
 export interface SendOptions {
   timeout?: number;
@@ -33,7 +38,7 @@ let messageStats: MessageStats = {
  * Simple wrapper for the most common messaging use case
  */
 export async function sendTextSelection(
-  text: string, 
+  text: string,
   url: string = window.location.href,
   options: SendOptions = {}
 ): Promise<MessageResponse> {
@@ -53,7 +58,7 @@ export async function sendTextSelection(
  * Core messaging function with minimal complexity
  */
 export async function sendMessage(
-  message: ExtensionMessage, 
+  message: ExtensionMessage,
   options: SendOptions = {}
 ): Promise<MessageResponse> {
   const defaultOptions: SendOptions = {
@@ -68,20 +73,20 @@ export async function sendMessage(
   for (let attempt = 1; attempt <= (defaultOptions.retries || 3); attempt++) {
     try {
       const response = await sendSingleMessage(message, defaultOptions.timeout || 5000);
-      
+
       messageStats.sent++;
       messageStats.lastActivity = Date.now();
-      
+
       if (attempt > 1) {
         console.log(`[Messaging] Success on attempt ${attempt}`);
       }
-      
+
       return response;
 
     } catch (error) {
       lastError = error as Error;
       messageStats.failed++;
-      
+
       if (attempt < (defaultOptions.retries || 3)) {
         console.warn(`[Messaging] Attempt ${attempt} failed, retrying...`);
         await delay(defaultOptions.retryDelay || 1000);
@@ -98,7 +103,7 @@ export async function sendMessage(
  * Low-level messaging function
  */
 export async function sendSingleMessage(
-  message: ExtensionMessage, 
+  message: ExtensionMessage,
   timeout: number = 5000
 ): Promise<MessageResponse> {
   return new Promise((resolve, reject) => {
@@ -107,8 +112,22 @@ export async function sendSingleMessage(
     }, timeout);
 
     try {
-      if (typeof globalThis !== 'undefined' && (globalThis as any).browser?.runtime?.sendMessage) {
-        (globalThis as any).browser.runtime.sendMessage(message)
+      if (typeof browser !== 'undefined' && browser?.runtime?.sendMessage) {
+        browser.runtime.sendMessage(message)
+          .then((response: MessageResponse) => {
+            clearTimeout(timeoutId);
+            if (response && response.success) {
+              resolve(response);
+            } else {
+              reject(new Error('Message response indicates failure'));
+            }
+          })
+          .catch((error: any) => {
+            clearTimeout(timeoutId);
+            reject(error);
+          });
+      } else if (typeof chrome !== 'undefined' && chrome?.runtime?.sendMessage) {
+        chrome.runtime.sendMessage(message)
           .then((response: MessageResponse) => {
             clearTimeout(timeoutId);
             if (response && response.success) {
@@ -167,8 +186,15 @@ export function setupMessageListener(
   handler: (message: any, sender: any, sendResponse: (response: any) => void) => void
 ): void {
   try {
-    if (typeof globalThis !== 'undefined' && (globalThis as any).browser?.runtime?.onMessage) {
-      (globalThis as any).browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: any) => {
+    if (typeof browser !== 'undefined' && browser?.runtime?.onMessage) {
+      browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: any) => {
+        messageStats.lastActivity = Date.now();
+        handler(message, sender, sendResponse);
+        return true; // Keep message channel open for async responses
+      });
+      console.log('[Messaging] Listener setup complete');
+    } else if (typeof chrome !== 'undefined' && chrome?.runtime?.onMessage) {
+      chrome.runtime.onMessage.addListener((message: any, sender: any, sendResponse: any) => {
         messageStats.lastActivity = Date.now();
         handler(message, sender, sendResponse);
         return true; // Keep message channel open for async responses

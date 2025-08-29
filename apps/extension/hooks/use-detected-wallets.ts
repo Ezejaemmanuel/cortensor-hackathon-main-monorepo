@@ -23,11 +23,11 @@ export function useDetectedWallets() {
       try {
         setIsLoading(true);
         setError(null);
-        
+
         const response = await browser.runtime.sendMessage({
           type: 'GET_DETECTED_WALLETS'
         });
-        
+
         if (response && response.wallets) {
           setWallets(response.wallets);
         }
@@ -65,11 +65,11 @@ export function useDetectedWallets() {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await browser.runtime.sendMessage({
         type: 'GET_DETECTED_WALLETS'
       });
-      
+
       if (response && response.wallets) {
         setWallets(response.wallets);
       }
