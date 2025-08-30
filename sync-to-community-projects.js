@@ -45,12 +45,14 @@ try {
 const CONFIG = {
     workingDirectory: "C:\\Users\\HP\\development\\web-development\\javascript-node\\hackathon-dev\\cortensor-hackathon\\cortensor-community-sync",
     sourceRepo: "https://github.com/Ezejaemmanuel/cortigpt-monorepo.git",
+    providerRepo: "https://github.com/Ezejaemmanuel/cortensor-openai-provider.git", // New: Provider repository
     communityRepo: "https://github.com/cortensor/community-projects.git",
     originalOwner: "cortensor",
     originalRepo: "community-projects",
     githubUsername: "ezejaemmanuel", // Your GitHub username
     devBranch: "dev-jatique",
     projectName: "cortigpt-monorepo",
+    providerName: "cortensor-openai-provider", // New: Provider project name
     dryRun: process.argv.includes('--dry-run'),
     verbose: process.argv.includes('--verbose'),
     githubToken: process.env.GITHUB_TOKEN, // GitHub token from environment
@@ -71,7 +73,7 @@ const styles = {
 
 // 📊 Progress tracking
 let currentStep = 0;
-const totalSteps = 12; // Updated to include forking and branch creation steps
+const totalSteps = 15; // Updated to include provider syncing steps
 let spinner;
 
 /**
@@ -303,7 +305,9 @@ class CortensorSync {
     constructor() {
         this.communityPath = path.join(CONFIG.workingDirectory, 'community-projects');
         this.tempPath = path.join(CONFIG.workingDirectory, `temp-${CONFIG.projectName}`);
+        this.tempProviderPath = path.join(CONFIG.workingDirectory, `temp-${CONFIG.providerName}`); // New: Provider temp path
         this.projectPath = path.join(this.communityPath, 'apps', CONFIG.projectName);
+        this.providerPath = path.join(this.communityPath, 'tools', CONFIG.providerName); // New: Provider target path
         this.forkedRepoUrl = `https://github.com/${CONFIG.githubUsername}/${CONFIG.originalRepo}.git`;
     }
 
@@ -349,10 +353,12 @@ class CortensorSync {
         const configBox = boxen(
             `${styles.info('📁 Working Directory:')} ${styles.dim(CONFIG.workingDirectory)}\n` +
             `${styles.info('📦 Source Repository:')} ${styles.dim(CONFIG.sourceRepo)}\n` +
+            `${styles.info('🔧 Provider Repository:')} ${styles.dim(CONFIG.providerRepo)}\n` +
             `${styles.info('🏠 Community Repository:')} ${styles.dim(CONFIG.communityRepo)}\n` +
             `${styles.info('👤 GitHub Username:')} ${styles.dim(CONFIG.githubUsername)}\n` +
             `${styles.info('🌿 Dev Branch:')} ${styles.dim(CONFIG.devBranch)}\n` +
             `${styles.info('🎯 Project Name:')} ${styles.dim(CONFIG.projectName)}\n` +
+            `${styles.info('🛠️ Provider Name:')} ${styles.dim(CONFIG.providerName)}\n` +
             `${styles.info('🔍 Dry Run:')} ${CONFIG.dryRun ? styles.warning('Yes') : styles.success('No')}\n` +
             `${styles.info('📝 Verbose:')} ${CONFIG.verbose ? styles.success('Yes') : styles.dim('No')}`,
             {
@@ -527,6 +533,26 @@ class CortensorSync {
         logger.success('Cloned source repository to temporary directory');
     }
 
+    async cloneProviderRepository() {
+        logger.step('Cloning provider repository');
+        
+        if (fs.existsSync(this.tempProviderPath)) {
+            logger.startSpinner('Removing existing provider temporary directory...');
+            if (!CONFIG.dryRun) {
+                await fs.remove(this.tempProviderPath);
+            }
+            logger.updateSpinner('Provider temporary directory removed');
+        }
+
+        logger.startSpinner('Cloning cortensor-openai-provider repository...');
+        
+        if (!CONFIG.dryRun) {
+            await SystemUtils.execCommand(`git clone ${CONFIG.providerRepo} ${this.tempProviderPath}`);
+        }
+        
+        logger.success('Cloned provider repository to temporary directory');
+    }
+
     async prepareProjectDirectory() {
         logger.step('Preparing project directory');
         logger.startSpinner('Setting up project directory...');
@@ -543,6 +569,24 @@ class CortensorSync {
         }
 
         logger.success('Project directory prepared');
+    }
+
+    async prepareProviderDirectory() {
+        logger.step('Preparing provider directory');
+        logger.startSpinner('Setting up provider directory...');
+
+        if (fs.existsSync(this.providerPath)) {
+            logger.updateSpinner('Removing existing provider directory...');
+            if (!CONFIG.dryRun) {
+                await fs.remove(this.providerPath);
+            }
+        }
+
+        if (!CONFIG.dryRun) {
+            await fs.ensureDir(this.providerPath);
+        }
+
+        logger.success('Provider directory prepared');
     }
 
     async copyProjectFiles() {
@@ -566,6 +610,29 @@ class CortensorSync {
         }
 
         logger.success('Copied all project files (excluding .git)');
+    }
+
+    async copyProviderFiles() {
+        logger.step('Copying provider files');
+        logger.startSpinner('Copying all provider files (excluding .git)...');
+
+        if (!CONFIG.dryRun) {
+            const items = await fs.readdir(this.tempProviderPath);
+            let copiedItems = 0;
+            
+            for (const item of items) {
+                if (item === '.git') continue;
+                
+                const sourcePath = path.join(this.tempProviderPath, item);
+                const destPath = path.join(this.providerPath, item);
+                
+                logger.updateSpinner(`Copying ${item}... (${++copiedItems}/${items.length - 1})`);
+                await fs.copy(sourcePath, destPath);
+                await SystemUtils.delay(100); // Small delay for visual feedback
+            }
+        }
+
+        logger.success('Copied all provider files (excluding .git)');
     }
 
     async createCommunityReadme() {
@@ -712,11 +779,19 @@ MIT License - see [LICENSE](./LICENSE) for details.
         logger.step('Cleaning up temporary files');
         logger.startSpinner('Removing temporary files...');
 
-        if (!CONFIG.dryRun && fs.existsSync(this.tempPath)) {
-            await fs.remove(this.tempPath);
+        if (!CONFIG.dryRun) {
+            if (fs.existsSync(this.tempPath)) {
+                await fs.remove(this.tempPath);
+                logger.updateSpinner('Removed project temporary directory...');
+            }
+            
+            if (fs.existsSync(this.tempProviderPath)) {
+                await fs.remove(this.tempProviderPath);
+                logger.updateSpinner('Removed provider temporary directory...');
+            }
         }
 
-        logger.success('Cleaned up temporary directory');
+        logger.success('Cleaned up all temporary directories');
     }
 
     async handleGitOperations() {
@@ -735,12 +810,18 @@ MIT License - see [LICENSE](./LICENSE) for details.
                 if (stdout.trim()) {
                     logger.updateSpinner('Adding changes to git...');
                     await SystemUtils.execCommand(`git add apps/${CONFIG.projectName}`);
+                    await SystemUtils.execCommand(`git add tools/${CONFIG.providerName}`);
                     
-                    const commitMessage = `Add/Update ${CONFIG.projectName} - Cortensor AI Platform
+                    const commitMessage = `Add/Update ${CONFIG.projectName} & ${CONFIG.providerName} - Cortensor AI Platform
 
-Synced from: ${CONFIG.sourceRepo}
+Synced from: 
+- ${CONFIG.sourceRepo}
+- ${CONFIG.providerRepo}
+
 Sync date: ${new Date().toISOString().slice(0, 19).replace('T', ' ')}
-Includes: Web app, Browser extension, API server, AI package
+Includes: 
+- Apps: Web app, Browser extension, API server, AI package
+- Tools: Cortensor OpenAI Provider
 Sync tool: Node.js v${process.version}
 Branch: ${CONFIG.devBranch}`;
 
@@ -769,6 +850,7 @@ Branch: ${CONFIG.devBranch}`;
             `  • Repository forked: ${styles.dim(`https://github.com/${CONFIG.githubUsername}/${CONFIG.originalRepo}`)}\n` +
             `  • Dev branch created/updated: ${styles.dim(CONFIG.devBranch)}\n` +
             `  • Project synced to: ${styles.dim(this.projectPath)}\n` +
+            `  • Provider synced to: ${styles.dim(this.providerPath)}\n` +
             `  • Community README created: ${styles.dim(path.join(this.projectPath, 'COMMUNITY_README.md'))}\n` +
             `  • Sync metadata created: ${styles.dim(path.join(this.projectPath, '.sync-metadata.json'))}\n` +
             `  • Git changes committed (ready to push)\n\n` +
@@ -807,8 +889,11 @@ Branch: ${CONFIG.devBranch}`;
             await this.handleDevBranch();
             await this.handleCommunityRepository();
             await this.cloneSourceRepository();
+            await this.cloneProviderRepository();
             await this.prepareProjectDirectory();
+            await this.prepareProviderDirectory();
             await this.copyProjectFiles();
+            await this.copyProviderFiles();
             await this.createCommunityReadme();
             await this.createSyncMetadata();
             await this.cleanupTemporaryFiles();
@@ -873,8 +958,9 @@ ${styles.bold('Examples:')}
 ${styles.bold('What this script does:')}
   1. Forks cortensor/community-projects to your GitHub account
   2. Creates a dev-jatique branch for development
-  3. Clones your fork and syncs your monorepo to it
-  4. Commits changes and prepares for pull request submission
+  3. Clones your fork and syncs your monorepo to apps/ directory
+  4. Syncs cortensor-openai-provider to tools/ directory
+  5. Commits changes and prepares for pull request submission
 `);
         process.exit(0);
     }
