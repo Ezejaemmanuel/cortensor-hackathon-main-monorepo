@@ -18,15 +18,42 @@ const ora = require('ora');
 const boxen = require('boxen');
 const gradient = require('gradient-string');
 const figlet = require('figlet');
+const https = require('https');
+
+// Load environment variables from .env file
+try {
+    require('dotenv').config();
+} catch (error) {
+    // dotenv not installed, will try to read manually
+    try {
+        const envPath = path.join(__dirname, '.env');
+        if (fs.existsSync(envPath)) {
+            const envContent = fs.readFileSync(envPath, 'utf8');
+            envContent.split('\n').forEach(line => {
+                const [key, value] = line.split('=');
+                if (key && value) {
+                    process.env[key.trim()] = value.trim().replace(/['"]/g, '');
+                }
+            });
+        }
+    } catch (envError) {
+        // Fallback: environment variables must be set manually
+    }
+}
 
 // 🎨 Configuration and Constants
 const CONFIG = {
     workingDirectory: "C:\\Users\\HP\\development\\web-development\\javascript-node\\hackathon-dev\\cortensor-hackathon\\cortensor-community-sync",
     sourceRepo: "https://github.com/Ezejaemmanuel/cortigpt-monorepo.git",
     communityRepo: "https://github.com/cortensor/community-projects.git",
+    originalOwner: "cortensor",
+    originalRepo: "community-projects",
+    githubUsername: "ezejaemmanuel", // Your GitHub username
+    devBranch: "dev-jatique",
     projectName: "cortigpt-monorepo",
     dryRun: process.argv.includes('--dry-run'),
     verbose: process.argv.includes('--verbose'),
+    githubToken: process.env.GITHUB_TOKEN, // GitHub token from environment
     logFile: null // Will be set during initialization
 };
 
@@ -44,7 +71,7 @@ const styles = {
 
 // 📊 Progress tracking
 let currentStep = 0;
-const totalSteps = 10;
+const totalSteps = 12; // Updated to include forking and branch creation steps
 let spinner;
 
 /**
@@ -132,6 +159,97 @@ class Logger {
 }
 
 /**
+ * 🐙 GitHub API integration for forking and branch management
+ */
+class GitHubAPI {
+    static async makeRequest(method, endpoint, data = null) {
+        return new Promise((resolve, reject) => {
+            const options = {
+                hostname: 'api.github.com',
+                path: endpoint,
+                method: method,
+                headers: {
+                    'Authorization': `token ${CONFIG.githubToken}`,
+                    'User-Agent': 'CortiGPT-Sync-Tool',
+                    'Accept': 'application/vnd.github.v3+json',
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const req = https.request(options, (res) => {
+                let responseData = '';
+                res.on('data', (chunk) => {
+                    responseData += chunk;
+                });
+
+                res.on('end', () => {
+                    try {
+                        const parsedData = responseData ? JSON.parse(responseData) : {};
+                        if (res.statusCode >= 200 && res.statusCode < 300) {
+                            resolve(parsedData);
+                        } else {
+                            reject(new Error(`GitHub API error: ${res.statusCode} - ${parsedData.message || responseData}`));
+                        }
+                    } catch (error) {
+                        reject(new Error(`Failed to parse GitHub API response: ${error.message}`));
+                    }
+                });
+            });
+
+            req.on('error', (error) => {
+                reject(new Error(`GitHub API request failed: ${error.message}`));
+            });
+
+            if (data) {
+                req.write(JSON.stringify(data));
+            }
+
+            req.end();
+        });
+    }
+
+    static async checkIfForked() {
+        try {
+            await this.makeRequest('GET', `/repos/${CONFIG.githubUsername}/${CONFIG.originalRepo}`);
+            return true;
+        } catch (error) {
+            if (error.message.includes('404')) {
+                return false;
+            }
+            throw error;
+        }
+    }
+
+    static async forkRepository() {
+        return await this.makeRequest('POST', `/repos/${CONFIG.originalOwner}/${CONFIG.originalRepo}/forks`);
+    }
+
+    static async checkBranchExists(branch) {
+        try {
+            await this.makeRequest('GET', `/repos/${CONFIG.githubUsername}/${CONFIG.originalRepo}/branches/${branch}`);
+            return true;
+        } catch (error) {
+            if (error.message.includes('404')) {
+                return false;
+            }
+            throw error;
+        }
+    }
+
+    static async getMainBranchSha() {
+        const response = await this.makeRequest('GET', `/repos/${CONFIG.githubUsername}/${CONFIG.originalRepo}/git/refs/heads/main`);
+        return response.object.sha;
+    }
+
+    static async createBranch(branchName, sha) {
+        return await this.makeRequest('POST', `/repos/${CONFIG.githubUsername}/${CONFIG.originalRepo}/git/refs`, {
+            ref: `refs/heads/${branchName}`,
+            sha: sha
+        });
+    }
+}
+
+/**
  * 🛠️ Utility functions for system operations
  */
 class SystemUtils {
@@ -186,6 +304,7 @@ class CortensorSync {
         this.communityPath = path.join(CONFIG.workingDirectory, 'community-projects');
         this.tempPath = path.join(CONFIG.workingDirectory, `temp-${CONFIG.projectName}`);
         this.projectPath = path.join(this.communityPath, 'apps', CONFIG.projectName);
+        this.forkedRepoUrl = `https://github.com/${CONFIG.githubUsername}/${CONFIG.originalRepo}.git`;
     }
 
     async initialize() {
@@ -231,6 +350,8 @@ class CortensorSync {
             `${styles.info('📁 Working Directory:')} ${styles.dim(CONFIG.workingDirectory)}\n` +
             `${styles.info('📦 Source Repository:')} ${styles.dim(CONFIG.sourceRepo)}\n` +
             `${styles.info('🏠 Community Repository:')} ${styles.dim(CONFIG.communityRepo)}\n` +
+            `${styles.info('👤 GitHub Username:')} ${styles.dim(CONFIG.githubUsername)}\n` +
+            `${styles.info('🌿 Dev Branch:')} ${styles.dim(CONFIG.devBranch)}\n` +
             `${styles.info('🎯 Project Name:')} ${styles.dim(CONFIG.projectName)}\n` +
             `${styles.info('🔍 Dry Run:')} ${CONFIG.dryRun ? styles.warning('Yes') : styles.success('No')}\n` +
             `${styles.info('📝 Verbose:')} ${CONFIG.verbose ? styles.success('Yes') : styles.dim('No')}`,
@@ -265,6 +386,13 @@ class CortensorSync {
             logger.updateSpinner(`Node.js ${nodeVersion} found ✓`);
             await SystemUtils.delay(500);
 
+            // Check GitHub token
+            if (!CONFIG.githubToken) {
+                throw new Error('GITHUB_TOKEN environment variable is required for forking and branch operations');
+            }
+            logger.updateSpinner('GitHub token found ✓');
+            await SystemUtils.delay(500);
+
             logger.success('All prerequisites satisfied');
         } catch (error) {
             logger.error(`Prerequisites check failed: ${error.message}`);
@@ -295,6 +423,53 @@ class CortensorSync {
         }
     }
 
+    async handleRepositoryForking() {
+        logger.step('Handling repository forking');
+        logger.startSpinner('Checking if repository is already forked...');
+
+        try {
+            const isForked = await GitHubAPI.checkIfForked();
+            
+            if (!isForked) {
+                logger.updateSpinner('Forking repository...');
+                if (!CONFIG.dryRun) {
+                    await GitHubAPI.forkRepository();
+                    // Wait a moment for fork to be ready
+                    await SystemUtils.delay(3000);
+                }
+                logger.success('Repository forked successfully');
+            } else {
+                logger.success('Repository already forked');
+            }
+        } catch (error) {
+            logger.error(`Failed to handle repository forking: ${error.message}`);
+            throw error;
+        }
+    }
+
+    async handleDevBranch() {
+        logger.step('Managing dev branch');
+        logger.startSpinner('Checking if dev branch exists...');
+
+        try {
+            const branchExists = await GitHubAPI.checkBranchExists(CONFIG.devBranch);
+            
+            if (!branchExists) {
+                logger.updateSpinner('Creating dev branch...');
+                if (!CONFIG.dryRun) {
+                    const mainSha = await GitHubAPI.getMainBranchSha();
+                    await GitHubAPI.createBranch(CONFIG.devBranch, mainSha);
+                }
+                logger.success(`Created dev branch: ${CONFIG.devBranch}`);
+            } else {
+                logger.success(`Dev branch already exists: ${CONFIG.devBranch}`);
+            }
+        } catch (error) {
+            logger.error(`Failed to handle dev branch: ${error.message}`);
+            throw error;
+        }
+    }
+
     async handleCommunityRepository() {
         logger.step('Managing community-projects repository');
         
@@ -304,23 +479,31 @@ class CortensorSync {
             if (!CONFIG.dryRun) {
                 process.chdir(this.communityPath);
                 await SystemUtils.execCommand('git fetch origin');
-                await SystemUtils.execCommand('git reset --hard origin/main');
+                await SystemUtils.execCommand(`git checkout ${CONFIG.devBranch}`);
+                await SystemUtils.execCommand(`git pull origin ${CONFIG.devBranch}`);
             }
             
             logger.success('Updated community-projects repository');
         } else {
-            logger.startSpinner('Cloning community-projects repository (sparse checkout for apps only)...');
+            logger.startSpinner('Cloning forked community-projects repository...');
             
             if (!CONFIG.dryRun) {
-                // Clone with sparse checkout for apps folder only
-                await SystemUtils.execCommand(`git clone --no-checkout ${CONFIG.communityRepo} ${this.communityPath}`);
+                // Clone the forked repository
+                await SystemUtils.execCommand(`git clone ${this.forkedRepoUrl} ${this.communityPath}`);
                 process.chdir(this.communityPath);
+                
+                // Add upstream remote
+                await SystemUtils.execCommand(`git remote add upstream ${CONFIG.communityRepo}`);
+                
+                // Checkout dev branch
+                await SystemUtils.execCommand(`git checkout ${CONFIG.devBranch}`);
+                
+                // Set up sparse checkout for apps only
                 await SystemUtils.execCommand('git sparse-checkout init --cone');
                 await SystemUtils.execCommand('git sparse-checkout set apps');
-                await SystemUtils.execCommand('git checkout main');
             }
             
-            logger.success('Cloned community-projects repository with sparse checkout');
+            logger.success('Cloned forked repository and setup dev branch');
         }
     }
 
@@ -544,6 +727,9 @@ MIT License - see [LICENSE](./LICENSE) for details.
             process.chdir(this.communityPath);
             
             try {
+                // Ensure we're on the dev branch
+                await SystemUtils.execCommand(`git checkout ${CONFIG.devBranch}`);
+                
                 const { stdout } = await SystemUtils.execCommand('git status --porcelain');
                 
                 if (stdout.trim()) {
@@ -555,12 +741,13 @@ MIT License - see [LICENSE](./LICENSE) for details.
 Synced from: ${CONFIG.sourceRepo}
 Sync date: ${new Date().toISOString().slice(0, 19).replace('T', ' ')}
 Includes: Web app, Browser extension, API server, AI package
-Sync tool: Node.js v${process.version}`;
+Sync tool: Node.js v${process.version}
+Branch: ${CONFIG.devBranch}`;
 
                     await SystemUtils.execCommand(`git commit -m "${commitMessage}"`);
                     logger.success('Created git commit with changes');
                     
-                    logger.warning('📤 Ready to push changes. Use "git push origin main" to push to your forked repository.');
+                    logger.warning(`📤 Ready to push changes. Use "git push origin ${CONFIG.devBranch}" to push to your forked repository.`);
                 } else {
                     logger.info('No changes detected in git status');
                 }
@@ -579,15 +766,20 @@ Sync tool: Node.js v${process.version}`;
         const summaryBox = boxen(
             `${styles.success('✅ Sync completed successfully!')}\n\n` +
             `${styles.info('📋 Summary:')}\n` +
+            `  • Repository forked: ${styles.dim(`https://github.com/${CONFIG.githubUsername}/${CONFIG.originalRepo}`)}\n` +
+            `  • Dev branch created/updated: ${styles.dim(CONFIG.devBranch)}\n` +
             `  • Project synced to: ${styles.dim(this.projectPath)}\n` +
             `  • Community README created: ${styles.dim(path.join(this.projectPath, 'COMMUNITY_README.md'))}\n` +
             `  • Sync metadata created: ${styles.dim(path.join(this.projectPath, '.sync-metadata.json'))}\n` +
             `  • Git changes committed (ready to push)\n\n` +
             `${styles.info('🚀 Next Steps:')}\n` +
             `  1. Review the changes in: ${styles.highlight(this.projectPath)}\n` +
-            `  2. Push to your forked repository: ${styles.bold('git push origin main')}\n` +
-            `  3. Create a Pull Request to cortensor/community-projects\n` +
+            `  2. Push to your forked repository: ${styles.bold(`git push origin ${CONFIG.devBranch}`)}\n` +
+            `  3. Create a Pull Request from ${styles.bold(CONFIG.devBranch)} to ${styles.bold('cortensor/community-projects:main')}\n` +
             `  4. Run this script again anytime to re-sync with updates\n\n` +
+            `${styles.info('🔗 GitHub Repository:')}\n` +
+            `  • Your fork: ${styles.dim(`https://github.com/${CONFIG.githubUsername}/${CONFIG.originalRepo}`)}\n` +
+            `  • Original: ${styles.dim(`https://github.com/${CONFIG.originalOwner}/${CONFIG.originalRepo}`)}\n\n` +
             `${styles.info('📁 Working directory:')} ${styles.dim(CONFIG.workingDirectory)}\n` +
             `${styles.info('📝 Log file:')} ${styles.dim(CONFIG.logFile)}`,
             {
@@ -611,6 +803,8 @@ Sync tool: Node.js v${process.version}`;
         try {
             await this.initialize();
             await this.setupWorkingDirectory();
+            await this.handleRepositoryForking();
+            await this.handleDevBranch();
             await this.handleCommunityRepository();
             await this.cloneSourceRepository();
             await this.prepareProjectDirectory();
@@ -655,17 +849,32 @@ if (require.main === module) {
 ${styles.title('CortiGPT Community Sync Tool')}
 
 ${styles.bold('Usage:')}
-  node sync-to-community-projects.js [options]
+  GITHUB_TOKEN=your_token node sync-to-community-projects.js [options]
+
+${styles.bold('Environment Variables:')}
+  GITHUB_TOKEN  Your GitHub Personal Access Token (required for forking)
+                Can be set via .env file or environment variable
 
 ${styles.bold('Options:')}
   --dry-run     Perform a dry run without making changes
   --verbose     Show detailed output and command execution
   --help, -h    Show this help message
 
+${styles.bold('Setup:')}
+  1. Create .env file with: GITHUB_TOKEN=your_token_here
+  2. Or set environment variable: GITHUB_TOKEN=your_token_here
+
 ${styles.bold('Examples:')}
-  node sync-to-community-projects.js
+  node sync-to-community-projects.js                    (reads from .env)
+  GITHUB_TOKEN=ghp_xxxx node sync-to-community-projects.js
   node sync-to-community-projects.js --dry-run
   node sync-to-community-projects.js --verbose --dry-run
+
+${styles.bold('What this script does:')}
+  1. Forks cortensor/community-projects to your GitHub account
+  2. Creates a dev-jatique branch for development
+  3. Clones your fork and syncs your monorepo to it
+  4. Commits changes and prepares for pull request submission
 `);
         process.exit(0);
     }
